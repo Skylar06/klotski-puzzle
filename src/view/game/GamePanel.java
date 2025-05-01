@@ -15,24 +15,24 @@ import java.util.List;
  * The class contains a grids, which is the corresponding GUI view of the matrix variable in MapMatrix.
  */
 public class GamePanel extends ListenerPanel {
-    private List<BoxComponent> boxes;
-    private MapModel model;
-    private GameController controller;
-    private JLabel stepLabel;
-    private int steps;
-    private final int GRID_SIZE = 50;
-    private BoxComponent selectedBox;
+    private List<BoxComponent> boxes;// 所有方块的集合
+    private MapModel model;// 地图数据模型
+    private GameController controller;// 游戏控制器
+    private JLabel stepLabel;// 步数标签
+    private int steps;// 步数
+    private final int GRID_SIZE = 50;// 网格单元尺寸：每个游戏网格的宽度和高度均为50像素（类似棋盘格的尺寸）
+    private BoxComponent selectedBox;// 当前选中的方块
 
 
     public GamePanel(MapModel model) {
         boxes = new ArrayList<>();
-        this.setVisible(true);
-        this.setFocusable(true);
-        this.setLayout(null);
-        this.setSize(model.getWidth() * GRID_SIZE + 4, model.getHeight() * GRID_SIZE + 4);
+        this.setVisible(true); // 立即显示面板
+        this.setFocusable(true);// 允许接收键盘事件
+        this.setLayout(null);// 绝对定位布局
+        this.setSize(model.getWidth() * GRID_SIZE + 4, model.getHeight() * GRID_SIZE + 4);// 计算画布尺寸
         this.model = model;
         this.selectedBox = null;
-        initialGame();
+        initialGame(); // 初始化游戏元素
     }
 
     /*
@@ -44,7 +44,7 @@ public class GamePanel extends ListenerPanel {
      */
     public void initialGame() {
         this.steps = 0;
-        //copy a map
+        //copy a map 拷贝地图数据
         int[][] map = new int[model.getHeight()][model.getWidth()];
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[0].length; j++) {
@@ -53,23 +53,23 @@ public class GamePanel extends ListenerPanel {
         }
         //build Component
         for (int i = 0; i < map.length; i++) {
-            for (int j = 0; j < map[0].length; j++) {
+            for (int j = 0; j < map[0].length; j++) {// 第一个被读取的一定是左上角的
                 BoxComponent box = null;
-                if (map[i][j] == 1) {
+                if (map[i][j] == 1) {// 1x1 橙色方块
                     box = new BoxComponent(Color.ORANGE, i, j);
                     box.setSize(GRID_SIZE, GRID_SIZE);
                     map[i][j] = 0;
-                } else if (map[i][j] == 2) {
+                } else if (map[i][j] == 2) {// 2x1 粉色横向方块
                     box = new BoxComponent(Color.PINK, i, j);
                     box.setSize(GRID_SIZE * 2, GRID_SIZE);
                     map[i][j] = 0;
-                    map[i][j + 1] = 0;
-                } else if (map[i][j] == 3) {
+                    map[i][j + 1] = 0;// 标记右侧格子为已占用
+                } else if (map[i][j] == 3) {// 1x2 蓝色纵向方块
                     box = new BoxComponent(Color.BLUE, i, j);
                     box.setSize(GRID_SIZE, GRID_SIZE * 2);
                     map[i][j] = 0;
-                    map[i + 1][j] = 0;
-                } else if (map[i][j] == 4) {
+                    map[i + 1][j] = 0;// 标记下方格子为已占用
+                } else if (map[i][j] == 4) {// 2x2 绿色大方块
                     box = new BoxComponent(Color.GREEN, i, j);
                     box.setSize(GRID_SIZE * 2, GRID_SIZE * 2);
                     map[i][j] = 0;
@@ -78,7 +78,7 @@ public class GamePanel extends ListenerPanel {
                     map[i + 1][j + 1] = 0;
                 }
                 if (box != null) {
-                    box.setLocation(j * GRID_SIZE + 2, i * GRID_SIZE + 2);
+                    box.setLocation(j * GRID_SIZE + 2, i * GRID_SIZE + 2);// 定位+2像素边距 让方块之间有间隙（避免紧密贴合）
                     boxes.add(box);
                     this.add(box);
                 }
@@ -91,25 +91,25 @@ public class GamePanel extends ListenerPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.setColor(Color.LIGHT_GRAY);
-        g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        g.fillRect(0, 0, this.getWidth(), this.getHeight());// 填充背景
         Border border = BorderFactory.createLineBorder(Color.DARK_GRAY, 2);
-        this.setBorder(border);
+        this.setBorder(border);// 设置面板边框
     }
 
     @Override
     public void doMouseClick(Point point) {
         Component component = this.getComponentAt(point);
         if (component instanceof BoxComponent clickedComponent) {
-            if (selectedBox == null) {
+            if (selectedBox == null) {// 首次选中
                 selectedBox = clickedComponent;
-                selectedBox.setSelected(true);
-            } else if (selectedBox != clickedComponent) {
-                selectedBox.setSelected(false);
-                clickedComponent.setSelected(true);
+                selectedBox.setSelected(true);// 高亮当前方块
+            } else if (selectedBox != clickedComponent) {// 切换选中
+                selectedBox.setSelected(false); // 取消旧选中
+                clickedComponent.setSelected(true);// 高亮新方块
                 selectedBox = clickedComponent;
-            } else {
-                clickedComponent.setSelected(false);
-                selectedBox = null;
+            } else {// 取消选中
+                clickedComponent.setSelected(false);// 取消高亮
+                selectedBox = null;// 取消高亮
             }
         }
     }
@@ -119,7 +119,7 @@ public class GamePanel extends ListenerPanel {
         System.out.println("Click VK_RIGHT");
         if (selectedBox != null) {
             if (controller.doMove(selectedBox.getRow(), selectedBox.getCol(), Direction.RIGHT)) {
-                afterMove();
+                afterMove();// 移动成功后更新步数
             }
         }
     }
@@ -156,7 +156,7 @@ public class GamePanel extends ListenerPanel {
 
     public void afterMove() {
         this.steps++;
-        this.stepLabel.setText(String.format("Step: %d", this.steps));
+        this.stepLabel.setText(String.format("Step: %d", this.steps));// 每次有效移动后，外部标签显示递增的步数
     }
 
     public void setStepLabel(JLabel stepLabel) {
