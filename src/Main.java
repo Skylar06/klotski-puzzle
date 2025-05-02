@@ -7,7 +7,7 @@ import javax.swing.*;
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {// 确保GUI创建在事件调度线程"EDT"，否则会卡顿
-            LoginFrame loginFrame = new LoginFrame(280, 280);// 创建登录窗口
+            LoginFrame loginFrame = new LoginFrame();// 创建登录窗口
             loginFrame.setVisible(true);// 显示登录窗口
             MapModel mapModel = new MapModel(new int[][]{// 创建游戏地图数据
                     {1, 2, 2, 1},
