@@ -1,5 +1,6 @@
 package view.login;
 
+import view.Language;
 import view.game.GameFrame;
 
 import javax.sound.sampled.AudioInputStream;
@@ -7,8 +8,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -17,7 +17,15 @@ public class LoginFrame extends JFrame {
     private JPasswordField passwordField;
     private JButton submitBtn;
     private JButton resetBtn;
+    private JButton registerBtn;
+    private JButton languageBtn;
+    private JButton guestModeBtn;
     private GameFrame gameFrame;
+    private Language currentLanguage = Language.CHINESE;
+    private JLabel userLabel;  // 用户标签
+    private JLabel passLabel;
+    private static final String USERNAME_PLACEHOLDER = "请输入用户名";
+    private static final String PASSWORD_PLACEHOLDER = "请输入密码";
 
     public LoginFrame() {
         this.setTitle("华容道·登营");
@@ -38,6 +46,14 @@ public class LoginFrame extends JFrame {
         bgPanel.setLayout(new BorderLayout());
         this.setContentPane(bgPanel);
 
+        // 语言按钮 - 右上角图标
+        languageBtn = new JButton("中/En");
+        setupButton(languageBtn);
+        JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        langPanel.setOpaque(false);
+        langPanel.add(languageBtn);
+        bgPanel.add(langPanel, BorderLayout.NORTH);
+
         // 中心面板
         JPanel centerPanel = new JPanel();
         centerPanel.setOpaque(false);
@@ -55,7 +71,7 @@ public class LoginFrame extends JFrame {
             titleLabel.setFont(new Font("Serif", Font.BOLD, 80));  // 备用字体也放大
         }
         titleLabel.setForeground(new Color(80, 40, 0));
-        centerPanel.add(Box.createVerticalStrut(50));  // 标题向下放一点
+        centerPanel.add(Box.createVerticalStrut(20));  // 标题向下放一点
         centerPanel.add(titleLabel);
 
         // 输入表单面板
@@ -69,9 +85,9 @@ public class LoginFrame extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // 标签字体更大
-        JLabel userLabel = new JLabel("丹青名牒：");
+        userLabel = new JLabel("丹青名牒：");
         userLabel.setForeground(new Color(60, 30, 0));
-        JLabel passLabel = new JLabel("玄机密令：");
+        passLabel = new JLabel("玄机密令：");
         passLabel.setForeground(new Color(60, 30, 0));
 
         Font inputFont;
@@ -85,16 +101,63 @@ public class LoginFrame extends JFrame {
         userLabel.setFont(inputFont);
         passLabel.setFont(inputFont);
 
-        // 输入框大小调整和加粗边框
-        usernameField = new JTextField(15);  // 缩短输入框长度
+        // 修改后的构造函数中的输入框初始化部分
+        usernameField = new JTextField(15);
         usernameField.setFont(inputFont);
         usernameField.setBackground(new Color(255, 248, 220));
         usernameField.setBorder(BorderFactory.createLineBorder(new Color(180, 140, 100), 3));  // 边框加粗
+        usernameField.setText(USERNAME_PLACEHOLDER);  // 设置默认提示文字
+        usernameField.setForeground(Color.GRAY);  // 设置提示文字为灰色
 
-        passwordField = new JPasswordField(15);  // 缩短输入框长度
+
+// 为用户名输入框添加 FocusListener
+        usernameField.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (usernameField.getText().equals(USERNAME_PLACEHOLDER)) {
+                    usernameField.setText("");
+                    usernameField.setForeground(Color.BLACK);  // 设置输入文字为黑色
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (usernameField.getText().isEmpty()) {
+                    usernameField.setText(USERNAME_PLACEHOLDER);
+                    usernameField.setForeground(Color.GRAY);  // 恢复提示文字为灰色
+                }
+            }
+        });
+
+        // 修改密码框部分，使用一个文本框来显示提示文字
+        passwordField = new JPasswordField(15);
         passwordField.setFont(inputFont);
         passwordField.setBackground(new Color(255, 248, 220));
         passwordField.setBorder(BorderFactory.createLineBorder(new Color(180, 140, 100), 3));  // 边框加粗
+        passwordField.setEchoChar((char) 0);  // 设置不显示密码内容，显示默认提示文字
+        passwordField.setText(PASSWORD_PLACEHOLDER);  // 设置默认提示文字
+        passwordField.setForeground(Color.GRAY);  // 设置提示文字为灰色
+
+// 为密码输入框添加 FocusListener
+        passwordField.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (new String(passwordField.getPassword()).equals(PASSWORD_PLACEHOLDER)) {
+                    passwordField.setText("");
+                    passwordField.setForeground(Color.BLACK);  // 设置输入文字为黑色
+                    passwordField.setEchoChar('*');  // 开始显示密码字符
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (new String(passwordField.getPassword()).isEmpty()) {
+                    passwordField.setText(PASSWORD_PLACEHOLDER);
+                    passwordField.setForeground(Color.GRAY);  // 恢复提示文字为灰色
+                    passwordField.setEchoChar((char) 0);  // 不显示密码字符，恢复为提示文字
+                }
+            }
+        });
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -109,30 +172,88 @@ public class LoginFrame extends JFrame {
         formPanel.add(passwordField, gbc);
 
         // 按钮区域
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setOpaque(false);
-        centerPanel.add(Box.createVerticalStrut(0));  // 按钮向上放一点
-        centerPanel.add(buttonPanel);
+        JPanel bottomButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        bottomButtonPanel.setOpaque(false);
+        bgPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
 
-        submitBtn = new JButton("登 入");
-        resetBtn = new JButton("清 空");
+        submitBtn = new JButton("登录");
+        resetBtn = new JButton("清空");
+        registerBtn = new JButton("注册");
 
         setupButton(submitBtn);
         setupButton(resetBtn);
+        setupButton(registerBtn);
 
-        buttonPanel.add(submitBtn);
-        buttonPanel.add(Box.createHorizontalStrut(40));
-        buttonPanel.add(resetBtn);
+        bottomButtonPanel.add(registerBtn);
+        bottomButtonPanel.add(submitBtn);
+        bottomButtonPanel.add(resetBtn);
+
+        // 在按钮区域添加游客模式按钮
+        JButton guestModeBtn = new JButton("以游客身份进入");
+        guestModeBtn.setFont(new Font("楷体", Font.PLAIN, 20));
+        guestModeBtn.setForeground(new Color(150, 150, 150)); // 淡灰色
+        guestModeBtn.setBorderPainted(false);
+        guestModeBtn.setContentAreaFilled(false);
+        guestModeBtn.setFocusPainted(false);
+        guestModeBtn.setOpaque(false);
+
+        // 将游客模式按钮放到登录按钮正下方
+        guestModeBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.add(guestModeBtn);
+        centerPanel.add(Box.createVerticalStrut(-10));  // 可选，增加一点底部间距
 
         // 按钮事件
+        // 登录按钮事件（登录动画部分）
+        // 在登录按钮的事件监听器中修改这部分代码
         submitBtn.addActionListener(e -> {
-            System.out.println("Username = " + usernameField.getText());
-            System.out.println("Password = " + new String(passwordField.getPassword()));
-            if (gameFrame != null) {
-                gameFrame.setVisible(true);
-                this.setVisible(false);
-            }
+            JDialog loadingDialog = new JDialog(this, "", true); // 去掉标题（提升美观）
+            loadingDialog.setUndecorated(true); // 隐藏标题栏
+            loadingDialog.setSize(400, 200); // 调整为与 GIF 大小一致
+            loadingDialog.setLocationRelativeTo(this); // 居中显示
+
+            // 加载 GIF
+            ImageIcon loadingGif = new ImageIcon(getClass().getClassLoader().getResource("loading.gif"));
+            JLabel loadingLabel = new JLabel(loadingGif);
+            loadingLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            loadingLabel.setVerticalAlignment(SwingConstants.CENTER);
+
+            // 创建文字标签（直接覆盖在 GIF 上）
+            JLabel textLabel = new JLabel("正在进入战场...");
+            textLabel.setFont(new Font("楷体", Font.BOLD, 20));
+            textLabel.setForeground(new Color(180, 140, 100));
+            textLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            textLabel.setVerticalAlignment(SwingConstants.CENTER);
+
+            // 使用分层面板叠加
+            JLayeredPane layeredPane = new JLayeredPane();
+            layeredPane.setPreferredSize(new Dimension(loadingGif.getIconWidth(), loadingGif.getIconHeight()));
+
+            // 将 loadingLabel 和 textLabel 添加到分层面板，并设置位置居中
+            loadingLabel.setBounds(0, 0, loadingGif.getIconWidth(), loadingGif.getIconHeight());
+            textLabel.setBounds(0, 0, loadingGif.getIconWidth(), loadingGif.getIconHeight());
+
+            layeredPane.add(loadingLabel, JLayeredPane.DEFAULT_LAYER);
+            layeredPane.add(textLabel, JLayeredPane.PALETTE_LAYER);
+
+            // 将分层面板添加到对话框
+            loadingDialog.add(layeredPane, BorderLayout.CENTER);
+
+            // 显示对话框
+            SwingUtilities.invokeLater(() -> loadingDialog.setVisible(true));
+
+            // 延迟关闭
+            Timer timer = new Timer(2000, event -> {
+                loadingDialog.dispose();
+
+                if (gameFrame != null) {
+                    gameFrame.setVisible(true);
+                    this.setVisible(false);
+                }
+            });
+            timer.setRepeats(false);
+            timer.start();
         });
+
 
         resetBtn.addActionListener(e -> {
             usernameField.setText("");
@@ -140,6 +261,56 @@ public class LoginFrame extends JFrame {
         });
 
         this.setVisible(true);
+
+        registerBtn.addActionListener(e -> {
+        new RegisterFrame(); // 你需要自己实现这个窗口
+        this.setVisible(false);
+        });
+
+        languageBtn.addActionListener(e -> {
+            currentLanguage = (currentLanguage == Language.CHINESE) ? Language.ENGLISH : Language.CHINESE;
+            updateLanguageTexts();
+        });
+
+        guestModeBtn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                guestModeBtn.setForeground(new Color(255, 200, 0));  // 改为高亮色
+            }
+
+            public void mouseExited(MouseEvent e) {
+                guestModeBtn.setForeground(new Color(150, 150, 150));  // 恢复默认色
+            }
+
+            public void mousePressed(MouseEvent e) {
+                guestModeBtn.setForeground(new Color(255, 180, 0));  // 按下时的颜色
+                // 触发游客模式登录的逻辑
+                // 你可以在这里调用游客模式逻辑，进入游戏界面
+                if (gameFrame != null) {
+                    gameFrame.setVisible(true);
+                    LoginFrame.this.setVisible(false);
+                }
+            }
+        });
+
+    }
+
+    private void updateLanguageTexts() {
+        if (currentLanguage == Language.CHINESE) {
+            submitBtn.setText("登 入");
+            resetBtn.setText("清 空");
+            registerBtn.setText("注 册");
+            languageBtn.setText("中 / En");
+            // 标签更新请提取为字段 userLabel, passLabel
+            userLabel.setText("丹青名牒：");
+            passLabel.setText("玄机密令：");
+        } else {
+            submitBtn.setText("Login");
+            resetBtn.setText("Clear");
+            registerBtn.setText("Register");
+            languageBtn.setText("En / 中");
+            userLabel.setText("Username:");
+            passLabel.setText("Password:");
+        }
     }
 
     private void setupButton(JButton button) {
@@ -154,27 +325,18 @@ public class LoginFrame extends JFrame {
         Image scaledImage1 = originalIcon1.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
         button.setIcon(new ImageIcon(scaledImage1));
 
-        ImageIcon originalIcon2 = new ImageIcon(getClass().getClassLoader().getResource("btn2.png"));
-        Image scaledImage2 = originalIcon2.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
-
-        ImageIcon originalIcon3 = new ImageIcon(getClass().getClassLoader().getResource("btn3.png"));
-        Image scaledImage3 = originalIcon3.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
-
-        button.setMargin(new Insets(5, 10, 5, 10));
-
-        // 显示按钮文字
+        // 设置按钮文字
         button.setText(button.getText());
         button.setForeground(new Color(60, 30, 0)); // 文字颜色
         button.setHorizontalTextPosition(SwingConstants.CENTER); // 文字居中
-        button.setVerticalTextPosition(SwingConstants.CENTER);  // 文字垂直居中
+        button.setVerticalTextPosition(SwingConstants.CENTER);  // 文字放在图标下方
 
-        button.setPreferredSize(new Dimension(160, 65));
-        button.setMaximumSize(new Dimension(160, 65));
+        button.setPreferredSize(new Dimension(160, 120));  // 增加高度以容纳文字
+        button.setMaximumSize(new Dimension(160, 120));
 
         button.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-
-                button.setIcon(new ImageIcon(scaledImage2));
+                button.setIcon(new ImageIcon(scaledImage1));
             }
 
             public void mouseExited(MouseEvent e) {
@@ -182,12 +344,12 @@ public class LoginFrame extends JFrame {
             }
 
             public void mousePressed(MouseEvent e) {
-                button.setIcon(new ImageIcon(scaledImage3));
+                button.setIcon(new ImageIcon(scaledImage1));
                 playClickSound();
             }
 
             public void mouseReleased(MouseEvent e) {
-                button.setIcon(new ImageIcon(scaledImage2));
+                button.setIcon(new ImageIcon(scaledImage1));
             }
         });
     }
