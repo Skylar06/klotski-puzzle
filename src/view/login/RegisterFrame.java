@@ -32,7 +32,7 @@ public class RegisterFrame extends JFrame {
     public RegisterFrame() {
         this.setTitle("华容道·注册");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.setSize(800, 600);
+        this.setSize(1000, 750);
         this.setLocationRelativeTo(null);
 
         // 背景面板

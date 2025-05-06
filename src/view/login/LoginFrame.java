@@ -30,7 +30,7 @@ public class LoginFrame extends JFrame {
     public LoginFrame() {
         this.setTitle("华容道·登营");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.setSize(800, 600);
+        this.setSize(1000, 750);
         this.setLocationRelativeTo(null);
 
         // 背景面板
