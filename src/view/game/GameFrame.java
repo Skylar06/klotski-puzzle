@@ -35,6 +35,8 @@ public class GameFrame extends JFrame {
         this.stepLabel = FrameUtil.createJLabel(this, "Start", new Font("serif", Font.ITALIC, 22), new Point(gamePanel.getWidth() + 80, 70), 180, 50);
         gamePanel.setStepLabel(stepLabel); // 将标签传递给游戏面板
 
+        gamePanel = new GamePanel(mapModel);
+        add(gamePanel);
 
         // 重启按钮点击事件
         this.restartBtn.addActionListener(e -> {

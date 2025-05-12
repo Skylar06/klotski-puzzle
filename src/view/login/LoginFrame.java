@@ -11,6 +11,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class LoginFrame extends JFrame {
     private JTextField usernameField;

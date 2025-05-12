@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
 import java.net.URL;
+import java.util.Arrays;
 
 public class RegisterFrame extends JFrame {
     private JTextField usernameField;
