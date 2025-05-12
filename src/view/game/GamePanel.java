@@ -39,57 +39,51 @@ public class GamePanel extends ListenerPanel {
                         {1, 2, 2, 1, 1},
                         {3, 4, 4, 2, 2},
                         {3, 4, 4, 1, 0},
-                        {1, 2, 2, 1, 0}
+                        {1, 2, 2, 1, 0},
+                        {1, 1, 1, 1, 1}
      */
     public void initialGame() {
         this.steps = 0;
-        this.removeAll(); // 清除面板上的所有组件
-        boxes.clear(); // 清除方块列表
-
-        // 根据 MapModel 初始化棋盘
+        //copy a map 拷贝地图数据
         int[][] map = new int[model.getHeight()][model.getWidth()];
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[0].length; j++) {
                 map[i][j] = model.getId(i, j);
             }
         }
-
-        // 创建方块
+        //build Component
         for (int i = 0; i < map.length; i++) {
-            for (int j = 0; j < map[0].length; j++) {
+            for (int j = 0; j < map[0].length; j++) {// 第一个被读取的一定是左上角的
                 BoxComponent box = null;
-                if (map[i][j] == 1) { // 1x1 橙色方块
+                if (map[i][j] == 1) {// 1x1 橙色方块
                     box = new BoxComponent(Color.ORANGE, i, j);
                     box.setSize(GRID_SIZE, GRID_SIZE);
                     map[i][j] = 0;
-                } else if (map[i][j] == 2) { // 2x1 粉色横向方块
+                } else if (map[i][j] == 2) {// 2x1 粉色横向方块
                     box = new BoxComponent(Color.PINK, i, j);
                     box.setSize(GRID_SIZE * 2, GRID_SIZE);
                     map[i][j] = 0;
-                    if (j + 1 < map[0].length) map[i][j + 1] = 0;
-                } else if (map[i][j] == 3) { // 1x2 蓝色纵向方块
+                    map[i][j + 1] = 0;// 标记右侧格子为已占用
+                } else if (map[i][j] == 3) {// 1x2 蓝色纵向方块
                     box = new BoxComponent(Color.BLUE, i, j);
                     box.setSize(GRID_SIZE, GRID_SIZE * 2);
                     map[i][j] = 0;
-                    if (i + 1 < map.length) map[i + 1][j] = 0;
-                } else if (map[i][j] == 4) { // 2x2 绿色大方块
+                    map[i + 1][j] = 0;// 标记下方格子为已占用
+                } else if (map[i][j] == 4) {// 2x2 绿色大方块
                     box = new BoxComponent(Color.GREEN, i, j);
                     box.setSize(GRID_SIZE * 2, GRID_SIZE * 2);
                     map[i][j] = 0;
-                    if (i + 1 < map.length) map[i + 1][j] = 0;
-                    if (j + 1 < map[0].length) map[i][j + 1] = 0;
-                    if (i + 1 < map.length && j + 1 < map[0].length) map[i + 1][j + 1] = 0;
+                    map[i + 1][j] = 0;
+                    map[i][j + 1] = 0;
+                    map[i + 1][j + 1] = 0;
                 }
                 if (box != null) {
-                    box.setLocation(j * GRID_SIZE + 2, i * GRID_SIZE + 2);
+                    box.setLocation(j * GRID_SIZE + 2, i * GRID_SIZE + 2);// 定位+2像素边距 让方块之间有间隙（避免紧密贴合）
                     boxes.add(box);
                     this.add(box);
                 }
             }
         }
-
-        // 重新设置步数和标签
-        this.stepLabel.setText(String.format("Step: %d", this.steps));
         this.repaint();
     }
 

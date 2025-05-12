@@ -19,7 +19,7 @@ public class GameFrame extends JFrame {
 
     public GameFrame(int width, int height, MapModel mapModel) {
         // 界面布局
-        this.setTitle("2025 CS109 Project Demo11111111");
+        this.setTitle("2025 CS109 Project Demo");
         this.setLayout(null);// 绝对布局（需手动定位组件）
         this.setSize(width, height);
         gamePanel = new GamePanel(mapModel);// 创建游戏画板
@@ -35,8 +35,6 @@ public class GameFrame extends JFrame {
         this.stepLabel = FrameUtil.createJLabel(this, "Start", new Font("serif", Font.ITALIC, 22), new Point(gamePanel.getWidth() + 80, 70), 180, 50);
         gamePanel.setStepLabel(stepLabel); // 将标签传递给游戏面板
 
-        gamePanel = new GamePanel(mapModel);
-        add(gamePanel);
 
         // 重启按钮点击事件
         this.restartBtn.addActionListener(e -> {
