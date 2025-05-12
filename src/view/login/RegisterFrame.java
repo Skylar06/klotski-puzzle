@@ -238,41 +238,41 @@ public class RegisterFrame extends JFrame {
         } else if (!password.equals(confirmPassword)) {
             JOptionPane.showMessageDialog(this, "密码和确认密码不一致！");
         } else {
-
-            File file = new File("user.txt");
             try {
+                File file = new File("user.txt");
                 boolean userExists = false;
-                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                    String line;
-                    int i = 0;
-                    while ((line = br.readLine()) != null||i==0) {
-                        if (i % 2 == 1 && username.equals(line)) {
-                            userExists = true;
-                            break;
+                // 检查用户名是否存在
+                if (file.exists()) {
+                    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                        String line;
+                        String currentLine;
+                        while ((currentLine = br.readLine()) != null) {
+                            if (currentLine.equals(username)) {
+                                userExists = true;
+                                break;
+                            }
                         }
-                        i++;
                     }
                 }
+
                 if (userExists) {
                     JOptionPane.showMessageDialog(this, "用户名已存在！");
-                    return;
                 } else {
-                    // 使用追加模式(!)打开文件
+                    // 追加写入用户名和密码到文件
                     try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
                         bw.write(username);
-                        bw.newLine(); // 添加换行符分隔用户名和密码
+                        bw.newLine();
                         bw.write(password);
-                        bw.newLine(); // 每行一条数据，便于后续读取
+                        bw.newLine();
                     }
                     JOptionPane.showMessageDialog(this, "注册成功！");
+                    handleBackToLogin();
                 }
             } catch (IOException ex) {
-                ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "注册失败：" + ex.getMessage());
+                ex.printStackTrace();
             }
-            handleBackToLogin();
         }
-
     }
 
     private void handleBackToLogin() {

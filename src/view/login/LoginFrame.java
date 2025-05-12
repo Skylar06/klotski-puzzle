@@ -2,6 +2,7 @@ package view.login;
 
 import view.Language;
 import view.game.GameFrame;
+import view.login.RegisterFrame;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -26,6 +27,7 @@ public class LoginFrame extends JFrame {
     private JLabel passLabel;
     private static final String USERNAME_PLACEHOLDER = "请输入用户名";
     private static final String PASSWORD_PLACEHOLDER = "请输入密码";
+
     public LoginFrame() {
         this.setTitle("华容道·登营");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -188,7 +190,7 @@ public class LoginFrame extends JFrame {
         bottomButtonPanel.add(resetBtn);
 
         // 在按钮区域添加游客模式按钮
-        JButton guestModeBtn = new JButton("以游客身份进入");
+        guestModeBtn = new JButton("以游客身份进入");
         guestModeBtn.setFont(new Font("楷体", Font.PLAIN, 20));
         guestModeBtn.setForeground(new Color(150, 150, 150)); // 淡灰色
         guestModeBtn.setBorderPainted(false);
@@ -203,90 +205,48 @@ public class LoginFrame extends JFrame {
 
         // 按钮事件
         // 登录按钮事件（登录动画部分）
-        // 在登录按钮的事件监听器中修改这部分代码
         submitBtn.addActionListener(e -> {
-            JDialog loadingDialog = new JDialog(this, "", true); // 去掉标题（提升美观）
-            loadingDialog.setUndecorated(true); // 隐藏标题栏
-            loadingDialog.setSize(400, 200); // 调整为与 GIF 大小一致
-            loadingDialog.setLocationRelativeTo(this); // 居中显示
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
 
-            // 加载 GIF
-            ImageIcon loadingGif = new ImageIcon(getClass().getClassLoader().getResource("loading.gif"));
-            JLabel loadingLabel = new JLabel(loadingGif);
-            loadingLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            loadingLabel.setVerticalAlignment(SwingConstants.CENTER);
-
-            // 创建文字标签（直接覆盖在 GIF 上）
-            JLabel textLabel = new JLabel("正在进入战场...");
-            textLabel.setFont(new Font("楷体", Font.BOLD, 20));
-            textLabel.setForeground(new Color(180, 140, 100));
-            textLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            textLabel.setVerticalAlignment(SwingConstants.CENTER);
-
-            // 使用分层面板叠加
-            JLayeredPane layeredPane = new JLayeredPane();
-            layeredPane.setPreferredSize(new Dimension(loadingGif.getIconWidth(), loadingGif.getIconHeight()));
-
-            // 将 loadingLabel 和 textLabel 添加到分层面板，并设置位置居中
-            loadingLabel.setBounds(0, 0, loadingGif.getIconWidth(), loadingGif.getIconHeight());
-            textLabel.setBounds(0, 0, loadingGif.getIconWidth(), loadingGif.getIconHeight());
-
-            layeredPane.add(loadingLabel, JLayeredPane.DEFAULT_LAYER);
-            layeredPane.add(textLabel, JLayeredPane.PALETTE_LAYER);
-
-            // 将分层面板添加到对话框
-            loadingDialog.add(layeredPane, BorderLayout.CENTER);
-
-            // 显示对话框
-            SwingUtilities.invokeLater(() -> loadingDialog.setVisible(true));
-            //读取用户信息
-            File file = new File("user.txt");
-            BufferedReader br = null;
+            boolean loginSuccess = false;
             try {
-                br = new BufferedReader(new FileReader(file));
-            } catch (FileNotFoundException ex) {
-                throw new RuntimeException(ex);
-            }
-            String line;
-            boolean findUsers = false;
-            boolean passwordCorrect = false;
-            try{
-                int i = 0;
-                while ((line=br.readLine())!=null||i==0) {
-                    if (!findUsers&&i%2==1){
-                        if (line.equals(usernameField.getText())){
-                            findUsers = true;
-                        }
-                    }else if(findUsers){
-                        String password = new String(passwordField.getPassword());
-                        if (line.equals(password)){
-                            passwordCorrect = true;
-                        }
-                        break;
-                    }
-                    i++;
+                File file = new File("user.txt");
+                if (!file.exists()) {
+                    JOptionPane.showMessageDialog(LoginFrame.this, "用户文件不存在！");
+                    return;
                 }
-                br.close();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-            if (passwordCorrect){
-                if (gameFrame != null) {
-                    // 延迟关闭
-                    Timer timer = new Timer(2000, event -> {
-                        loadingDialog.dispose();
+
+                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    String currentUsername = null;
+                    String currentPassword = null;
+                    while ((line = br.readLine()) != null) {
+                        if (currentUsername == null) {
+                            currentUsername = line;
+                        } else {
+                            currentPassword = line;
+                            // 验证用户名和密码
+                            if (username.equals(currentUsername) && password.equals(currentPassword)) {
+                                loginSuccess = true;
+                                break;
+                            }
+                            currentUsername = null; // 重置，继续检查下一个用户
+                        }
+                    }
+                }
+
+                if (loginSuccess) {
+                    if (gameFrame != null) {
                         gameFrame.setVisible(true);
                         this.setVisible(false);
-                    });
-                    timer.setRepeats(false);
-                    timer.start();
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "用户名或密码错误！");
                 }
-            }else {
-                if (findUsers){
-                    JOptionPane.showMessageDialog(this,"密码错误");
-                }else{
-                    JOptionPane.showMessageDialog(this,"用户名错误");
-                }
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "登录失败：" + ex.getMessage());
+                ex.printStackTrace();
             }
         });
 

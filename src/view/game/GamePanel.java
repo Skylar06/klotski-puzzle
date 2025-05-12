@@ -53,7 +53,7 @@ public class GamePanel extends ListenerPanel {
         }
         //build Component
         for (int i = 0; i < map.length; i++) {
-            for (int j = 0; j < map[0].length; j++) {// 第一个被读取的一定是左上角的
+            for (int j = 0; j < map[0].length; j++) {
                 BoxComponent box = null;
                 if (map[i][j] == 1) {// 1x1 橙色方块
                     box = new BoxComponent(Color.ORANGE, i, j);
