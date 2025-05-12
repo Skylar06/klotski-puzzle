@@ -34,4 +34,8 @@ public class MapModel {
     public boolean checkInHeightSize(int row) {
         return row >= 0 && row < matrix.length;
     }
+
+    public void setMatrix(int[][] matrix) {
+        this.matrix = matrix;
+    }
 }

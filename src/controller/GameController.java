@@ -5,6 +5,10 @@ import model.MapModel;
 import view.game.BoxComponent;
 import view.game.GamePanel;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * It is a bridge to combine GamePanel(view) and MapMatrix(model) in one game.
  * You can design several methods about the game logic in this class.
@@ -47,4 +51,73 @@ public class GameController {
 
     //todo: add other methods such as loadGame, saveGame...
 
+    private List<Move> moveHistory = new ArrayList<>();
+    public void recordMove(Move move) {
+        moveHistory.add(move);
+    }
+    public void undoLastMove() {
+        if (!moveHistory.isEmpty()) {
+            Move lastMove = moveHistory.remove(moveHistory.size() - 1);
+            model.getMatrix()[lastMove.getFromRow()][lastMove.getFromCol()] = 1;
+            model.getMatrix()[lastMove.getToRow()][lastMove.getToCol()] = 0;
+            BoxComponent box = view.getSelectedBox();
+            box.setRow(lastMove.getFromRow());
+            box.setCol(lastMove.getFromCol());
+            box.setLocation(lastMove.getFromCol() * view.getGRID_SIZE() + 2, lastMove.getFromRow() * view.getGRID_SIZE() + 2);
+            box.repaint();
+            view.steps--;
+            view.stepLabel.setText(String.format("Step: %d", view.steps));
+        }
+    }
+    public static class Move {
+        private int fromRow;
+        private int fromCol;
+        private int toRow;
+        private int toCol;
+
+        public Move(int fromRow, int fromCol, int toRow, int toCol) {
+            this.fromRow = fromRow;
+            this.fromCol = fromCol;
+            this.toRow = toRow;
+            this.toCol = toCol;
+        }
+        public int getFromRow() {
+            return fromRow;
+        }
+
+        public int getFromCol() {
+            return fromCol;
+        }
+
+        public int getToRow() {
+            return toRow;
+        }
+
+        public int getToCol() {
+            return toCol;
+        }
+    }
+    public void loadGame(String path) {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
+            // 加载游戏状态
+            int[][] savedMatrix = (int[][]) in.readObject();
+            int savedSteps = in.readInt();
+            model.setMatrix(savedMatrix);
+            view.steps = savedSteps;
+            view.stepLabel.setText(String.format("Step: %d", view.steps));
+            view.initialGame(); // 重新初始化游戏界面
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    public void saveGame(String path) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path))) {
+            // 保存游戏状态，包括地图和步数
+            out.writeObject(model.getMatrix());
+            out.writeInt(view.steps);
+        } catch (IOException e) {
+            throw new RuntimeException("保存游戏失败", e);
+        }
+    }
 }
+

@@ -11,7 +11,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 
 public class RegisterFrame extends JFrame {
@@ -238,8 +238,41 @@ public class RegisterFrame extends JFrame {
         } else if (!password.equals(confirmPassword)) {
             JOptionPane.showMessageDialog(this, "密码和确认密码不一致！");
         } else {
-            JOptionPane.showMessageDialog(this, "注册成功！");
+
+            File file = new File("user.txt");
+            try {
+                boolean userExists = false;
+                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    int i = 0;
+                    while ((line = br.readLine()) != null||i==0) {
+                        if (i % 2 == 1 && username.equals(line)) {
+                            userExists = true;
+                            break;
+                        }
+                        i++;
+                    }
+                }
+                if (userExists) {
+                    JOptionPane.showMessageDialog(this, "用户名已存在！");
+                    return;
+                } else {
+                    // 使用追加模式(!)打开文件
+                    try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
+                        bw.write(username);
+                        bw.newLine(); // 添加换行符分隔用户名和密码
+                        bw.write(password);
+                        bw.newLine(); // 每行一条数据，便于后续读取
+                    }
+                    JOptionPane.showMessageDialog(this, "注册成功！");
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "注册失败：" + ex.getMessage());
+            }
+            handleBackToLogin();
         }
+
     }
 
     private void handleBackToLogin() {

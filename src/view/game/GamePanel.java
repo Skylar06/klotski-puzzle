@@ -18,8 +18,8 @@ public class GamePanel extends ListenerPanel {
     private List<BoxComponent> boxes;// 所有方块的集合
     private MapModel model;// 地图数据模型
     private GameController controller;// 游戏控制器
-    private JLabel stepLabel;// 步数标签
-    private int steps;// 步数
+    public JLabel stepLabel;// 步数标签
+    public int steps;// 步数
     private final int GRID_SIZE = 50;// 网格单元尺寸：每个游戏网格的宽度和高度均为50像素（类似棋盘格的尺寸）
     private BoxComponent selectedBox;// 当前选中的方块
 
@@ -86,6 +86,7 @@ public class GamePanel extends ListenerPanel {
         }
         this.repaint();
     }
+
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -157,6 +158,21 @@ public class GamePanel extends ListenerPanel {
     public void afterMove() {
         this.steps++;
         this.stepLabel.setText(String.format("Step: %d", this.steps));// 每次有效移动后，外部标签显示递增的步数
+        checkWinCondition();
+    }
+    public void undoMove() {
+        controller.undoLastMove();
+    }
+    private void checkWinCondition() {
+        // 假设出口位置在底部中间，具体位置根据实际地图调整
+        int exitRow = model.getHeight() - 1;
+        int exitCol = model.getWidth() / 2;
+
+        // 检查"曹操"块（假设为2x2的绿色块，值为4）是否到达出口位置
+        if (model.getId(exitRow, exitCol) == 4 && model.getId(exitRow, exitCol + 1) == 4) {
+            JOptionPane.showMessageDialog(this, "恭喜你！成功将曹操移到了出口！");
+            // 可以在这里添加其他胜利后的逻辑，比如记录成绩等
+        }
     }
 
     public void setStepLabel(JLabel stepLabel) {
@@ -175,4 +191,13 @@ public class GamePanel extends ListenerPanel {
     public int getGRID_SIZE() {
         return GRID_SIZE;
     }
+
+    public void loadGame(String path) {
+        controller.loadGame(path);
+    }
+    public void saveGame(String path){
+        controller.saveGame(path);
+    }
 }
+
+

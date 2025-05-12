@@ -9,7 +9,7 @@ import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 
 public class LoginFrame extends JFrame {
@@ -26,7 +26,6 @@ public class LoginFrame extends JFrame {
     private JLabel passLabel;
     private static final String USERNAME_PLACEHOLDER = "请输入用户名";
     private static final String PASSWORD_PLACEHOLDER = "请输入密码";
-
     public LoginFrame() {
         this.setTitle("华容道·登营");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -240,18 +239,55 @@ public class LoginFrame extends JFrame {
 
             // 显示对话框
             SwingUtilities.invokeLater(() -> loadingDialog.setVisible(true));
-
-            // 延迟关闭
-            Timer timer = new Timer(2000, event -> {
-                loadingDialog.dispose();
-
-                if (gameFrame != null) {
-                    gameFrame.setVisible(true);
-                    this.setVisible(false);
+            //读取用户信息
+            File file = new File("user.txt");
+            BufferedReader br = null;
+            try {
+                br = new BufferedReader(new FileReader(file));
+            } catch (FileNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
+            String line;
+            boolean findUsers = false;
+            boolean passwordCorrect = false;
+            try{
+                int i = 0;
+                while ((line=br.readLine())!=null||i==0) {
+                    if (!findUsers&&i%2==1){
+                        if (line.equals(usernameField.getText())){
+                            findUsers = true;
+                        }
+                    }else if(findUsers){
+                        String password = new String(passwordField.getPassword());
+                        if (line.equals(password)){
+                            passwordCorrect = true;
+                        }
+                        break;
+                    }
+                    i++;
                 }
-            });
-            timer.setRepeats(false);
-            timer.start();
+                br.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            if (passwordCorrect){
+                if (gameFrame != null) {
+                    // 延迟关闭
+                    Timer timer = new Timer(2000, event -> {
+                        loadingDialog.dispose();
+                        gameFrame.setVisible(true);
+                        this.setVisible(false);
+                    });
+                    timer.setRepeats(false);
+                    timer.start();
+                }
+            }else {
+                if (findUsers){
+                    JOptionPane.showMessageDialog(this,"密码错误");
+                }else{
+                    JOptionPane.showMessageDialog(this,"用户名错误");
+                }
+            }
         });
 
 
@@ -263,8 +299,8 @@ public class LoginFrame extends JFrame {
         this.setVisible(true);
 
         registerBtn.addActionListener(e -> {
-        new RegisterFrame(); // 你需要自己实现这个窗口
-        this.setVisible(false);
+            new RegisterFrame(); // 你需要自己实现这个窗口
+            this.setVisible(false);
         });
 
         languageBtn.addActionListener(e -> {
@@ -289,6 +325,14 @@ public class LoginFrame extends JFrame {
                     gameFrame.setVisible(true);
                     LoginFrame.this.setVisible(false);
                 }
+            }
+        });
+        guestModeBtn.addActionListener(e -> {
+            // 这里可以添加游客模式逻辑，进入游戏界面
+            if (gameFrame != null) {
+                gameFrame.setVisible(true);
+                gameFrame.setGuestMode(true); // 设置游戏框架为游客模式
+                LoginFrame.this.setVisible(false); // 隐藏登录界面
             }
         });
 
