@@ -52,9 +52,11 @@ public class GameController {
     //todo: add other methods such as loadGame, saveGame...
 
     private List<Move> moveHistory = new ArrayList<>();
+
     public void recordMove(Move move) {
         moveHistory.add(move);
     }
+
     public void undoLastMove() {
         if (!moveHistory.isEmpty()) {
             Move lastMove = moveHistory.remove(moveHistory.size() - 1);
@@ -65,10 +67,11 @@ public class GameController {
             box.setCol(lastMove.getFromCol());
             box.setLocation(lastMove.getFromCol() * view.getGRID_SIZE() + 2, lastMove.getFromRow() * view.getGRID_SIZE() + 2);
             box.repaint();
-            view.steps--;
-            view.stepLabel.setText(String.format("Step: %d", view.steps));
+            view.setSteps(view.getSteps() - 1);
+            view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
         }
     }
+
     public static class Move {
         private int fromRow;
         private int fromCol;
@@ -81,6 +84,7 @@ public class GameController {
             this.toRow = toRow;
             this.toCol = toCol;
         }
+
         public int getFromRow() {
             return fromRow;
         }
@@ -97,24 +101,26 @@ public class GameController {
             return toCol;
         }
     }
+
     public void loadGame(String path) {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
             // 加载游戏状态
             int[][] savedMatrix = (int[][]) in.readObject();
             int savedSteps = in.readInt();
             model.setMatrix(savedMatrix);
-            view.steps = savedSteps;
-            view.stepLabel.setText(String.format("Step: %d", view.steps));
+            view.setSteps(savedSteps);
+            view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
             view.initialGame(); // 重新初始化游戏界面
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
+
     public void saveGame(String path) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path))) {
             // 保存游戏状态，包括地图和步数
             out.writeObject(model.getMatrix());
-            out.writeInt(view.steps);
+            out.writeInt(view.getSteps());
         } catch (IOException e) {
             throw new RuntimeException("保存游戏失败", e);
         }
