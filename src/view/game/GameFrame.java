@@ -19,7 +19,7 @@ public class GameFrame extends JFrame {
 
     public GameFrame(int width, int height, MapModel mapModel) {
         // 界面布局
-        this.setTitle("2025 CS109 Project Demo11111111");
+        this.setTitle("2025 CS109 Project Demo");
         this.setLayout(null);// 绝对布局（需手动定位组件）
         this.setSize(width, height);
         gamePanel = new GamePanel(mapModel);// 创建游戏画板
