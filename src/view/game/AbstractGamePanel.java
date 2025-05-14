@@ -171,7 +171,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     }
 
     // 辅助方法：创建统一样式的标签
-    private JLabel createStyledLabel(String text, String fontName, int fontStyle, int fontSize, Color color) {
+    public JLabel createStyledLabel(String text, String fontName, int fontStyle, int fontSize, Color color) {
         JLabel label = new JLabel(text);
         label.setForeground(color);
         label.setFont(new Font(fontName, fontStyle, fontSize));
