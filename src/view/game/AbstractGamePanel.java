@@ -9,6 +9,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +85,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         return new ImageIcon(url).getImage();
     }
 
-    private void initAllPanels() {
+    public void initAllPanels() {
         // 外框架使用 GridBagLayout 实现更灵活的布局
         outerPanel = new JPanel(new GridBagLayout()) {
             @Override
@@ -122,7 +124,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
 // 创建带样式的标签
         stepLabel = createStyledLabel("步数: 0", "楷体", Font.BOLD, 22, Color.WHITE);
-        timeLabel = createStyledLabel("时间: 00:00", "楷体", Font.BOLD, 22, Color.WHITE);
+        timeLabel = createStyledLabel("时间: 00:00", "楷体", Font.BOLD, 20, Color.WHITE);
 
 // 垂直布局配置
         statusPanel.add(Box.createVerticalGlue());  // 顶部弹性空间
@@ -154,6 +156,9 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         };
         boardPanel.setLayout(null);
         boardPanel.setPreferredSize(new Dimension(450, 360));
+        boardPanel.setFocusable(true);
+        // 新增：添加键盘监听器并请求焦点
+        boardPanel.setFocusable(true);
 
         gbc.gridx = 1;
         gbc.gridy = 0;
@@ -231,28 +236,33 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         revalidate();
         repaint();
 
-        // 新增：添加键盘监听器并请求焦点
-        this.setFocusable(true);
-        this.requestFocusInWindow();
-        this.addKeyListener(new KeyAdapter() {
+        boardPanel.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (selectedBox == null) return;
-                handleKeyPress(e);
-            }
-
-            private void handleKeyPress(KeyEvent e) {
-                Direction direction = null;
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_RIGHT -> direction = Direction.RIGHT;
-                    case KeyEvent.VK_LEFT -> direction = Direction.LEFT;
-                    case KeyEvent.VK_UP -> direction = Direction.UP;
-                    case KeyEvent.VK_DOWN -> direction = Direction.DOWN;
-                }
+                Direction direction = switch (e.getKeyCode()) {
+                    case KeyEvent.VK_LEFT -> Direction.LEFT;
+                    case KeyEvent.VK_RIGHT -> Direction.RIGHT;
+                    case KeyEvent.VK_UP -> Direction.UP;
+                    case KeyEvent.VK_DOWN -> Direction.DOWN;
+                    default -> null;
+                };
                 if (direction != null && controller.doMove(selectedBox.getRow(), selectedBox.getCol(), direction)) {
                     afterMove();
                 }
             }
+        });
+
+        boardPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                boardPanel.requestFocusInWindow();
+            }
+        });
+
+        boardPanel.setFocusable(true);
+        SwingUtilities.invokeLater(() -> {
+            boardPanel.requestFocus(); // 更稳妥
         });
     }
 
@@ -378,5 +388,9 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     public void setSteps(int steps) {
         this.steps = steps;
+    }
+
+    public JLabel getTimeLabel() {
+        return timeLabel;
     }
 }

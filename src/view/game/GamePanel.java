@@ -15,8 +15,11 @@ public class GamePanel extends JPanel {
     public GamePanel(MapModel model) {
         setLayout(new BorderLayout());
 
-        currentPanel = createRandomMode(model);
+        currentPanel =new StoryGamePanel(model);
+//        currentPanel = createRandomMode(model);
         add(currentPanel, BorderLayout.CENTER);
+
+        currentPanel.requestFocusInWindow();
     }
 
     /**
