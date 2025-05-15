@@ -27,13 +27,12 @@ public class GameFrame1 extends JFrame {
     private JButton restartBtn;
     private Language currentLanguage = Language.CHINESE;
     private GameController gameController;
-
-    public GameFrame1(MapModel mapModel,int mode) {
+    public GameFrame1(MapModel mapModel,int mode,GameController gameController) {
         this.setTitle("华容道");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setSize(1000, 750);
         this.setLocationRelativeTo(null);
-
+        this.gameController = gameController;
         // 背景面板
         JPanel bgPanel = new JPanel() {
             Image bg = new ImageIcon(getClass().getClassLoader().getResource("background.gif")).getImage();
@@ -53,6 +52,8 @@ public class GameFrame1 extends JFrame {
 
         // 2. 创建中间容器（标题 + 轮播）
         GamePanel gamePanel = new GamePanel(mapModel,mode);
+        gamePanel.setController(this.gameController);
+        this.gameController.setView(gamePanel);
         gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
         gamePanel.setOpaque(false);
         bgPanel.add(gamePanel, BorderLayout.CENTER);
@@ -198,7 +199,7 @@ public class GameFrame1 extends JFrame {
                 {1, 3, 4, 4, 1},
                 {2, 2, 4, 4, 0}
         });
-        new GameFrame1(mapModel,1);
+        //new GameFrame1(mapModel,1);
     }
 }
 

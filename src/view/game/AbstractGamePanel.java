@@ -322,7 +322,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     public BoxComponent afterMove() {
         this.steps++;
         if (stepLabel != null) stepLabel.setText(String.format("Step: %d", this.steps));
-        updateTimeLabel();
+        //updateTimeLabel();
         checkWinCondition();
         return null;
     }
@@ -332,9 +332,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     }
 
     private void checkWinCondition() {
-        int exitRow = model.getHeight() / 2 - 1 ; // 中间行
-        int exitCol = model.getWidth() - 1;  // 最后一列
-        if (model.getId(exitRow, exitCol) == 4 && model.getId(exitRow, exitCol + 1) == 4) {
+        if (model.getId(1, 4) == 4 && model.getId(2, 4) == 4) {
             JOptionPane.showMessageDialog(this, "恭喜你！成功将曹操移到了出口！");
         }
     }

@@ -32,7 +32,7 @@ public class LevelSelectFrame extends JFrame {
     private int currentCarouselIndex = 1; // 默认显示中间关卡
     private List<String> carouselImages = Arrays.asList("battle.png", "classic.png", "extreme.png");
     private GameController gameController;
-
+    private MapModel model;
     public LevelSelectFrame() {
         this.setTitle("华容道·选择关卡");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -189,16 +189,10 @@ public class LevelSelectFrame extends JFrame {
         confirmBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         confirmBtn.addActionListener(
             e -> {
-                MapModel mapModel = new MapModel(new int[][]{// 创建游戏地图数据
-                        {2, 2, 2, 2, 1},
-                        {1, 3, 2, 2, 0},
-                        {1, 3, 4, 4, 1},
-                        {2, 2, 4, 4, 0}
-                });
                 this.setVisible(false);
-                this.gameController.gameFrame1 = new GameFrame1(mapModel,this.currentCarouselIndex);
+                this.gameController.gameFrame1 = new GameFrame1(this.model,this.currentCarouselIndex,this.gameController);
                 this.gameController.gameFrame1.setVisible(true);
-                this.gameController.gameFrame1.setGameController(this.gameController);
+
             }
         );
         // 添加垂直间距
@@ -416,6 +410,10 @@ public class LevelSelectFrame extends JFrame {
 
     public void setGameController(GameController gameController) {
         this.gameController = gameController;
+    }
+
+    public void setModel(MapModel model) {
+        this.model = model;
     }
 
     public static void main(String[] args) {

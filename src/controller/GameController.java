@@ -63,7 +63,82 @@ public class GameController {
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
                     box.setCol(nextCol);
-                    box.setLocation(box.getCol() * view.getGRID_SIZE() + 2, box.getRow() * view.getGRID_SIZE() + 2);// 计算新坐标
+                    box.setLocation(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());// 计算新坐标
+                    box.repaint();// 重新画出移动后的格子
+                    return true;
+                }
+            }
+        } else if (model.getId(row, col) == 2) {
+            int nextRow = row + direction.getRow();// 计算目标位置
+            int nextCol = col + direction.getCol();
+            if (direction == Direction.RIGHT){
+                nextCol++;
+            }
+            if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)) {// 边界检查
+                if (model.getId(nextRow, nextCol) == 0) {// 边界检查
+                    // 更新模型数据
+                    if (direction == Direction.RIGHT) nextCol--;
+                    model.getMatrix()[row][col] = 0;
+                    model.getMatrix()[row][col+1] = 0;
+                    model.getMatrix()[nextRow][nextCol] = 2;
+                    model.getMatrix()[nextRow][nextCol+1] = 2;
+                    // 更新视图
+                    BoxComponent box = view.getSelectedBox();
+                    box.setRow(nextRow);
+                    box.setCol(nextCol);
+                    box.setLocation(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());// 计算新坐标
+                    box.repaint();// 重新画出移动后的格子
+                    return true;
+                }
+            }
+        }else if (model.getId(row, col) == 3) {
+            int nextRow = row + direction.getRow();// 计算目标位置
+            int nextCol = col + direction.getCol();
+            if (direction == Direction.DOWN){
+                nextRow++;
+            }
+            if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)) {// 边界检查
+                if (model.getId(nextRow, nextCol) == 0) {// 边界检查
+                    // 更新模型数据
+                    if (direction == Direction.DOWN) nextRow--;
+                    model.getMatrix()[row][col] = 0;
+                    model.getMatrix()[row+1][col] = 0;
+                    model.getMatrix()[nextRow][nextCol] = 3;
+                    model.getMatrix()[nextRow+1][nextCol] = 3;
+                    // 更新视图
+                    BoxComponent box = view.getSelectedBox();
+                    box.setRow(nextRow);
+                    box.setCol(nextCol);
+                    box.setLocation(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());// 计算新坐标
+                    box.repaint();// 重新画出移动后的格子
+                    return true;
+                }
+            }
+        }else if (model.getId(row, col) == 4) {
+            int nextRow = row + direction.getRow();// 计算目标位置
+            int nextCol = col + direction.getCol();
+            if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)
+                    &&model.checkInHeightSize(nextRow+1) && model.checkInWidthSize(nextCol)
+                    &&model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol+1)
+                    &&model.checkInHeightSize(nextRow+1) && model.checkInWidthSize(nextCol+1)) {// 边界检查
+                if ((model.getId(nextRow, nextCol) == 0||model.getId(nextRow, nextCol) == 4)
+                &&(model.getId(nextRow+1, nextCol) == 0||model.getId(nextRow+1, nextCol) == 4)
+                &&(model.getId(nextRow, nextCol+1) == 0||model.getId(nextRow, nextCol+1) == 4)
+                &&(model.getId(nextRow+1, nextCol+1) == 0||model.getId(nextRow+1, nextCol+1) == 4)) {// 边界检查
+                    // 更新模型数据
+                    model.getMatrix()[row][col] = 0;
+                    model.getMatrix()[row+1][col] = 0;
+                    model.getMatrix()[row][col+1] = 0;
+                    model.getMatrix()[row+1][col+1] = 0;
+                    model.getMatrix()[nextRow][nextCol] = 4;
+                    model.getMatrix()[nextRow+1][nextCol] = 4;
+                    model.getMatrix()[nextRow][nextCol+1] = 4;
+                    model.getMatrix()[nextRow+1][nextCol+1] = 4;
+                    // 更新视图
+                    BoxComponent box = view.getSelectedBox();
+                    box.setRow(nextRow);
+                    box.setCol(nextCol);
+                    box.setLocation(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());// 计算新坐标
                     box.repaint();// 重新画出移动后的格子
                     return true;
                 }
@@ -71,7 +146,6 @@ public class GameController {
         }
         return false;
     }
-
     //todo: add other methods such as loadGame, saveGame...
 
     private List<Move> moveHistory = new ArrayList<>();
@@ -137,6 +211,10 @@ public class GameController {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setView(GamePanel view) {
+        this.view = view;
     }
 
     public void saveGame(String path) {

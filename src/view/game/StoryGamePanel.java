@@ -98,5 +98,6 @@ public class StoryGamePanel extends AbstractGamePanel {
 
         // 现在才真正初始化游戏和启动计时器
         super.initialGame();
+        super.setController(this.controller);
     }
 }
