@@ -3,7 +3,10 @@ package controller;
 import model.Direction;
 import model.MapModel;
 import view.game.BoxComponent;
+import view.game.GameFrame1;
 import view.game.GamePanel;
+import view.level.select.LevelSelectFrame;
+import view.login.LoginFrame;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -14,18 +17,38 @@ import java.util.List;
  * You can design several methods about the game logic in this class.
  */
 public class GameController {
-    private final GamePanel view;// 持有游戏界面引用
-    private final MapModel model;// 持有数据模型引用
+    public LevelSelectFrame levelSelectFrame;
+    public LoginFrame loginFrame;
+    public GameFrame1 gameFrame1;// 持有游戏界面引用
+    private GamePanel view;
+    private MapModel model;// 持有数据模型引用
 
-    public GameController(GamePanel view, MapModel model) {
-        this.view = view;
+    public GameController( MapModel model,LevelSelectFrame levelSelectFrame,LoginFrame loginFrame) {
         this.model = model;
-        view.setController(this);// 将控制器反向注入视图
+        this.loginFrame = loginFrame;
+        this.levelSelectFrame = levelSelectFrame;
+        this.levelSelectFrame.setGameController(this);
+        this.loginFrame.setGameController(this);
+        this.loginFrame.setLevelSelectFrame(this.levelSelectFrame);
     }
 
     public void restartGame() {
-        System.out.println("Do restart game here");
-    }// 待实现具体逻辑
+        // 重置模型
+        model.setMatrix(new int[][]{
+                {2, 2, 2, 2, 1},
+                {1, 3, 2, 2, 0},
+                {1, 3, 4, 4, 1},
+                {2, 2, 4, 4, 0}
+        }); // 这里替换成初始棋盘数据
+
+        // 清空移动历史
+        moveHistory.clear();
+
+        // 重置视图
+//        view.initialGame(); // 调用视图的初始化方法
+//        view.setSteps(0); // 重置步数
+//        view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
+    }
 
     public boolean doMove(int row, int col, Direction direction) {
         if (model.getId(row, col) == 1) {// 检查当前格子是否有可移动方块
@@ -126,4 +149,3 @@ public class GameController {
         }
     }
 }
-
