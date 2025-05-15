@@ -1,7 +1,10 @@
 package view.login;
 
+import controller.GameController;
 import view.Language;
 import view.game.GameFrame;
+import view.game.GameFrame1;
+import view.level.select.LevelSelectFrame;
 import view.login.RegisterFrame;
 
 import javax.sound.sampled.AudioInputStream;
@@ -23,13 +26,14 @@ public class LoginFrame extends JFrame {
     private JButton registerBtn;
     private JButton languageBtn;
     private JButton guestModeBtn;
-    private GameFrame gameFrame;
+    private GameFrame1 gameFrame;
     private Language currentLanguage = Language.CHINESE;
     private JLabel userLabel;  // 用户标签
     private JLabel passLabel;
     private static final String USERNAME_PLACEHOLDER = "请输入用户名";
     private static final String PASSWORD_PLACEHOLDER = "请输入密码";
-
+    private LevelSelectFrame levelSelectFrame;
+    private GameController gameController;
     public LoginFrame() {
         this.setTitle("华容道·登营");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -239,8 +243,8 @@ public class LoginFrame extends JFrame {
                 }
 
                 if (loginSuccess) {
-                    if (gameFrame != null) {
-                        gameFrame.setVisible(true);
+                    if (levelSelectFrame != null) {
+                        levelSelectFrame.setVisible(true);
                         this.setVisible(false);
                     }
                 } else {
@@ -293,7 +297,7 @@ public class LoginFrame extends JFrame {
             // 这里可以添加游客模式逻辑，进入游戏界面
             if (gameFrame != null) {
                 gameFrame.setVisible(true);
-                gameFrame.setGuestMode(true); // 设置游戏框架为游客模式
+                //gameFrame.setGuestMode(true); // 设置游戏框架为游客模式
                 LoginFrame.this.setVisible(false); // 隐藏登录界面
             }
         });
@@ -372,7 +376,15 @@ public class LoginFrame extends JFrame {
         }
     }
 
-    public void setGameFrame(GameFrame gameFrame) {
+    public void setGameFrame(GameFrame1 gameFrame) {
         this.gameFrame = gameFrame;
+    }
+
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
+    }
+
+    public void setLevelSelectFrame(LevelSelectFrame levelSelectFrame) {
+        this.levelSelectFrame = levelSelectFrame;
     }
 }

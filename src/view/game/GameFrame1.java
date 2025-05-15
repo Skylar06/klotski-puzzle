@@ -1,6 +1,8 @@
 package view.game;
 
+import controller.GameController;
 import model.MapModel;
+import view.FrameUtil;
 import view.Language;
 
 import javax.sound.sampled.AudioInputStream;
@@ -24,8 +26,9 @@ public class GameFrame1 extends JFrame {
     private JButton stopBtn;
     private JButton restartBtn;
     private Language currentLanguage = Language.CHINESE;
+    private GameController gameController;
 
-    public GameFrame1(MapModel mapModel) {
+    public GameFrame1(MapModel mapModel,int mode) {
         this.setTitle("华容道");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setSize(1000, 750);
@@ -49,7 +52,7 @@ public class GameFrame1 extends JFrame {
         bgPanel.add(topPanel, BorderLayout.NORTH);
 
         // 2. 创建中间容器（标题 + 轮播）
-        GamePanel gamePanel = new GamePanel(mapModel);
+        GamePanel gamePanel = new GamePanel(mapModel,mode);
         gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
         gamePanel.setOpaque(false);
         bgPanel.add(gamePanel, BorderLayout.CENTER);
@@ -184,6 +187,10 @@ public class GameFrame1 extends JFrame {
         }
     }
 
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
+    }
+
     public static void main(String[] args) {
         MapModel mapModel = new MapModel(new int[][]{// 创建游戏地图数据
                 {2, 2, 2, 2, 1},
@@ -191,7 +198,7 @@ public class GameFrame1 extends JFrame {
                 {1, 3, 4, 4, 1},
                 {2, 2, 4, 4, 0}
         });
-        new GameFrame1(mapModel);
+        new GameFrame1(mapModel,1);
     }
 }
 

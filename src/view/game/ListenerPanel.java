@@ -33,10 +33,10 @@ public abstract class ListenerPanel extends JPanel {
     // 处理鼠标点击事件
     @Override
     protected void processMouseEvent(MouseEvent e) {
-        super.processMouseEvent(e);
-        if (e.getID() == MouseEvent.MOUSE_CLICKED) {
-            doMouseClick(e.getPoint());// 传递点击坐标
+        if(e.getButton() == MouseEvent.MOUSE_CLICKED) {
+            doMouseClick(e.getPoint());
         }
+        super.processMouseEvent(e);
     }
 
     // 定义抽象方法（由子类实现具体逻辑）

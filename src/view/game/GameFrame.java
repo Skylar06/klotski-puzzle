@@ -22,10 +22,10 @@ public class GameFrame extends JFrame {
         this.setTitle("2025 CS109 Project Demo");
         this.setLayout(null);// 绝对布局（需手动定位组件）
         this.setSize(width, height);
-        gamePanel = new GamePanel(mapModel);// 创建游戏画板
+        gamePanel = new GamePanel(mapModel,1);// 创建游戏画板
         gamePanel.setLocation(30, height / 2 - gamePanel.getHeight() / 2);// 垂直居中
         this.add(gamePanel);// 垂直居中
-        this.controller = new GameController(gamePanel, mapModel);// 垂直居中
+        //this.controller = new GameController(gamePanel, mapModel);// 垂直居中
 
         // 创建重启按钮（右侧间距80像素）
         this.restartBtn = FrameUtil.createButton(this, "Restart", new Point(gamePanel.getWidth() + 80, 120), 80, 50);

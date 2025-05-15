@@ -12,10 +12,10 @@ import java.util.Random;
 public class GamePanel extends JPanel {
     private AbstractGamePanel currentPanel;
 
-    public GamePanel(MapModel model) {
+    public GamePanel(MapModel model,int mode) {
         setLayout(new BorderLayout());
 
-        currentPanel = createRandomMode(model);
+        currentPanel = createRandomMode(model,mode);
         add(currentPanel, BorderLayout.CENTER);
 
         currentPanel.requestFocusInWindow();
@@ -24,12 +24,12 @@ public class GamePanel extends JPanel {
     /**
      * 随机选择一个游戏模式面板
      */
-    private AbstractGamePanel createRandomMode(MapModel model) {
+    private AbstractGamePanel createRandomMode(MapModel model,int m) {
         int mode = new Random().nextInt(3); // 0、1、2 三种模式
-        return switch (mode) {
-            case 0 -> new StoryGamePanel(model);
-            case 1 -> new SkillGamePanel(model);
-            case 2 -> new EffectGamePanel(model);
+        return switch (m) {
+            case 1 -> new StoryGamePanel(model);
+            case 2 -> new SkillGamePanel(model);
+            case 0 -> new EffectGamePanel(model);
             default -> new StoryGamePanel(model); // 兜底
         };
     }
@@ -58,6 +58,10 @@ public class GamePanel extends JPanel {
 
     public BoxComponent getSelectedBox() {
         return currentPanel.getSelectedBox();
+    }
+
+    public BoxComponent afterMove() {
+        return currentPanel.afterMove();
     }
 
     public int getGRID_SIZE() {
@@ -90,4 +94,5 @@ public class GamePanel extends JPanel {
     public AbstractGamePanel getCurrentPanel() {
         return currentPanel;
     }
+
 }

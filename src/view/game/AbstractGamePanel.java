@@ -4,7 +4,6 @@ import controller.GameController;
 import model.Direction;
 import model.MapModel;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -257,19 +256,23 @@ public abstract class AbstractGamePanel extends ListenerPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 boardPanel.requestFocusInWindow();
+                if(e.getButton() == MouseEvent.BUTTON1) {
+                    doMouseClick(e.getPoint());
+                }
             }
         });
 
         boardPanel.setFocusable(true);
         SwingUtilities.invokeLater(() -> {
-            boardPanel.requestFocus(); // 更稳妥
+            boardPanel.requestFocus();
         });
     }
 
     @Override
     public void doMouseClick(Point point) {
         Point p = SwingUtilities.convertPoint(this, point, boardPanel);
-        Component c = boardPanel.getComponentAt(p);
+        System.out.println(point);
+        Component c = boardPanel.getComponentAt(point);
         if (c instanceof BoxComponent clicked) {
             if (selectedBox == null) {
                 selectedBox = clicked;
@@ -316,11 +319,12 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         }
     }
 
-    public void afterMove() {
+    public BoxComponent afterMove() {
         this.steps++;
         if (stepLabel != null) stepLabel.setText(String.format("Step: %d", this.steps));
         updateTimeLabel();
         checkWinCondition();
+        return null;
     }
 
     public void undoMove() {
