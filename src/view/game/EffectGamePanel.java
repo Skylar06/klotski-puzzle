@@ -97,6 +97,7 @@ public class EffectGamePanel extends AbstractGamePanel {
 
         // 现在才真正初始化游戏和启动计时器
         super.initialGame();
+
         startEffect();
     }
 

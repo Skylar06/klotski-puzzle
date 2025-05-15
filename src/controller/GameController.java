@@ -139,6 +139,10 @@ public class GameController {
         }
     }
 
+    public void setView(GamePanel view) {
+        this.view = view;
+    }
+
     public void saveGame(String path) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path))) {
             // 保存游戏状态，包括地图和步数
