@@ -395,4 +395,14 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     public JLabel getTimeLabel() {
         return timeLabel;
     }
+
+    public int getElapsedTime() {
+        return elapsedTime;
+    }
+    public void pauseTimer(){
+        this.timer.stop();
+    }
+    public void restartTimer(){
+        this.timer.start();
+    }
 }

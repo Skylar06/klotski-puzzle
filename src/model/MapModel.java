@@ -5,7 +5,8 @@ package model;
  */
 public class MapModel {
     int[][] matrix;// 二维数组存储地图数据
-
+    public int mode;
+    public String user;
 
     public MapModel(int[][] matrix) {
         this.matrix = matrix;

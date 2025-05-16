@@ -27,6 +27,8 @@ public class GameFrame1 extends JFrame {
     private JButton restartBtn;
     private Language currentLanguage = Language.CHINESE;
     private GameController gameController;
+    private PauseMenuPanel pauseMenuPanel;
+    private GamePanel gamePanel;
     public GameFrame1(MapModel mapModel,int mode,GameController gameController) {
         this.setTitle("华容道");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -51,7 +53,7 @@ public class GameFrame1 extends JFrame {
         bgPanel.add(topPanel, BorderLayout.NORTH);
 
         // 2. 创建中间容器（标题 + 轮播）
-        GamePanel gamePanel = new GamePanel(mapModel,mode);
+        this.gamePanel = new GamePanel(mapModel,mode);
         gamePanel.setController(this.gameController);
         this.gameController.setView(gamePanel);
         gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
@@ -82,7 +84,15 @@ public class GameFrame1 extends JFrame {
         languageBtn = new JButton("中/En");
         setupButton(languageBtn);
         langPanel.add(languageBtn);
-
+        stopBtn.addActionListener(e -> {
+            int min = this.gamePanel.getCurrentPanel().getElapsedTime()/60;
+            int seconds = this.gamePanel.getCurrentPanel().getElapsedTime()%60;
+            String time = String.format("%02d:%02d", min, seconds);
+            this.pauseMenuPanel = new PauseMenuPanel(time,String.format("%d",this.gamePanel.getCurrentPanel().steps));
+            this.pauseMenuPanel.setGameController(this.gameController);
+            this.pauseMenuPanel.setVisible(true);
+            this.gameController.pauseTimer();
+        });
         languageBtn.addActionListener(e -> {
             currentLanguage = (currentLanguage == Language.CHINESE) ? Language.ENGLISH : Language.CHINESE;
             updateLanguageTexts();
