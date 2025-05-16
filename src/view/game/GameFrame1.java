@@ -169,7 +169,7 @@ public class GameFrame1 extends JFrame {
             int min = this.gamePanel.getCurrentPanel().getElapsedTime()/60;
             int seconds = this.gamePanel.getCurrentPanel().getElapsedTime()%60;
             String time = String.format("%02d:%02d", min, seconds);
-            this.pauseMenuPanel = new PauseMenuPanel(time,String.format("%d",this.gamePanel.getCurrentPanel().steps));
+            this.pauseMenuPanel = new PauseMenuPanel(time,String.format("%d",this.gamePanel.getCurrentPanel().steps),currentLanguage);
             this.pauseMenuPanel.setGameController(this.gameController);
             this.pauseMenuPanel.setVisible(true);
             this.gameController.pauseTimer();
