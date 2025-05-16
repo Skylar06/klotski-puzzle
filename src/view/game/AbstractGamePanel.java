@@ -23,7 +23,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     protected GameController controller;
     protected JLabel stepLabel;
     protected int steps = 0;
-    private JLabel timeLabel;
+    public JLabel timeLabel;
     private Timer timer;
     private int elapsedTime = 0;
     protected final int GRID_SIZE = 90;
