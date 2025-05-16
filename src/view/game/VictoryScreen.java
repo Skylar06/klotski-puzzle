@@ -1,7 +1,6 @@
 package view.game;
 
 import view.Language;
-import view.login.LoginFrame;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -12,10 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.net.URL;
 
 public class VictoryScreen extends JFrame {
@@ -34,7 +29,7 @@ public class VictoryScreen extends JFrame {
     // 背景图片
     private ImageIcon backgroundImage = new ImageIcon(getClass().getClassLoader().getResource("victory_bg.gif"));
 
-    public VictoryScreen(int score, String fastestTime, String leastMoves,Language currentLanguage) {
+    public VictoryScreen(int score, String time, String moves, String fastestTime, String leastMoves,Language currentLanguage) {
         // 设置主窗口
         setSize(600, 410);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -93,6 +88,17 @@ public class VictoryScreen extends JFrame {
         scoreValuePanel.add(scoreLabel);
 
         // 显示最快通关
+        JPanel timeValuePanel = new JPanel();
+        timeValuePanel.setLayout(new GridLayout(2, 1)); // 最快通关部分上下排
+        timeValuePanel.setOpaque(false);
+        JLabel timeTextLabel = new JLabel((currentLanguage == Language.CHINESE)?"用时":"Time", JLabel.CENTER);
+        timeTextLabel.setFont(new Font("楷体", Font.PLAIN, 20));
+        JLabel timeValueLabel = new JLabel(time, JLabel.CENTER);
+        timeValueLabel.setFont(new Font("楷体", Font.PLAIN, 20));
+        timeValuePanel.add(timeTextLabel);
+        timeValuePanel.add(timeValueLabel);
+
+        // 显示最快通关
         JPanel fastestValuePanel = new JPanel();
         fastestValuePanel.setLayout(new GridLayout(2, 1)); // 最快通关部分上下排
         fastestValuePanel.setOpaque(false);
@@ -102,6 +108,16 @@ public class VictoryScreen extends JFrame {
         fastestTimeValueLabel.setFont(new Font("楷体", Font.PLAIN, 20));
         fastestValuePanel.add(fastestTimeTextLabel);
         fastestValuePanel.add(fastestTimeValueLabel);
+
+        JPanel movesValuePanel = new JPanel();
+        movesValuePanel.setLayout(new GridLayout(2, 1)); // 最少步数部分上下排
+        movesValuePanel.setOpaque(false);
+        JLabel movesTextLabel = new JLabel((currentLanguage == Language.CHINESE)?"步数":"Steps", JLabel.CENTER);
+        movesTextLabel.setFont(new Font("楷体", Font.PLAIN, 20));
+        JLabel movesValueLabel = new JLabel(moves, JLabel.CENTER);
+        movesValueLabel.setFont(new Font("楷体", Font.PLAIN, 20));
+        movesValuePanel.add(movesTextLabel);
+        movesValuePanel.add(movesValueLabel);
 
         // 显示最少步数
         JPanel leastValuePanel = new JPanel();
@@ -116,11 +132,13 @@ public class VictoryScreen extends JFrame {
 
         // 将三个部分添加到scorePanel
         JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 80, 45));  // 横向排布，适当间距
+        infoPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 40, 45));  // 横向排布，适当间距
         infoPanel.setOpaque(false);
+        infoPanel.add(timeValuePanel);
         infoPanel.add(fastestValuePanel);
         infoPanel.add(scoreValuePanel);
         infoPanel.add(leastValuePanel);
+        infoPanel.add(movesValuePanel);
 
         // 按钮区域
         // 创建一个BoxPanel，用BoxLayout布局，垂直排列组件
@@ -297,7 +315,7 @@ public class VictoryScreen extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                VictoryScreen victoryScreen = new VictoryScreen(1000, "2:30", "25步",Language.ENGLISH);
+                VictoryScreen victoryScreen = new VictoryScreen(1000,"2:30", "25步", "2:30", "25步",Language.ENGLISH);
                 victoryScreen.setVisible(true);
             }
         });
