@@ -1,14 +1,16 @@
 package view.game;
 
 import model.MapModel;
+import view.Language;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class EffectGamePanel extends AbstractGamePanel {
-
-    private static final String Effect_TEXT = "当前关卡特效：\n缓慢移动";
+    private boolean isEffectCompleted = false;
+    private static String EFFECT_TEXT = "当前关卡特效：\n缓慢移动";
 
     public EffectGamePanel(MapModel model) {
         super(model);
@@ -41,8 +43,8 @@ public class EffectGamePanel extends AbstractGamePanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (index < Effect_TEXT.length()) {
-                    String currentText = Effect_TEXT.substring(0, index + 1);
+                if (index < EFFECT_TEXT.length()) {
+                    String currentText = EFFECT_TEXT.substring(0, index + 1);
                     storyPane.setText(currentText);
                     index++;
                 } else {
@@ -55,6 +57,73 @@ public class EffectGamePanel extends AbstractGamePanel {
                             switchToGamePanel();
                         }
                     });
+                    stopTimer.setRepeats(false);
+                    stopTimer.start();
+                }
+            }
+        });
+        storyTimer.start();
+    }
+
+    @Override
+    public void updateLanguageTexts(Language currentLanguage) {
+        updateCommonLabels(currentLanguage);
+        // 根据语言设置剧情文本
+        EFFECT_TEXT = getEffectTextByLanguage(currentLanguage);
+
+        // 如果状态面板当前显示剧情，则更新剧情文本
+        if (statusPanel != null && /* 判断当前是否显示剧情界面，或者用一个标志 */ true) {
+            showEffectTextWithTypingEffect();
+            switchToGamePanel();
+        }
+
+        int minutes = elapsedTime / 60;
+        int seconds = elapsedTime % 60;
+        String prefix = currentLanguage == Language.CHINESE ? "时间: " : "Time: ";
+
+        // 更新步数标签、时间标签的文本
+        stepLabel.setText((currentLanguage == Language.CHINESE ? "步数：" : "Steps: ") + steps);
+        timeLabel.setText(String.format("%s%02d:%02d", prefix, minutes, seconds));
+        // 其他可能存在的文本也要更新...
+    }
+
+    private String getEffectTextByLanguage(Language language) {
+        switch (language) {
+            case ENGLISH:
+                return "Current Level Effect:\nSlow Movement";
+            case CHINESE:
+            default:
+                return "当前关卡特效：\n缓慢移动";
+        }
+    }
+
+    private void showEffectTextWithTypingEffect() {
+        statusPanel.removeAll();
+        statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.Y_AXIS));
+        statusPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // 添加边距
+
+        JTextPane storyPane = createStyledTextPane("", "楷体", Font.BOLD, 16, Color.WHITE);
+
+        statusPanel.add(Box.createVerticalGlue());
+        statusPanel.add(storyPane);
+        statusPanel.add(Box.createVerticalGlue());
+
+        statusPanel.revalidate();
+        statusPanel.repaint();
+
+        Timer storyTimer = new Timer(100, new ActionListener() {
+            int index = 0;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (index < EFFECT_TEXT.length()) {
+                    String currentText = EFFECT_TEXT.substring(0, index + 1);
+                    storyPane.setText(currentText);
+                    index++;
+                } else {
+                    ((Timer) e.getSource()).stop();
+
+                    Timer stopTimer = new Timer(2000, e2 -> switchToGamePanel());
                     stopTimer.setRepeats(false);
                     stopTimer.start();
                 }
@@ -97,7 +166,8 @@ public class EffectGamePanel extends AbstractGamePanel {
 
         // 现在才真正初始化游戏和启动计时器
         super.initialGame();
-
+        super.setController(this.controller);
+        isEffectCompleted = true;
         startEffect();
     }
 

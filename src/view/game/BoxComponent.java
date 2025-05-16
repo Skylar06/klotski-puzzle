@@ -5,38 +5,47 @@ import javax.swing.border.Border;
 import java.awt.*;
 
 public class BoxComponent extends JComponent {
-    private Color color;// 方块颜色
     private int row;
     private int col;// 在网格中的行列位置
     private boolean isSelected;// 选中状态
+    private int type; // 类型：1-4，用于判断是哪种方块（如横2、竖2、大方块等）
+    private static String currentSkin = "classic"; // 当前皮肤，默认是古风
 
+    private static final int BORDER_WIDTH_SELECTED = 3;
+    private static final int BORDER_WIDTH_DEFAULT = 1;
 
-    public BoxComponent(Color color, int row, int col) {
-        this.color = color;
+    public BoxComponent(int type, int row, int col) {
+        this.type = type;
         this.row = row;
         this.col = col;
-        isSelected = false;
+        this.isSelected = false;
+        setOpaque(false); // 让背景透明，便于绘图
     }
 
     @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);// 调用父类绘制（清空背景）
-        // 绘制纯色背景
-        g.setColor(color);
-        g.fillRect(0, 0, getWidth(), getHeight());
-        // 根据选中状态设置边框
-        Border border;
-        if (isSelected) {
-            border = BorderFactory.createLineBorder(Color.red, 3);// 选中时红色粗边框
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        // 加载皮肤图片
+        Image skinImage = SkinManager.getBoxImage(currentSkin, type);
+        if (skinImage != null) {
+            g.drawImage(skinImage, 0, 0, getWidth(), getHeight(), this);
         } else {
-            border = BorderFactory.createLineBorder(Color.DARK_GRAY, 1);// 默认灰色细边框
+            // 如果没图片，就用默认色块
+            g.setColor(Color.LIGHT_GRAY);
+            g.fillRect(0, 0, getWidth(), getHeight());
         }
+
+        // 设置边框
+        Border border = isSelected ?
+                BorderFactory.createLineBorder(Color.RED, BORDER_WIDTH_SELECTED) :
+                BorderFactory.createLineBorder(Color.DARK_GRAY, BORDER_WIDTH_DEFAULT);
         this.setBorder(border);
     }
 
     public void setSelected(boolean selected) {
         isSelected = selected;
-        this.repaint();// 触发重绘以更新边框样式
+        this.repaint();
     }
 
     public int getRow() {
@@ -53,5 +62,17 @@ public class BoxComponent extends JComponent {
 
     public void setCol(int col) {
         this.col = col;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public static void setCurrentSkin(String skinName) {
+        currentSkin = skinName;
+    }
+
+    public static String getCurrentSkin() {
+        return currentSkin;
     }
 }

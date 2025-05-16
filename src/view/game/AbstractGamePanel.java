@@ -3,6 +3,7 @@ package view.game;
 import controller.GameController;
 import model.Direction;
 import model.MapModel;
+import view.Language;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,11 +26,13 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     protected int steps = 0;
     public JLabel timeLabel;
     private Timer timer;
-    private int elapsedTime = 0;
+    protected int elapsedTime = 0;
     protected final int GRID_SIZE = 90;
     protected BoxComponent selectedBox = null;
     private final int INITIAL_WIDTH = 1000;
     private final int INITIAL_HEIGHT = 750;
+    private JButton skinToggleBtn;
+    private int skillCount = 0;
 
     protected JPanel boardPanel;   // 棋盘区域
     protected JPanel statusPanel;  // 状态区域（剧情）
@@ -40,6 +43,15 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     private Image statusBg;
     private Image skillBg;
     private Image globalBg;
+
+    private JLabel[] skillLabels = new JLabel[4];
+    private final String[] skillNames = {"破阵", "摘星", "风云", "无常"};
+    private final String[] iconPaths = {
+            "skill_remove.png",
+            "skill_highlight.png",
+            "skill_shuffle.png",
+            "skill_random.png"
+    };
 
 
     public AbstractGamePanel(MapModel model) {
@@ -52,10 +64,6 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
         loadBackgrounds();
         initAllPanels();
-
-        // 初始化计时器（1秒触发一次）
-        timer = new Timer(1000, e -> updateTimeLabel());
-        timer.start(); // 关键：启动计时器
 
         initialGame();
     }
@@ -139,7 +147,16 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         skillPanel = new BackgroundPanel(skillBg);
         skillPanel.setPreferredSize(new Dimension(200, 200));
         skillPanel.setMaximumSize(new Dimension(200, 200));
+        skillPanel.setLayout(new GridLayout(2, 2, 5, 5));  // 四宫格布局
+        for (int i = 0; i < 4; i++) {
+            String skillName = skillNames[i];
+            String iconPath = iconPaths[i];
+            JPanel buttonPanel = createSkillButton(skillName, iconPath);  // 修改返回类型为 JPanel
+            skillPanel.add(buttonPanel);
+        }
+
         leftPanel.add(skillPanel);
+        leftPanel.add(Box.createRigidArea(new Dimension(0, 20))); // 间距
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -167,6 +184,179 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
         setPreferredSize(new Dimension(900, 600));
         setMaximumSize(new Dimension(900, 600));
+
+        String[] skinList = SkinManager.getAvailableSkins();
+        int[] currentSkinIndex = {0};
+
+        skinToggleBtn = new JButton("当前皮肤：" + skinList[currentSkinIndex[0]]);
+        skinToggleBtn.setFont(new Font("楷体", Font.PLAIN, 15));
+        skinToggleBtn.setForeground(new Color(255, 248, 220)); // 淡灰色
+        skinToggleBtn.setBorderPainted(false);
+        skinToggleBtn.setContentAreaFilled(false);
+        skinToggleBtn.setFocusPainted(false);
+        skinToggleBtn.setOpaque(false);
+
+
+        skinToggleBtn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                skinToggleBtn.setForeground(new Color(250, 250, 0));  // 改为高亮色
+            }
+
+            public void mouseExited(MouseEvent e) {
+                skinToggleBtn.setForeground(new Color(255, 248, 220));  // 恢复默认色
+            }
+
+            public void mousePressed(MouseEvent e) {
+                skinToggleBtn.setForeground(new Color(255, 180, 0));  // 按下时的颜色
+                // 切换到下一个皮肤
+                currentSkinIndex[0] = (currentSkinIndex[0] + 1) % skinList.length;
+                String newSkin = skinList[currentSkinIndex[0]];
+                BoxComponent.setCurrentSkin(newSkin);
+                skinToggleBtn.setText("当前皮肤：" + newSkin);
+
+                // 刷新所有 BoxComponent（假设你有 boardPanel 或类似容器）
+                boardPanel.repaint(); // 或者你可以遍历所有 box：box.repaint()
+
+                System.out.println("切换皮肤：" + newSkin);
+            }
+        });
+        skinToggleBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        leftPanel.add(skinToggleBtn, BorderLayout.SOUTH);
+
+    }
+
+    public void updateCommonLabels(Language currentLanguage) {
+        if (currentLanguage == Language.CHINESE) {
+            skinToggleBtn.setText("当前皮肤：" + BoxComponent.getCurrentSkin());
+            updateSkillLabels(Language.CHINESE);
+        } else { // English
+            skinToggleBtn.setText("Current Skin: " + BoxComponent.getCurrentSkin());
+            updateSkillLabels(Language.ENGLISH);
+        }
+        int minutes = elapsedTime / 60;
+        int seconds = elapsedTime % 60;
+        String prefix = currentLanguage == Language.CHINESE ? "时间: " : "Time: ";
+
+        // 更新步数标签、时间标签的文本
+        stepLabel.setText((currentLanguage == Language.CHINESE ? "步数：" : "Steps: ") + steps);
+        timeLabel.setText(String.format("%s%02d:%02d", prefix, minutes, seconds));
+    }
+
+    public void updateSkillLabels(Language language) {
+        for (int i = 0; i < skillLabels.length; i++) {
+            String key = skillNames[i];
+            String text = (language == Language.CHINESE)
+                    ? getChineseSkillName(key)
+                    : getEnglishSkillName(key);
+            skillLabels[i].setText(text);
+        }
+    }
+
+    // 辅助方法：获取对应语言的技能名称
+    private String getChineseSkillName(String key) {
+        switch (key) {
+            case "破阵": return "破阵";
+            case "摘星": return "摘星";
+            case "风云": return "风云";
+            case "无常": return "无常";
+            default: return key;
+        }
+    }
+
+    private String getEnglishSkillName(String key) {
+        switch (key) {
+            case "破阵": return "Remove";
+            case "摘星": return "Highlight";
+            case "风云": return "Shuffle";
+            case "无常": return "Random";
+            default: return key;
+        }
+    }
+    public abstract void updateLanguageTexts(Language currentLanguage) ;
+
+    private JPanel createSkillButton(String text, String iconPath) {
+        JButton button = new JButton();
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setOpaque(false);
+
+        // 图标加载
+        ImageIcon icon = loadIcon(iconPath);
+        button.setIcon(icon);
+
+        // 文字标签
+        JLabel textLabel = new JLabel(text, SwingConstants.CENTER);
+        textLabel.setFont(new Font("楷体", Font.BOLD, 20));
+        textLabel.setForeground(Color.WHITE);
+        textLabel.setVisible(false);
+        textLabel.setOpaque(false);
+        skillLabels[skillCount] = textLabel;
+        skillCount++;
+
+        // 覆盖层式布局
+        JPanel layered = new JPanel(new BorderLayout());
+        layered.setOpaque(false);
+        layered.add(button, BorderLayout.CENTER);
+        layered.add(textLabel, BorderLayout.SOUTH);
+
+        // 悬停效果切换
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setIcon(null);
+                textLabel.setVisible(true);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setIcon(icon);
+                textLabel.setVisible(false);
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleSkill(text); // 根据文字触发技能
+            }
+        });
+
+        return wrapWithPanel(layered);  // 返回 JPanel
+    }
+
+    private void handleSkill(String skillName) {
+        switch (skillName) {
+            case "消除" -> System.out.println("触发技能：消除");
+            case "高亮" -> System.out.println("触发技能：高亮可移动");
+            case "打乱" -> System.out.println("触发技能：重新打乱");
+            case "随机" -> {
+                int idx = (int) (Math.random() * 3);
+                handleSkill(skillNames[idx]);
+            }
+        }
+    }
+
+    private ImageIcon loadIcon(String path) {
+        try {
+            var url = getClass().getClassLoader().getResource(path);
+            if (url != null) {
+                Image image = new ImageIcon(url).getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
+                return new ImageIcon(image);
+            } else {
+                System.err.println("找不到图标: " + path);
+                return null;
+            }
+        } catch (Exception e) {
+            System.err.println("图标加载失败: " + path);
+            return null;
+        }
+    }
+
+    // 包装按钮为一个透明面板，方便布局与美观
+    private JPanel wrapWithPanel(JComponent comp) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(false);
+        panel.add(comp, BorderLayout.CENTER);
+        return panel;
     }
 
     // 辅助方法：创建统一样式的标签
@@ -204,21 +394,21 @@ public abstract class AbstractGamePanel extends ListenerPanel {
                 BoxComponent box = null;
                 switch (map[i][j]) {
                     case 1 -> {
-                        box = new BoxComponent(Color.ORANGE, i, j);
+                        box = new BoxComponent(1, i, j);
                         box.setSize(GRID_SIZE, GRID_SIZE);
                     }
                     case 2 -> {
-                        box = new BoxComponent(Color.PINK, i, j);
+                        box = new BoxComponent(2, i, j);
                         box.setSize(GRID_SIZE * 2, GRID_SIZE);
                         map[i][j + 1] = 0;
                     }
                     case 3 -> {
-                        box = new BoxComponent(Color.BLUE, i, j);
+                        box = new BoxComponent(3, i, j);
                         box.setSize(GRID_SIZE, GRID_SIZE * 2);
                         map[i + 1][j] = 0;
                     }
                     case 4 -> {
-                        box = new BoxComponent(Color.GREEN, i, j);
+                        box = new BoxComponent(4, i, j);
                         box.setSize(GRID_SIZE * 2, GRID_SIZE * 2);
                         map[i + 1][j] = map[i][j + 1] = map[i + 1][j + 1] = 0;
                     }
@@ -266,6 +456,11 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         SwingUtilities.invokeLater(() -> {
             boardPanel.requestFocus();
         });
+
+
+        // 初始化计时器（1秒触发一次）
+        timer = new Timer(1000, e -> updateTimeLabel());
+        timer.start(); // 关键：启动计时器
     }
 
     @Override

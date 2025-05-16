@@ -1,6 +1,7 @@
 package view.game;
 
 import model.MapModel;
+import view.Language;
 import view.game.AbstractGamePanel;
 
 import javax.swing.*;
@@ -40,6 +41,19 @@ public class TimeLimitGamePanel extends AbstractGamePanel {
         statusPanel.add(countdownLabel, insertIndex);
         statusPanel.revalidate();
         statusPanel.repaint();
+    }
+
+    @Override
+    public void updateLanguageTexts(Language currentLanguage) {
+        updateCommonLabels(currentLanguage);
+        // 更新步数标签、时间标签的文本
+        int minutes = elapsedTime / 60;
+        int seconds = elapsedTime % 60;
+        String prefix = currentLanguage == Language.CHINESE ? "剩余: " : "Remaining: ";
+
+        // 更新步数标签、时间标签的文本
+        stepLabel.setText((currentLanguage == Language.CHINESE ? "步数：" : "Steps: ") + steps);
+        timeLabel.setText(String.format("%s%02d:%02d", prefix, minutes, seconds));
     }
 
     private void startCountdown() {

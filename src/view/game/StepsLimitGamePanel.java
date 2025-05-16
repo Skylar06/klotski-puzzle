@@ -1,6 +1,7 @@
 package view.game;
 
 import model.MapModel;
+import view.Language;
 
 import javax.swing.*;
 import java.awt.*;
@@ -56,6 +57,19 @@ public class StepsLimitGamePanel extends AbstractGamePanel {
         }
 
         return result; // 返回父类方法的返回值
+    }
+
+    @Override
+    public void updateLanguageTexts(Language currentLanguage) {
+        updateCommonLabels(currentLanguage);
+        int minutes = elapsedTime / 60;
+        int seconds = elapsedTime % 60;
+        String prefix = currentLanguage == Language.CHINESE ? "时间: " : "Time: ";
+
+        // 更新步数标签、时间标签的文本
+        stepLabel.setText((currentLanguage == Language.CHINESE ? "剩余：" : "Remaining: ") + steps);
+        timeLabel.setText(String.format("%s%02d:%02d", prefix, minutes, seconds));
+        // 其他可能存在的文本也要更新...
     }
 
     private void updateRemainingStepsLabel() {

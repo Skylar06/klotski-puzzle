@@ -2,29 +2,26 @@ package view.game;
 
 import controller.GameController;
 import model.MapModel;
-import view.FrameUtil;
 import view.Language;
+import view.game.SkinManager;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.InputStream;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 
 public class GameFrame1 extends JFrame {
     private JButton languageBtn;
     private JButton helpBtn;
     private JButton stopBtn;
     private JButton restartBtn;
+    private JButton undoBtn;
+    private JButton skinToggleBtn;
     private Language currentLanguage = Language.CHINESE;
     private GameController gameController;
     private PauseMenuPanel pauseMenuPanel;
@@ -74,9 +71,11 @@ public class GameFrame1 extends JFrame {
         helpBtn = createHoverButton("help.png", "帮助");
         restartBtn = createHoverButton("restart.png", "重启");
         stopBtn = createHoverButton("stop.png", "暂停");
+        undoBtn = createHoverButton("undo.png", "撤销");
         iconPanel.add(helpBtn);
         iconPanel.add(restartBtn);
         iconPanel.add(stopBtn);
+        iconPanel.add(undoBtn);
 
         // 右侧语言按钮
         JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -110,8 +109,8 @@ public class GameFrame1 extends JFrame {
             public void mouseEntered(MouseEvent e) {
                 button.setIcon(null);
                 button.setText("<html><center>" + text + "</center></html>");
-                button.setFont(new Font("宋体", Font.BOLD, 12));
-                button.setForeground(Color.YELLOW);
+                button.setFont(new Font("楷体", Font.BOLD, 12));
+                button.setForeground(Color.BLACK);
             }
 
             @Override
@@ -140,12 +139,12 @@ public class GameFrame1 extends JFrame {
             return new JButton(tooltip);
         }
         ImageIcon originalIcon = new ImageIcon(iconURL);
-        Image scaledImage = originalIcon.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH); // 控制大小
+        Image scaledImage = originalIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH); // 控制大小
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
 
         JButton button = new JButton(scaledIcon);
         button.setToolTipText(tooltip);
-        button.setPreferredSize(new Dimension(40, 40)); // 设置大小，避免撑开
+        button.setPreferredSize(new Dimension(50, 50)); // 设置大小，避免撑开
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setFocusPainted(false);
@@ -196,6 +195,10 @@ public class GameFrame1 extends JFrame {
         } else {
             languageBtn.setText("En / 中");
         }
+
+        if (gamePanel != null) {
+            gamePanel.updateLanguageTexts(currentLanguage);
+        }
     }
 
     public void setGameController(GameController gameController) {
@@ -209,7 +212,7 @@ public class GameFrame1 extends JFrame {
                 {1, 3, 4, 4, 1},
                 {2, 2, 4, 4, 0}
         });
-        //new GameFrame1(mapModel,1);
+//        new GameFrame1(mapModel,1);
     }
 }
 
