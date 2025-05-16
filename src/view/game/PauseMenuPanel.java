@@ -16,8 +16,8 @@ import java.net.URL;
 public class PauseMenuPanel extends JFrame {
     private JPanel pasuePanel;
     private JLabel pauseLabel;  // "得分" 标签
-    private JLabel timeCountLabel;
-    private JLabel stepCountLabel;
+    private JButton saveButton;
+    private JButton loadButton;
     private JButton resumeButton;
     private JButton restartButton;
     private JButton mainMenuButton;
@@ -96,9 +96,42 @@ public class PauseMenuPanel extends JFrame {
 
         // 按钮区域
         // 创建一个BoxPanel，用BoxLayout布局，垂直排列组件
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-        buttonPanel.setOpaque(false); // 保证背景透明
+        JPanel buttonPanel1 = new JPanel();
+        buttonPanel1.setLayout(new BoxLayout(buttonPanel1, BoxLayout.Y_AXIS));
+        buttonPanel1.setOpaque(false); // 保证背景透明
+
+        JPanel controlButtonsPanel1 = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        controlButtonsPanel1.setOpaque(false);
+
+        saveButton = new JButton("保存进度");
+        loadButton = new JButton("读取进度");
+
+        setupButton(saveButton);
+        setupButton(loadButton);
+
+        controlButtonsPanel1.add(saveButton);
+        controlButtonsPanel1.add(loadButton);
+
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // 返回主菜单逻辑
+                System.out.println("返回主菜单");
+            }
+        });
+
+        loadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // 返回主菜单逻辑
+                System.out.println("返回主菜单");
+            }
+        });
+        buttonPanel1.add(controlButtonsPanel1);
+
+        JPanel buttonPanel2 = new JPanel();
+        buttonPanel2.setLayout(new BoxLayout(buttonPanel2, BoxLayout.Y_AXIS));
+        buttonPanel2.setOpaque(false); // 保证背景透明
 
         JPanel controlButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         controlButtonsPanel.setOpaque(false);
@@ -115,7 +148,7 @@ public class PauseMenuPanel extends JFrame {
         controlButtonsPanel.add(resumeButton);
         controlButtonsPanel.add(mainMenuButton);
 
-        buttonPanel.add(controlButtonsPanel);
+        buttonPanel2.add(controlButtonsPanel);
 
         // 在按钮区域添加游客模式按钮
         soundToggleButton = new JButton("切换音效");
@@ -128,8 +161,8 @@ public class PauseMenuPanel extends JFrame {
         soundToggleButton.setOpaque(false);
 
         // 添加排行榜按钮到buttonPanel
-        buttonPanel.add(Box.createVerticalStrut(10));  // 控制按钮与排行榜之间的间距
-        buttonPanel.add(soundToggleButton);
+        buttonPanel2.add(Box.createVerticalStrut(10));  // 控制按钮与排行榜之间的间距
+        buttonPanel2.add(soundToggleButton);
 
         // 设置按钮事件
         resumeButton.addActionListener(e -> {
@@ -170,8 +203,10 @@ public class PauseMenuPanel extends JFrame {
 
 
         // 将组件添加到胜利面板
-        pasuePanel.add(infoPanel,BorderLayout.CENTER);  // 添加得分和其他信息
-        pasuePanel.add(buttonPanel,BorderLayout.SOUTH);  // 添加按钮区域
+        pasuePanel.add(infoPanel,BorderLayout.CENTER);
+        pasuePanel.add(buttonPanel1,BorderLayout.SOUTH);// 添加得分和其他信息
+        buttonPanel1.setAlignmentX(Component.CENTER_ALIGNMENT);
+        pasuePanel.add(buttonPanel2,BorderLayout.SOUTH);  // 添加按钮区域
 
         // 将胜利面板添加到背景面板
         backgroundPanel.add(pasuePanel, BorderLayout.CENTER);
