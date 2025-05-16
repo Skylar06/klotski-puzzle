@@ -1,5 +1,7 @@
 package view.game;
 
+import controller.GameController;
+
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -20,7 +22,7 @@ public class PauseMenuPanel extends JFrame {
     private JButton restartButton;
     private JButton mainMenuButton;
     private JButton soundToggleButton;
-
+    private GameController gameController;
     // 背景图片
     private ImageIcon backgroundImage = new ImageIcon(getClass().getClassLoader().getResource("pause_bg.gif"));
 
@@ -31,7 +33,7 @@ public class PauseMenuPanel extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // 居中显示
         setLayout(new BorderLayout());
-
+        this.setUndecorated(true);
         // 创建背景面板并设置透明
         JPanel backgroundPanel = new JPanel() {
             @Override
@@ -130,14 +132,10 @@ public class PauseMenuPanel extends JFrame {
         buttonPanel.add(soundToggleButton);
 
         // 设置按钮事件
-        resumeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 下一关逻辑
-                System.out.println("继续游戏");
-            }
+        resumeButton.addActionListener(e -> {
+            this.setVisible(false);
+            this.gameController.restartTimer();
         });
-
         restartButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -230,6 +228,10 @@ public class PauseMenuPanel extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
     }
 
     public static void main(String[] args) {

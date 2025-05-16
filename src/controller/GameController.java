@@ -22,6 +22,8 @@ public class GameController {
     public GameFrame1 gameFrame1;// 持有游戏界面引用
     private GamePanel view;
     private MapModel model;// 持有数据模型引用
+    private String user;
+    private int mode;
 
     public GameController( MapModel model,LevelSelectFrame levelSelectFrame,LoginFrame loginFrame) {
         this.model = model;
@@ -225,5 +227,23 @@ public class GameController {
         } catch (IOException e) {
             throw new RuntimeException("保存游戏失败", e);
         }
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+        this.model.user = user;
+    }
+
+    public void setMode(int mode) {
+        this.model.mode = mode;
+        this.mode = mode;
+    }
+    public void pauseTimer(){
+        this.view.getCurrentPanel().pauseTimer();
+        this.view.setVisible(false);
+    }
+    public void restartTimer(){
+        this.view.getCurrentPanel().restartTimer();
+        this.view.setVisible(true);
     }
 }

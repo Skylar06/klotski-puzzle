@@ -209,7 +209,11 @@ public class LoginFrame extends JFrame {
         guestModeBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         centerPanel.add(guestModeBtn);
         centerPanel.add(Box.createVerticalStrut(-10));  // 可选，增加一点底部间距
-
+        guestModeBtn.addActionListener(e->{
+            levelSelectFrame.setVisible(true);
+            gameController.setUser("无名游侠");
+            this.setVisible(false);
+        });
         // 按钮事件
         // 登录按钮事件（登录动画部分）
         submitBtn.addActionListener(e -> {
@@ -223,11 +227,11 @@ public class LoginFrame extends JFrame {
                     showLoginError( (currentLanguage == Language.CHINESE) ? "客卿录未存" : "User file not found");
                     return;
                 }
-
+                String line;
+                String currentUsername = null;
+                String currentPassword = null;
                 try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                    String line;
-                    String currentUsername = null;
-                    String currentPassword = null;
+
                     while ((line = br.readLine()) != null) {
                         if (currentUsername == null) {
                             currentUsername = line;
@@ -246,6 +250,7 @@ public class LoginFrame extends JFrame {
                 if (loginSuccess) {
                     if (levelSelectFrame != null) {
                         levelSelectFrame.setVisible(true);
+                        gameController.setUser(currentUsername);
                         this.setVisible(false);
                     }
                 } else {

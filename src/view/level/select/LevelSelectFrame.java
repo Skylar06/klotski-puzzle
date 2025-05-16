@@ -184,9 +184,9 @@ public class LevelSelectFrame extends JFrame {
         confirmBtn.addActionListener(
             e -> {
                 this.setVisible(false);
+                this.gameController.setMode(this.currentCarouselIndex);
                 this.gameController.gameFrame1 = new GameFrame1(this.model,this.currentCarouselIndex,this.gameController);
                 this.gameController.gameFrame1.setVisible(true);
-
             }
         );
         // 添加垂直间距
