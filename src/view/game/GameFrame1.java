@@ -10,6 +10,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -26,6 +28,8 @@ public class GameFrame1 extends JFrame {
     private GameController gameController;
     private PauseMenuPanel pauseMenuPanel;
     private GamePanel gamePanel;
+    private JPanel arrowPanel;
+
     public GameFrame1(MapModel mapModel,int mode,GameController gameController) {
         this.setTitle("华容道");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -57,8 +61,86 @@ public class GameFrame1 extends JFrame {
         gamePanel.setOpaque(false);
         bgPanel.add(gamePanel, BorderLayout.CENTER);
 
+        // 创建箭头按钮面板，默认隐藏
+        arrowPanel = createArrowPanel();
+        arrowPanel.setVisible(false); // 初始不显示
+        // 包裹 arrowPanel，使其在右下角带边距显示
+        JPanel arrowWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+        arrowWrapper.setOpaque(false);
+        arrowWrapper.add(arrowPanel);
+        bgPanel.add(arrowWrapper, BorderLayout.SOUTH);
+
+
+// 添加窗口大小监听器
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                Dimension size = getSize();
+                if (size.width >= 1100 && size.height >= 800) {
+                    arrowPanel.setVisible(true);
+                } else {
+                    arrowPanel.setVisible(false);
+                }
+            }
+        });
+
+
         this.setVisible(true);
     }
+
+    private JPanel createArrowPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setOpaque(false);
+
+        JButton upBtn = createArrowButton("up.png", "UP");
+        JButton downBtn = createArrowButton("down.png", "DOWN");
+        JButton leftBtn = createArrowButton("left.png", "LEFT");
+        JButton rightBtn = createArrowButton("right.png", "RIGHT");
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(1, 1, 1, 1); // 按钮之间留间距
+
+        gbc.gridx = 1; gbc.gridy = 0;
+        panel.add(upBtn, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1;
+        panel.add(leftBtn, gbc);
+
+        gbc.gridx = 1; gbc.gridy = 1;
+        panel.add(new JLabel(), gbc); // 中心空格，可省略
+
+        gbc.gridx = 2; gbc.gridy = 1;
+        panel.add(rightBtn, gbc);
+
+        gbc.gridx = 1; gbc.gridy = 2;
+        panel.add(downBtn, gbc);
+
+        return panel;
+    }
+
+
+    private JButton createArrowButton(String iconName, String direction) {
+        ImageIcon icon = new ImageIcon(getClass().getResource("/" + iconName));
+        Image scaled = icon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+        JButton btn = new JButton(new ImageIcon(scaled));
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+
+//        btn.addActionListener(e -> {
+//            // 将方向字符串转换为具体逻辑
+//            if (gameController != null) {
+//                switch (direction) {
+//                    case "UP": gameController.moveUp(); break;
+//                    case "DOWN": gameController.moveDown(); break;
+//                    case "LEFT": gameController.moveLeft(); break;
+//                    case "RIGHT": gameController.moveRight(); break;
+//                }
+//            }
+//        });
+        return btn;
+    }
+
 
     private JPanel createTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout());
