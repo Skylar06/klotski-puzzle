@@ -1,5 +1,7 @@
 package view.game;
 
+import view.Language;
+
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -21,12 +23,13 @@ public class LoseScreen extends JFrame {
     // 背景图片
     private ImageIcon backgroundImage = new ImageIcon(getClass().getClassLoader().getResource("lose_bg.gif"));
 
-    public LoseScreen(String time, String steps) {
+    public LoseScreen(String time, String steps,Language currentLanguage) {
         // 设置主窗口
         setTitle("游戏失败");
         setSize(500, 330);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // 居中显示
+        setUndecorated(true); // 去除标题栏
         setLayout(new BorderLayout());
 
         // 创建背景面板并设置透明
@@ -55,7 +58,7 @@ public class LoseScreen extends JFrame {
         JPanel loseHintPanel = new JPanel();
         loseHintPanel.setLayout(new GridLayout(1, 1)); // 得分部分上下排
         loseHintPanel.setOpaque(false);
-        loseLabel = new JLabel("失败", JLabel.CENTER);
+        loseLabel = new JLabel((currentLanguage == Language.CHINESE)?"失败！":"Lose!", JLabel.CENTER);
         loseLabel.setFont(new Font("楷体", Font.BOLD, 40));
         loseLabel.setForeground(Color.WHITE);
         loseHintPanel.add(loseLabel);
@@ -64,7 +67,7 @@ public class LoseScreen extends JFrame {
         JPanel timeCountPanel = new JPanel();
         timeCountPanel.setLayout(new GridLayout(2, 1)); // 最快通关部分上下排
         timeCountPanel.setOpaque(false);
-        JLabel timeCountTextLabel = new JLabel("用时", JLabel.CENTER);
+        JLabel timeCountTextLabel = new JLabel((currentLanguage == Language.CHINESE)?"用时":"Time", JLabel.CENTER);
         timeCountTextLabel.setFont(new Font("楷体", Font.PLAIN, 20));
         timeCountTextLabel.setForeground(Color.WHITE);
         JLabel timeCountValueLabel = new JLabel(time, JLabel.CENTER);
@@ -77,7 +80,7 @@ public class LoseScreen extends JFrame {
         JPanel stepCountPanel = new JPanel();
         stepCountPanel.setLayout(new GridLayout(2, 1)); // 最少步数部分上下排
         stepCountPanel.setOpaque(false);
-        JLabel stepCountTextLabel = new JLabel("步数", JLabel.CENTER);
+        JLabel stepCountTextLabel = new JLabel((currentLanguage == Language.CHINESE)?"步数":"Steps", JLabel.CENTER);
         stepCountTextLabel.setFont(new Font("楷体", Font.PLAIN, 20));
         stepCountTextLabel.setForeground(Color.WHITE);
         JLabel stepCountValueLabel = new JLabel(steps, JLabel.CENTER);
@@ -100,33 +103,56 @@ public class LoseScreen extends JFrame {
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.setOpaque(false); // 保证背景透明
 
-        JPanel controlButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        JPanel controlButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         controlButtonsPanel.setOpaque(false);
 
-        restartButton = new JButton("重新开始");
-        mainMenuButton = new JButton("返回菜单");
+        restartButton = new JButton();
+        mainMenuButton = new JButton();
 
         setupButton(restartButton);
         setupButton(mainMenuButton);
+
+        if (currentLanguage == Language.CHINESE) {
+            restartButton.setText("再启");
+        } else {
+            restartButton.setText("Restart");
+        }
+
+        if (currentLanguage == Language.CHINESE) {
+            mainMenuButton.setText("归返");
+        } else {
+            mainMenuButton.setText("Back");
+        }
 
         controlButtonsPanel.add(restartButton);
         controlButtonsPanel.add(mainMenuButton);
 
         buttonPanel.add(controlButtonsPanel);
 
+        JPanel leaderboardPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        leaderboardPanel.setOpaque(false);
+
         // 在按钮区域添加游客模式按钮
-        leaderboardButton = new JButton("排行榜");
+        leaderboardButton = new JButton();
+        if (currentLanguage == Language.CHINESE) {
+            leaderboardButton.setText("封神榜");
+        } else {
+            leaderboardButton.setText("Leader Board");
+        }
+
         // 添加排行榜按钮
-        leaderboardButton.setFont(new Font("楷体", Font.PLAIN, 15));
-        leaderboardButton.setForeground(new Color(150, 150, 150)); // 淡灰色
+        leaderboardButton.setFont(new Font("楷体", Font.PLAIN, 18));
+        leaderboardButton.setForeground(Color.WHITE); // 淡灰色
         leaderboardButton.setBorderPainted(false);
         leaderboardButton.setContentAreaFilled(false);
         leaderboardButton.setFocusPainted(false);
         leaderboardButton.setOpaque(false);
+        leaderboardButton.setMargin(new Insets(0, 0, 0, 0));
 
         // 添加排行榜按钮到buttonPanel
-        buttonPanel.add(Box.createVerticalStrut(10));  // 控制按钮与排行榜之间的间距
-        buttonPanel.add(leaderboardButton);
+        buttonPanel.add(Box.createVerticalStrut(0));  // 控制按钮与排行榜之间的间距
+        leaderboardPanel.add(leaderboardButton);
+        buttonPanel.add(leaderboardPanel);
 
 
         restartButton.addActionListener(new ActionListener() {
@@ -147,15 +173,15 @@ public class LoseScreen extends JFrame {
 
         leaderboardButton.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                leaderboardButton.setForeground(new Color(255, 200, 0));  // 改为高亮色
+                leaderboardButton.setForeground(new Color(255, 100, 0));  // 改为高亮色
             }
 
             public void mouseExited(MouseEvent e) {
-                leaderboardButton.setForeground(new Color(150, 150, 150));  // 恢复默认色
+                leaderboardButton.setForeground(Color.WHITE);  // 恢复默认色
             }
 
             public void mousePressed(MouseEvent e) {
-                leaderboardButton.setForeground(new Color(255, 180, 0));  // 按下时的颜色
+                leaderboardButton.setForeground(new Color(255, 10, 0));  // 按下时的颜色
                 // 重新开始逻辑
                 System.out.println("查看排行榜");
             }
@@ -163,6 +189,7 @@ public class LoseScreen extends JFrame {
 
 
         // 将组件添加到胜利面板
+        losePanel.add(Box.createVerticalStrut(30));
         losePanel.add(infoPanel,BorderLayout.NORTH);
         losePanel.add(infoPanel,BorderLayout.CENTER);  // 添加得分和其他信息
         losePanel.add(buttonPanel,BorderLayout.SOUTH);  // 添加按钮区域
@@ -229,7 +256,7 @@ public class LoseScreen extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                view.game.LoseScreen loseScreen = new view.game.LoseScreen("2:30", "25步");
+                view.game.LoseScreen loseScreen = new view.game.LoseScreen("2:30", "25步",Language.CHINESE);
                 loseScreen.setVisible(true);
             }
         });
