@@ -24,14 +24,19 @@ public class GameController {
     private MapModel model;// 持有数据模型引用
     private String user;
     private int mode;
+    private boolean mirrorMode = false; // 是否为镜像模式
 
-    public GameController( MapModel model,LevelSelectFrame levelSelectFrame,LoginFrame loginFrame) {
+    public GameController(MapModel model, LevelSelectFrame levelSelectFrame, LoginFrame loginFrame) {
         this.model = model;
         this.loginFrame = loginFrame;
         this.levelSelectFrame = levelSelectFrame;
         this.levelSelectFrame.setGameController(this);
         this.loginFrame.setGameController(this);
         this.loginFrame.setLevelSelectFrame(this.levelSelectFrame);
+    }
+
+    public void setMirrorMode(boolean mirrorMode) {
+        this.mirrorMode = mirrorMode;
     }
 
     public void restartGame() {
@@ -54,6 +59,18 @@ public class GameController {
     }
 
     public boolean doMove(int row, int col, Direction direction) {
+        if (mirrorMode) {
+            if (direction == Direction.LEFT) {
+                direction = Direction.RIGHT;
+            } else if (direction == Direction.RIGHT) {
+                direction = Direction.LEFT;
+            } else if (direction == Direction.UP) {
+                direction = Direction.DOWN;
+            } else if (direction == Direction.DOWN) {
+                direction = Direction.UP;
+            }
+        }
+
         if (model.getId(row, col) == 1) {// 检查当前格子是否有可移动方块
             int nextRow = row + direction.getRow();// 计算目标位置
             int nextCol = col + direction.getCol();
@@ -74,7 +91,7 @@ public class GameController {
         } else if (model.getId(row, col) == 2) {
             int nextRow = row + direction.getRow();// 计算目标位置
             int nextCol = col + direction.getCol();
-            if (direction == Direction.RIGHT){
+            if (direction == Direction.RIGHT) {
                 nextCol++;
             }
             if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)) {// 边界检查
@@ -82,9 +99,9 @@ public class GameController {
                     // 更新模型数据
                     if (direction == Direction.RIGHT) nextCol--;
                     model.getMatrix()[row][col] = 0;
-                    model.getMatrix()[row][col+1] = 0;
+                    model.getMatrix()[row][col + 1] = 0;
                     model.getMatrix()[nextRow][nextCol] = 2;
-                    model.getMatrix()[nextRow][nextCol+1] = 2;
+                    model.getMatrix()[nextRow][nextCol + 1] = 2;
                     // 更新视图
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
@@ -94,10 +111,10 @@ public class GameController {
                     return true;
                 }
             }
-        }else if (model.getId(row, col) == 3) {
+        } else if (model.getId(row, col) == 3) {
             int nextRow = row + direction.getRow();// 计算目标位置
             int nextCol = col + direction.getCol();
-            if (direction == Direction.DOWN){
+            if (direction == Direction.DOWN) {
                 nextRow++;
             }
             if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)) {// 边界检查
@@ -105,9 +122,9 @@ public class GameController {
                     // 更新模型数据
                     if (direction == Direction.DOWN) nextRow--;
                     model.getMatrix()[row][col] = 0;
-                    model.getMatrix()[row+1][col] = 0;
+                    model.getMatrix()[row + 1][col] = 0;
                     model.getMatrix()[nextRow][nextCol] = 3;
-                    model.getMatrix()[nextRow+1][nextCol] = 3;
+                    model.getMatrix()[nextRow + 1][nextCol] = 3;
                     // 更新视图
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
@@ -117,26 +134,26 @@ public class GameController {
                     return true;
                 }
             }
-        }else if (model.getId(row, col) == 4) {
+        } else if (model.getId(row, col) == 4) {
             int nextRow = row + direction.getRow();// 计算目标位置
             int nextCol = col + direction.getCol();
             if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)
-                    &&model.checkInHeightSize(nextRow+1) && model.checkInWidthSize(nextCol)
-                    &&model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol+1)
-                    &&model.checkInHeightSize(nextRow+1) && model.checkInWidthSize(nextCol+1)) {// 边界检查
-                if ((model.getId(nextRow, nextCol) == 0||model.getId(nextRow, nextCol) == 4)
-                &&(model.getId(nextRow+1, nextCol) == 0||model.getId(nextRow+1, nextCol) == 4)
-                &&(model.getId(nextRow, nextCol+1) == 0||model.getId(nextRow, nextCol+1) == 4)
-                &&(model.getId(nextRow+1, nextCol+1) == 0||model.getId(nextRow+1, nextCol+1) == 4)) {// 边界检查
+                    && model.checkInHeightSize(nextRow + 1) && model.checkInWidthSize(nextCol)
+                    && model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol + 1)
+                    && model.checkInHeightSize(nextRow + 1) && model.checkInWidthSize(nextCol + 1)) {// 边界检查
+                if ((model.getId(nextRow, nextCol) == 0 || model.getId(nextRow, nextCol) == 4)
+                        && (model.getId(nextRow + 1, nextCol) == 0 || model.getId(nextRow + 1, nextCol) == 4)
+                        && (model.getId(nextRow, nextCol + 1) == 0 || model.getId(nextRow, nextCol + 1) == 4)
+                        && (model.getId(nextRow + 1, nextCol + 1) == 0 || model.getId(nextRow + 1, nextCol + 1) == 4)) {// 边界检查
                     // 更新模型数据
                     model.getMatrix()[row][col] = 0;
-                    model.getMatrix()[row+1][col] = 0;
-                    model.getMatrix()[row][col+1] = 0;
-                    model.getMatrix()[row+1][col+1] = 0;
+                    model.getMatrix()[row + 1][col] = 0;
+                    model.getMatrix()[row][col + 1] = 0;
+                    model.getMatrix()[row + 1][col + 1] = 0;
                     model.getMatrix()[nextRow][nextCol] = 4;
-                    model.getMatrix()[nextRow+1][nextCol] = 4;
-                    model.getMatrix()[nextRow][nextCol+1] = 4;
-                    model.getMatrix()[nextRow+1][nextCol+1] = 4;
+                    model.getMatrix()[nextRow + 1][nextCol] = 4;
+                    model.getMatrix()[nextRow][nextCol + 1] = 4;
+                    model.getMatrix()[nextRow + 1][nextCol + 1] = 4;
                     // 更新视图
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
@@ -243,15 +260,18 @@ public class GameController {
         this.model.mode = mode;
         this.mode = mode;
     }
-    public void pauseTimer(){
+
+    public void pauseTimer() {
         this.view.getCurrentPanel().pauseTimer();
         this.view.setVisible(false);
     }
-    public void restartTimer(){
+
+    public void restartTimer() {
         this.view.getCurrentPanel().restartTimer();
         this.view.setVisible(true);
     }
-    public void returnToMenu(){
+
+    public void returnToMenu() {
         this.levelSelectFrame.setVisible(true);
         this.gameFrame1.setVisible(false);
     }

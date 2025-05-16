@@ -1,5 +1,6 @@
 package view.game;
 
+import controller.GameController;
 import model.MapModel;
 import view.Language;
 
@@ -7,13 +8,40 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class EffectGamePanel extends AbstractGamePanel {
     private boolean isEffectCompleted = false;
     private static String EFFECT_TEXT = "当前关卡特效：\n缓慢移动";
+    public enum EffectType {
+        MOVE, DISABLE, MIRROR
+    }
+    private EffectType currentEffect = EffectType.MOVE; // 默认缓动
+    private BoxComponent disabledBox = null;
+    private boolean mirrorMode = false;
 
     public EffectGamePanel(MapModel model) {
         super(model);
+
+        currentEffect = EffectType.MIRROR;
+        EFFECT_TEXT = "当前关卡特效：\n镜像模式";
+//        int levelId = model.getLevelId(); // 假设你有这个方法
+//        switch (levelId % 3) {
+//            case 0:
+//                currentEffect = EffectType.MOVE;
+//                EFFECT_TEXT = "当前关卡特效：\n缓慢移动";
+//                break;
+//            case 1:
+//                currentEffect = EffectType.DISABLE;
+//                EFFECT_TEXT = "当前关卡特效：\n禁用方块";
+//                break;
+//            case 2:
+//                currentEffect = EffectType.MIRROR;
+//                EFFECT_TEXT = "当前关卡特效：\n镜像模式";
+//                break;
+//        }
     }
 
     @Override
@@ -172,18 +200,32 @@ public class EffectGamePanel extends AbstractGamePanel {
     }
 
     private void startEffect() {
-//        // 根据不同特效类型启用不同效果
-//        switch (effectMessage) {
-//            case "当前关卡特效：缓动移动":
-//                applyMoveEffect();
-//                break;
-//            case "当前关卡特效：禁用方块":
-//                applyDisableEffect();
-//                break;
-//            case "当前关卡特效：镜像模式":
-//                applyMirrorEffect();
-//                break;
-//        }
+        switch (currentEffect) {
+            case MOVE:
+                setMirrorMode(false);
+                applyMoveEffect();
+                break;
+            case DISABLE:
+                setMirrorMode(false);
+                applyDisableEffect();
+                break;
+            case MIRROR:
+                applyMirrorEffect();
+                break;
+        }
+    }
+
+    public void setMirrorMode(boolean enabled) {
+        this.mirrorMode = enabled;
+        if (controller != null) {
+            controller.setMirrorMode(enabled);
+        }
+    }
+
+    @Override
+    public void setController(GameController controller) {
+        super.setController(controller);
+        controller.setMirrorMode(this.mirrorMode);
     }
 
     private void applyMoveEffect() {
@@ -193,14 +235,29 @@ public class EffectGamePanel extends AbstractGamePanel {
     }
 
     private void applyDisableEffect() {
-        // 启动禁用方块特效
-        // 例如禁用某些方块
         System.out.println("禁用方块特效已启用");
+
+        List<BoxComponent> oneByOneBoxes = new ArrayList<>();
+
+        for (Component comp : boardPanel.getComponents()) {
+            if (comp instanceof BoxComponent box) {
+                if (box.getType() == 1 && !box.isDisabled()) {
+                    oneByOneBoxes.add(box);
+                }
+            }
+        }
+
+        if (!oneByOneBoxes.isEmpty()) {
+            BoxComponent selected = oneByOneBoxes.get(new Random().nextInt(oneByOneBoxes.size()));
+            selected.setDisabled(true); // 设置禁用 + 自动重绘
+            System.out.println("禁用了位置 (" + selected.getRow() + ", " + selected.getCol() + ")");
+        } else {
+            System.out.println("未找到可禁用的 1x1 方块");
+        }
     }
 
     private void applyMirrorEffect() {
-        // 启动镜像特效
-        // 例如对棋盘进行镜像翻转
+        setMirrorMode(true);
         System.out.println("镜像模式特效已启用");
     }
 }

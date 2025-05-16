@@ -14,6 +14,8 @@ public class BoxComponent extends JComponent {
     private static final int BORDER_WIDTH_SELECTED = 3;
     private static final int BORDER_WIDTH_DEFAULT = 1;
 
+    private boolean isDisabled = false;
+
     public BoxComponent(int type, int row, int col) {
         this.type = type;
         this.row = row;
@@ -41,6 +43,19 @@ public class BoxComponent extends JComponent {
                 BorderFactory.createLineBorder(Color.RED, BORDER_WIDTH_SELECTED) :
                 BorderFactory.createLineBorder(Color.DARK_GRAY, BORDER_WIDTH_DEFAULT);
         this.setBorder(border);
+
+        if (isDisabled) {
+            this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 4));
+        }
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.isDisabled = disabled;
+        repaint();
+    }
+
+    public boolean isDisabled() {
+        return isDisabled;
     }
 
     public void setSelected(boolean selected) {
