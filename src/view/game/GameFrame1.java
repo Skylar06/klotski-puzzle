@@ -174,6 +174,9 @@ public class GameFrame1 extends JFrame {
             this.pauseMenuPanel.setVisible(true);
             this.gameController.pauseTimer();
         });
+        restartBtn.addActionListener(e -> {
+            this.gameController.restartGame();
+        });
         languageBtn.addActionListener(e -> {
             currentLanguage = (currentLanguage == Language.CHINESE) ? Language.ENGLISH : Language.CHINESE;
             updateLanguageTexts();

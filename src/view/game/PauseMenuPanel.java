@@ -169,20 +169,14 @@ public class PauseMenuPanel extends JFrame {
             this.setVisible(false);
             this.gameController.restartTimer();
         });
-        restartButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 重新开始逻辑
-                System.out.println("重新开始");
-            }
+        restartButton.addActionListener(e->{
+            this.setVisible(false);
+            this.gameController.restartGame();
         });
 
-        mainMenuButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 返回主菜单逻辑
-                System.out.println("返回主菜单");
-            }
+        mainMenuButton.addActionListener(e->{
+            this.setVisible(false);
+            this.gameController.returnToMenu();
         });
 
         soundToggleButton.addMouseListener(new MouseAdapter() {

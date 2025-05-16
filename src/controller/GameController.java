@@ -35,6 +35,7 @@ public class GameController {
     }
 
     public void restartGame() {
+        this.view.setVisible(true);
         // 重置模型
         model.setMatrix(new int[][]{
                 {2, 2, 2, 2, 1},
@@ -45,11 +46,11 @@ public class GameController {
 
         // 清空移动历史
         moveHistory.clear();
-
+        view.getCurrentPanel().repaint();
         // 重置视图
-//        view.initialGame(); // 调用视图的初始化方法
-//        view.setSteps(0); // 重置步数
-//        view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
+        view.initialGame(); // 调用视图的初始化方法
+        view.setSteps(0); // 重置步数
+        view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
     }
 
     public boolean doMove(int row, int col, Direction direction) {
@@ -234,6 +235,10 @@ public class GameController {
         this.model.user = user;
     }
 
+    public int getMode() {
+        return mode;
+    }
+
     public void setMode(int mode) {
         this.model.mode = mode;
         this.mode = mode;
@@ -245,5 +250,9 @@ public class GameController {
     public void restartTimer(){
         this.view.getCurrentPanel().restartTimer();
         this.view.setVisible(true);
+    }
+    public void returnToMenu(){
+        this.levelSelectFrame.setVisible(true);
+        this.gameFrame1.setVisible(false);
     }
 }

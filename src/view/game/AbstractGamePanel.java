@@ -7,10 +7,7 @@ import view.Language;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -379,9 +376,20 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
 
     public void initialGame() {
+        this.restartTime();
+        if (timer != null && timer.isRunning()) {
+            timer.stop();
+        }
+
+        // 移除旧的键盘和鼠标监听器（需要保留对监听器的引用）
+        for (KeyListener listener : boardPanel.getKeyListeners()) {
+            boardPanel.removeKeyListener(listener);
+        }
+        for (MouseListener listener : boardPanel.getMouseListeners()) {
+            boardPanel.removeMouseListener(listener);
+        }
         boxes.clear();
         boardPanel.removeAll();
-
         int[][] map = new int[model.getHeight()][model.getWidth()];
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[0].length; j++) {
@@ -599,5 +607,12 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     }
     public void restartTimer(){
         this.timer.start();
+    }
+
+    public void setModel(MapModel model) {
+        this.model = model;
+    }
+    public void restartTime(){
+        this.elapsedTime = 0;
     }
 }
