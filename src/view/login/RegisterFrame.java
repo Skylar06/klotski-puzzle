@@ -220,7 +220,7 @@ public class RegisterFrame extends JFrame {
             confirmPassLabel.setText("复述密令：");
 
             if (titleLabel != null) {
-                titleLabel.setText("三国 · 华容道");
+                titleLabel.setText("三国 · 华容道 注册");
             }
 
             // 用户名和密码输入框提示

@@ -22,9 +22,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class LevelSelectFrame extends JFrame {
+    private JLabel titleLabel;
     private JButton languageBtn;
     private JButton confirmBtn;
-    private JButton profileBtn;
     private JButton helpBtn;
     private JPanel carouselPanel;
     private Language currentLanguage = Language.CHINESE;
@@ -79,7 +79,7 @@ public class LevelSelectFrame extends JFrame {
 
     private void addTitleLabel(JPanel container) {
         // 创建标题标签
-        JLabel titleLabel = new JLabel("关卡选择", SwingConstants.CENTER);
+        titleLabel = new JLabel("关卡选择", SwingConstants.CENTER);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("titleFont.ttf")) {
@@ -115,15 +115,13 @@ public class LevelSelectFrame extends JFrame {
         // 左侧图标按钮
         JPanel iconPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
         iconPanel.setOpaque(false);
-        profileBtn = createHoverButton("profile.png", "个人主页");
-        helpBtn = createHoverButton("help.png", "使用帮助");
-        iconPanel.add(profileBtn);
+        helpBtn = createHoverButton("help.png", (currentLanguage == Language.CHINESE) ?"帮助":"Help");
         iconPanel.add(helpBtn);
 
         // 右侧语言按钮
         JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         langPanel.setOpaque(false);
-        languageBtn = new JButton("中/En");
+        languageBtn = new JButton("中原/外邦");
         setupButton(languageBtn);
         langPanel.add(languageBtn);
 
@@ -178,10 +176,6 @@ public class LevelSelectFrame extends JFrame {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
 
-        // 在线观战按钮
-        JButton onlineBtn = new JButton("在线观战");
-        styleTextButton(onlineBtn);
-        onlineBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // 确定按钮
         confirmBtn = new JButton("确定");
@@ -198,9 +192,6 @@ public class LevelSelectFrame extends JFrame {
         // 添加垂直间距
         panel.add(Box.createVerticalGlue());
         panel.add(confirmBtn);
-        panel.add(Box.createVerticalStrut(10));
-        panel.add(onlineBtn);
-        panel.add(Box.createVerticalGlue());
 
         return panel;
     }
@@ -212,13 +203,13 @@ public class LevelSelectFrame extends JFrame {
             public void mouseEntered(MouseEvent e) {
                 button.setIcon(null);
                 button.setText("<html><center>" + text + "</center></html>");
-                button.setFont(new Font("宋体", Font.BOLD, 12));
-                button.setForeground(Color.YELLOW);
+                button.setFont(new Font("楷体", Font.BOLD, 12));
+                button.setForeground(Color.BLACK);
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                button.setIcon(new ImageIcon(getScaledImage(imagePath, 32, 32)));
+                button.setIcon(new ImageIcon(getScaledImage(imagePath, 50, 50)));
                 button.setText("");
             }
         });
@@ -316,24 +307,24 @@ public class LevelSelectFrame extends JFrame {
         return new ImageIcon(url).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
     }
 
-    private void styleTextButton(JButton button) {
-        button.setFont(new Font("宋体", Font.PLAIN, 14));
-        button.setForeground(Color.WHITE);
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-        button.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                button.setForeground(Color.YELLOW);
-                button.setText("<html><u>" + button.getText() + "</u></html>");
-            }
-
-            public void mouseExited(MouseEvent e) {
-                button.setForeground(Color.WHITE);
-                button.setText(button.getText().replaceAll("<.*?>", ""));
-            }
-        });
-    }
+//    private void styleTextButton(JButton button) {
+//        button.setFont(new Font("宋体", Font.PLAIN, 14));
+//        button.setForeground(Color.WHITE);
+//        button.setContentAreaFilled(false);
+//        button.setBorderPainted(false);
+//        button.setFocusPainted(false);
+//        button.addMouseListener(new MouseAdapter() {
+//            public void mouseEntered(MouseEvent e) {
+//                button.setForeground(Color.YELLOW);
+//                button.setText("<html><u>" + button.getText() + "</u></html>");
+//            }
+//
+//            public void mouseExited(MouseEvent e) {
+//                button.setForeground(Color.WHITE);
+//                button.setText(button.getText().replaceAll("<.*?>", ""));
+//            }
+//        });
+//    }
 
 
     private JButton createIconButton(String imagePath, String tooltip) {
@@ -343,12 +334,12 @@ public class LevelSelectFrame extends JFrame {
             return new JButton(tooltip);
         }
         ImageIcon originalIcon = new ImageIcon(iconURL);
-        Image scaledImage = originalIcon.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH); // 控制大小
+        Image scaledImage = originalIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH); // 控制大小
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
 
         JButton button = new JButton(scaledIcon);
         button.setToolTipText(tooltip);
-        button.setPreferredSize(new Dimension(40, 40)); // 设置大小，避免撑开
+        button.setPreferredSize(new Dimension(50, 50)); // 设置大小，避免撑开
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setFocusPainted(false);
@@ -393,18 +384,27 @@ public class LevelSelectFrame extends JFrame {
         }
     }
 
-    private void toggleLanguage() {
-        currentLanguage = (currentLanguage == Language.CHINESE) ? Language.ENGLISH : Language.CHINESE;
-        updateLanguageTexts();
-    }
-
     private void updateLanguageTexts() {
         if (currentLanguage == Language.CHINESE) {
-            languageBtn.setText("中 / En");
+            languageBtn.setText("中原/外邦");
             confirmBtn.setText("确定");
+            helpBtn.setText("帮助");
+
+            if (titleLabel != null) {
+                titleLabel.setText("关卡选择");
+            }
+
+            helpBtn = createHoverButton("help.png", "帮助");
         } else {
             languageBtn.setText("En / 中");
             confirmBtn.setText("Confirm");
+            helpBtn.setText("Help");
+
+            if (titleLabel != null) {
+                titleLabel.setText("Level Select");
+            }
+
+            helpBtn = createHoverButton("help.png", "Help");
         }
     }
 
