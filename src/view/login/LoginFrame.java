@@ -2,7 +2,6 @@ package view.login;
 
 import controller.GameController;
 import view.Language;
-import view.game.GameFrame;
 import view.game.GameFrame1;
 import view.level.select.LevelSelectFrame;
 import view.login.RegisterFrame;
@@ -21,6 +20,7 @@ import java.util.Arrays;
 public class LoginFrame extends JFrame {
     private JTextField usernameField;
     private JPasswordField passwordField;
+    private JLabel titleLabel;
     private JButton submitBtn;
     private JButton resetBtn;
     private JButton registerBtn;
@@ -54,7 +54,7 @@ public class LoginFrame extends JFrame {
         this.setContentPane(bgPanel);
 
         // 语言按钮 - 右上角图标
-        languageBtn = new JButton("中/En");
+        languageBtn = new JButton("中原/外邦");
         setupButton(languageBtn);
         JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         langPanel.setOpaque(false);
@@ -68,7 +68,7 @@ public class LoginFrame extends JFrame {
         bgPanel.add(centerPanel, BorderLayout.CENTER);
 
         // 标题
-        JLabel titleLabel = new JLabel("三国 · 华容道", SwingConstants.CENTER);
+        titleLabel = new JLabel("三国 · 华容道", SwingConstants.CENTER);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("titleFont.ttf")) {
             Font titleFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(60f);  // 放大到60
@@ -183,7 +183,7 @@ public class LoginFrame extends JFrame {
         bottomButtonPanel.setOpaque(false);
         bgPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
 
-        submitBtn = new JButton("登录");
+        submitBtn = new JButton("登入");
         resetBtn = new JButton("清空");
         registerBtn = new JButton("注册");
 
@@ -196,9 +196,9 @@ public class LoginFrame extends JFrame {
         bottomButtonPanel.add(resetBtn);
 
         // 在按钮区域添加游客模式按钮
-        guestModeBtn = new JButton("以游客身份进入");
+        guestModeBtn = new JButton("不录之身入内");
         guestModeBtn.setFont(new Font("楷体", Font.PLAIN, 20));
-        guestModeBtn.setForeground(new Color(150, 150, 150)); // 淡灰色
+        guestModeBtn.setForeground(new Color(10, 10, 10)); // 淡灰色
         guestModeBtn.setBorderPainted(false);
         guestModeBtn.setContentAreaFilled(false);
         guestModeBtn.setFocusPainted(false);
@@ -208,7 +208,11 @@ public class LoginFrame extends JFrame {
         guestModeBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         centerPanel.add(guestModeBtn);
         centerPanel.add(Box.createVerticalStrut(-10));  // 可选，增加一点底部间距
-
+        guestModeBtn.addActionListener(e->{
+            levelSelectFrame.setVisible(true);
+            gameController.setUser("无名游侠");
+            this.setVisible(false);
+        });
         // 按钮事件
         // 登录按钮事件（登录动画部分）
         submitBtn.addActionListener(e -> {
@@ -219,14 +223,14 @@ public class LoginFrame extends JFrame {
             try {
                 File file = new File("user.txt");
                 if (!file.exists()) {
-                    JOptionPane.showMessageDialog(LoginFrame.this, "用户文件不存在！");
+                    showLoginError( (currentLanguage == Language.CHINESE) ? "客卿录未存" : "User file not found");
                     return;
                 }
-
+                String line;
+                String currentUsername = null;
+                String currentPassword = null;
                 try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                    String line;
-                    String currentUsername = null;
-                    String currentPassword = null;
+
                     while ((line = br.readLine()) != null) {
                         if (currentUsername == null) {
                             currentUsername = line;
@@ -245,13 +249,14 @@ public class LoginFrame extends JFrame {
                 if (loginSuccess) {
                     if (levelSelectFrame != null) {
                         levelSelectFrame.setVisible(true);
+                        gameController.setUser(currentUsername);
                         this.setVisible(false);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(this, "用户名或密码错误！");
+                    showLoginError( (currentLanguage == Language.CHINESE) ? "客卿录未存" : "User file not found");
                 }
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "登录失败：" + ex.getMessage());
+                showLoginError((currentLanguage == Language.CHINESE) ? "登入未果：" + ex.getMessage() : "Login failed: " + ex.getMessage());
                 ex.printStackTrace();
             }
         });
@@ -280,7 +285,7 @@ public class LoginFrame extends JFrame {
             }
 
             public void mouseExited(MouseEvent e) {
-                guestModeBtn.setForeground(new Color(150, 150, 150));  // 恢复默认色
+                guestModeBtn.setForeground(new Color(10, 10, 10));  // 恢复默认色
             }
 
             public void mousePressed(MouseEvent e) {
@@ -304,24 +309,96 @@ public class LoginFrame extends JFrame {
 
     }
 
+    private void showLoginError(String message) {
+        playSound("error.wav");
+        shakeWindow(this);
+        new view.login.HintScreen(message,currentLanguage).setVisible(true);
+    }
+
+    private void playSound(String resourcePath) {
+        try {
+            URL soundURL = getClass().getClassLoader().getResource(resourcePath);
+            if (soundURL == null) {
+                System.err.println("找不到资源文件: " + resourcePath);
+                return;
+            }
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundURL);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInput);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void shakeWindow(JFrame frame) {
+        int x = frame.getX();
+        int y = frame.getY();
+        for (int i = 0; i < 10; i++) {
+            frame.setLocation(x + (i % 2 == 0 ? 5 : -5), y);
+            try { Thread.sleep(30); } catch (InterruptedException e) { }
+        }
+        frame.setLocation(x, y);
+    }
+
+
     private void updateLanguageTexts() {
         if (currentLanguage == Language.CHINESE) {
             submitBtn.setText("登 入");
             resetBtn.setText("清 空");
             registerBtn.setText("注 册");
-            languageBtn.setText("中 / En");
-            // 标签更新请提取为字段 userLabel, passLabel
+            languageBtn.setText("中原/外邦");
+
             userLabel.setText("丹青名牒：");
             passLabel.setText("玄机密令：");
+
+            // 标题更新
+            // 假设你把标题 JLabel 定义成字段 titleLabel，这里也需要更新
+            if (titleLabel != null) {
+                titleLabel.setText("三国 · 华容道");
+            }
+
+            // 用户名和密码输入框提示
+            if (usernameField.getText().isEmpty() || usernameField.getText().equals("Please enter username")) {
+                usernameField.setText("请输入用户名");
+                usernameField.setForeground(Color.GRAY);
+            }
+            if (new String(passwordField.getPassword()).isEmpty() || new String(passwordField.getPassword()).equals("Please enter password")) {
+                passwordField.setEchoChar((char)0);
+                passwordField.setText("请输入密码");
+                passwordField.setForeground(Color.GRAY);
+            }
+
+            // 游客按钮文字
+            guestModeBtn.setText("不录之身入内");
+
         } else {
             submitBtn.setText("Login");
             resetBtn.setText("Clear");
             registerBtn.setText("Register");
             languageBtn.setText("En / 中");
+
             userLabel.setText("Username:");
             passLabel.setText("Password:");
+
+            if (titleLabel != null) {
+                titleLabel.setText("Three Kingdoms · Klotski Puzzle");
+            }
+
+            if (usernameField.getText().isEmpty() || usernameField.getText().equals("请输入用户名")) {
+                usernameField.setText("Please enter username");
+                usernameField.setForeground(Color.GRAY);
+            }
+            if (new String(passwordField.getPassword()).isEmpty() || new String(passwordField.getPassword()).equals("请输入密码")) {
+                passwordField.setEchoChar((char)0);
+                passwordField.setText("Please enter password");
+                passwordField.setForeground(Color.GRAY);
+            }
+
+            guestModeBtn.setText("Enter as Guest");
         }
     }
+
 
     private void setupButton(JButton button) {
         button.setBorderPainted(false);

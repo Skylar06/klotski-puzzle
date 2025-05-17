@@ -1,32 +1,35 @@
 package view.game;
 
 import controller.GameController;
+import model.Direction;
 import model.MapModel;
-import view.FrameUtil;
 import view.Language;
-
+import view.game.SkinManager;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.InputStream;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 
 public class GameFrame1 extends JFrame {
     private JButton languageBtn;
     private JButton helpBtn;
     private JButton stopBtn;
     private JButton restartBtn;
+    private JButton undoBtn;
+    private JButton skinToggleBtn;
     private Language currentLanguage = Language.CHINESE;
     private GameController gameController;
+    private PauseMenuPanel pauseMenuPanel;
+    private GamePanel gamePanel;
+    private JPanel arrowPanel;
+
     public GameFrame1(MapModel mapModel,int mode,GameController gameController) {
         this.setTitle("华容道");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -51,15 +54,124 @@ public class GameFrame1 extends JFrame {
         bgPanel.add(topPanel, BorderLayout.NORTH);
 
         // 2. 创建中间容器（标题 + 轮播）
-        GamePanel gamePanel = new GamePanel(mapModel,mode);
+        this.gamePanel = new GamePanel(mapModel,mode);
         gamePanel.setController(this.gameController);
         this.gameController.setView(gamePanel);
         gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
         gamePanel.setOpaque(false);
         bgPanel.add(gamePanel, BorderLayout.CENTER);
 
+        // 创建箭头按钮面板，默认隐藏
+        arrowPanel = createArrowPanel();
+        arrowPanel.setVisible(false); // 初始不显示
+        // 包裹 arrowPanel，使其在右下角带边距显示
+        JPanel arrowWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+        arrowWrapper.setOpaque(false);
+        arrowWrapper.add(arrowPanel);
+        bgPanel.add(arrowWrapper, BorderLayout.SOUTH);
+
+
+// 添加窗口大小监听器
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                Dimension size = getSize();
+                if (size.width >= 1100 && size.height >= 800) {
+                    arrowPanel.setVisible(true);
+                } else {
+                    arrowPanel.setVisible(false);
+                }
+            }
+        });
+
+
         this.setVisible(true);
     }
+
+    private JPanel createArrowPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setOpaque(false);
+
+        JButton upBtn = createArrowButton("up.png", "UP");
+        JButton downBtn = createArrowButton("down.png", "DOWN");
+        JButton leftBtn = createArrowButton("left.png", "LEFT");
+        JButton rightBtn = createArrowButton("right.png", "RIGHT");
+        upBtn.addActionListener(e->{
+            BoxComponent box = this.gamePanel.getCurrentPanel().selectedBox;
+            if (box == null) return;
+            Direction d = Direction.UP;
+            if (this.gameController.doMove(box.getRow(), box.getCol(), d)) {
+                this.gamePanel.getCurrentPanel().afterMove();
+            }
+        });
+        downBtn.addActionListener(e->{
+            BoxComponent box = this.gamePanel.getCurrentPanel().selectedBox;
+            if (box == null) return;
+            Direction d = Direction.DOWN;
+            if (this.gameController.doMove(box.getRow(), box.getCol(), d)) {
+                this.gamePanel.getCurrentPanel().afterMove();
+            }
+        });
+        leftBtn.addActionListener(e->{
+            BoxComponent box = this.gamePanel.getCurrentPanel().selectedBox;
+            if (box == null) return;
+            Direction d = Direction.LEFT;
+            if (this.gameController.doMove(box.getRow(), box.getCol(), d)) {
+                this.gamePanel.getCurrentPanel().afterMove();
+            }
+        });
+        rightBtn.addActionListener(e->{
+            BoxComponent box = this.gamePanel.getCurrentPanel().selectedBox;
+            if (box == null) return;
+            Direction d = Direction.RIGHT;
+            if (this.gameController.doMove(box.getRow(), box.getCol(), d)) {
+                this.gamePanel.getCurrentPanel().afterMove();
+            }
+        });
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(1, 1, 1, 1); // 按钮之间留间距
+
+        gbc.gridx = 1; gbc.gridy = 0;
+        panel.add(upBtn, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1;
+        panel.add(leftBtn, gbc);
+
+        gbc.gridx = 1; gbc.gridy = 1;
+        panel.add(new JLabel(), gbc); // 中心空格，可省略
+
+        gbc.gridx = 2; gbc.gridy = 1;
+        panel.add(rightBtn, gbc);
+
+        gbc.gridx = 1; gbc.gridy = 2;
+        panel.add(downBtn, gbc);
+
+        return panel;
+    }
+
+
+    private JButton createArrowButton(String iconName, String direction) {
+        ImageIcon icon = new ImageIcon(getClass().getResource("/" + iconName));
+        Image scaled = icon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+        JButton btn = new JButton(new ImageIcon(scaled));
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+
+//        btn.addActionListener(e -> {
+//            // 将方向字符串转换为具体逻辑
+//            if (gameController != null) {
+//                switch (direction) {
+//                    case "UP": gameController.moveUp(); break;
+//                    case "DOWN": gameController.moveDown(); break;
+//                    case "LEFT": gameController.moveLeft(); break;
+//                    case "RIGHT": gameController.moveRight(); break;
+//                }
+//            }
+//        });
+        return btn;
+    }
+
 
     private JPanel createTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout());
@@ -72,9 +184,11 @@ public class GameFrame1 extends JFrame {
         helpBtn = createHoverButton("help.png", "帮助");
         restartBtn = createHoverButton("restart.png", "重启");
         stopBtn = createHoverButton("stop.png", "暂停");
+        undoBtn = createHoverButton("undo.png", "撤销");
         iconPanel.add(helpBtn);
         iconPanel.add(restartBtn);
         iconPanel.add(stopBtn);
+        iconPanel.add(undoBtn);
 
         // 右侧语言按钮
         JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -82,7 +196,18 @@ public class GameFrame1 extends JFrame {
         languageBtn = new JButton("中/En");
         setupButton(languageBtn);
         langPanel.add(languageBtn);
-
+        stopBtn.addActionListener(e -> {
+            int min = this.gamePanel.getCurrentPanel().getElapsedTime()/60;
+            int seconds = this.gamePanel.getCurrentPanel().getElapsedTime()%60;
+            String time = String.format("%02d:%02d", min, seconds);
+            this.pauseMenuPanel = new PauseMenuPanel(time,String.format("%d",this.gamePanel.getCurrentPanel().steps),currentLanguage);
+            this.pauseMenuPanel.setGameController(this.gameController);
+            this.pauseMenuPanel.setVisible(true);
+            this.gameController.pauseTimer();
+        });
+        restartBtn.addActionListener(e -> {
+            this.gameController.restartGame();
+        });
         languageBtn.addActionListener(e -> {
             currentLanguage = (currentLanguage == Language.CHINESE) ? Language.ENGLISH : Language.CHINESE;
             updateLanguageTexts();
@@ -100,8 +225,8 @@ public class GameFrame1 extends JFrame {
             public void mouseEntered(MouseEvent e) {
                 button.setIcon(null);
                 button.setText("<html><center>" + text + "</center></html>");
-                button.setFont(new Font("宋体", Font.BOLD, 12));
-                button.setForeground(Color.YELLOW);
+                button.setFont(new Font("楷体", Font.BOLD, 12));
+                button.setForeground(Color.BLACK);
             }
 
             @Override
@@ -130,12 +255,12 @@ public class GameFrame1 extends JFrame {
             return new JButton(tooltip);
         }
         ImageIcon originalIcon = new ImageIcon(iconURL);
-        Image scaledImage = originalIcon.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH); // 控制大小
+        Image scaledImage = originalIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH); // 控制大小
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
 
         JButton button = new JButton(scaledIcon);
         button.setToolTipText(tooltip);
-        button.setPreferredSize(new Dimension(40, 40)); // 设置大小，避免撑开
+        button.setPreferredSize(new Dimension(50, 50)); // 设置大小，避免撑开
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setFocusPainted(false);
@@ -186,6 +311,10 @@ public class GameFrame1 extends JFrame {
         } else {
             languageBtn.setText("En / 中");
         }
+
+        if (gamePanel != null) {
+            gamePanel.updateLanguageTexts(currentLanguage);
+        }
     }
 
     public void setGameController(GameController gameController) {
@@ -199,7 +328,7 @@ public class GameFrame1 extends JFrame {
                 {1, 3, 4, 4, 1},
                 {2, 2, 4, 4, 0}
         });
-        //new GameFrame1(mapModel,1);
+//        new GameFrame1(mapModel,1);
     }
 }
 

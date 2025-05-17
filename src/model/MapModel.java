@@ -1,12 +1,12 @@
 package model;
 
+import java.io.Serializable;
+
 /**
  * This class is to record the map of one game. For example:
  */
-public class MapModel {
+public class MapModel implements Serializable {
     int[][] matrix;// 二维数组存储地图数据
-
-
     public MapModel(int[][] matrix) {
         this.matrix = matrix;
     }

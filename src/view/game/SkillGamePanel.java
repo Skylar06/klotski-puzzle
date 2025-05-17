@@ -1,6 +1,7 @@
 package view.game;
 
 import model.MapModel;
+import view.Language;
 
 import javax.swing.*;
 import java.awt.*;
@@ -121,5 +122,8 @@ public class SkillGamePanel extends AbstractGamePanel {
             System.err.println("图标加载失败: " + path);
             return null;
         }
+    }
+    public void updateLanguageTexts(Language currentLanguage){
+
     }
 }

@@ -23,6 +23,7 @@ public class RegisterFrame extends JFrame {
     private JButton backToLoginBtn;
     private JButton languageBtn;
     private Language currentLanguage = Language.CHINESE;
+    private JLabel titleLabel;
     private JLabel userLabel;
     private JLabel passLabel;
     private JLabel confirmPassLabel;
@@ -49,7 +50,7 @@ public class RegisterFrame extends JFrame {
         bgPanel.setLayout(new BorderLayout());
         this.setContentPane(bgPanel);
 
-        languageBtn = new JButton("中/En");
+        languageBtn = new JButton("中原/外邦");
         setupButton(languageBtn);
         JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         langPanel.setOpaque(false);
@@ -63,7 +64,7 @@ public class RegisterFrame extends JFrame {
         bgPanel.add(centerPanel, BorderLayout.CENTER);
 
         // 标题
-        JLabel titleLabel = new JLabel("三国 · 华容道 注册", SwingConstants.CENTER);
+        titleLabel = new JLabel("三国 · 华容道 注册", SwingConstants.CENTER);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("titleFont.ttf")) {
             Font titleFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(60f);  // 放大到60
@@ -192,7 +193,7 @@ public class RegisterFrame extends JFrame {
         centerPanel.add(buttonPanel);
 
         submitBtn = new JButton("注册");
-        backToLoginBtn = new JButton("返回登录");
+        backToLoginBtn = new JButton("归返登入");
 
         // 配置按钮样式
         setupButton(submitBtn);
@@ -210,21 +211,71 @@ public class RegisterFrame extends JFrame {
 
     private void updateLanguageTexts() {
         if (currentLanguage == Language.CHINESE) {
-            submitBtn.setText("登 入");
-            languageBtn.setText("中 / En");
+            submitBtn.setText("注册");
+            backToLoginBtn.setText("归返登入");
+            languageBtn.setText("中原/外邦");
             // 标签更新请提取为字段 userLabel, passLabel
             userLabel.setText("丹青名牒：");
             passLabel.setText("玄机密令：");
+            confirmPassLabel.setText("复述密令：");
+
+            if (titleLabel != null) {
+                titleLabel.setText("三国 · 华容道 注册");
+            }
+
+            // 用户名和密码输入框提示
+            if (usernameField.getText().isEmpty() || usernameField.getText().equals("Please enter username")) {
+                usernameField.setText("请输入用户名");
+                usernameField.setForeground(Color.GRAY);
+            }
+            if (new String(passwordField.getPassword()).isEmpty() || new String(passwordField.getPassword()).equals("Please enter password")) {
+                passwordField.setEchoChar((char)0);
+                passwordField.setText("请输入密码");
+                passwordField.setForeground(Color.GRAY);
+            }
+            if (new String(confirmPasswordField.getPassword()).isEmpty() || new String(confirmPasswordField.getPassword()).equals("Please enter password")) {
+                confirmPasswordField.setEchoChar((char)0);
+                confirmPasswordField.setText("请确认密码");
+                confirmPasswordField.setForeground(Color.GRAY);
+            }
         } else {
-            submitBtn.setText("Login");
+            submitBtn.setText("Register");
+            backToLoginBtn.setText("Back");
             languageBtn.setText("En / 中");
             userLabel.setText("Username:");
             passLabel.setText("Password:");
+            confirmPassLabel.setText("Confirm password:");
+
+            if (titleLabel != null) {
+                titleLabel.setText("Klotski Puzzle · Registration");
+            }
+
+            if (usernameField.getText().isEmpty() || usernameField.getText().equals("请输入用户名")) {
+                usernameField.setText("Please enter username");
+                usernameField.setForeground(Color.GRAY);
+            }
+            if (new String(passwordField.getPassword()).isEmpty() || new String(passwordField.getPassword()).equals("请输入密码")) {
+                passwordField.setEchoChar((char)0);
+                passwordField.setText("Please enter password");
+                passwordField.setForeground(Color.GRAY);
+            }
+            if (new String(confirmPasswordField.getPassword()).isEmpty() || new String(confirmPasswordField.getPassword()).equals("请确认密码")) {
+                confirmPasswordField.setEchoChar((char)0);
+                confirmPasswordField.setText("Please enter password");
+                confirmPasswordField.setForeground(Color.GRAY);
+            }
         }
     }
 
     private void styleTextField(JTextField textField) {
-        textField.setFont(new Font("Serif", Font.PLAIN, 28));
+        Font inputFont;
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("inputFont.ttf")) {
+            inputFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(28f);  // 字体更大
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(inputFont);
+        } catch (Exception e) {
+            inputFont = new Font("Serif", Font.PLAIN, 28);  // 字体更大
+        }
+        textField.setFont(inputFont);
         textField.setBackground(new Color(255, 248, 220));
         textField.setBorder(BorderFactory.createLineBorder(new Color(180, 140, 100), 3));
     }
@@ -235,9 +286,9 @@ public class RegisterFrame extends JFrame {
         String confirmPassword = new String(confirmPasswordField.getPassword());
 
         if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "所有字段必须填写！");
+            showLoginError( (currentLanguage == Language.CHINESE) ? "诸项皆须留痕" : "Please fill in all required fields");
         } else if (!password.equals(confirmPassword)) {
-            JOptionPane.showMessageDialog(this, "密码和确认密码不一致！");
+            showLoginError( (currentLanguage == Language.CHINESE) ? "密令与回令殊纹" : "Passwords do not match");
         } else {
             try {
                 File file = new File("user.txt");
@@ -257,7 +308,7 @@ public class RegisterFrame extends JFrame {
                 }
 
                 if (userExists) {
-                    JOptionPane.showMessageDialog(this, "用户名已存在！");
+                    showLoginError( (currentLanguage == Language.CHINESE) ? "此名牒已有留痕" : "Username already exists");
                 } else {
                     // 追加写入用户名和密码到文件
                     try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
@@ -266,14 +317,46 @@ public class RegisterFrame extends JFrame {
                         bw.write(password);
                         bw.newLine();
                     }
-                    JOptionPane.showMessageDialog(this, "注册成功！");
+                    showLoginError( (currentLanguage == Language.CHINESE) ? "名牒已鉴，入册青史" : "Registration successful");
                     handleBackToLogin();
                 }
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "注册失败：" + ex.getMessage());
+                showLoginError((currentLanguage == Language.CHINESE) ? "录名未成：" + ex.getMessage() : "Registration failed： " + ex.getMessage());
                 ex.printStackTrace();
             }
         }
+    }
+
+    private void showLoginError(String message) {
+        playSound("error.wav");
+        shakeWindow(this);
+        new view.login.HintScreen(message,currentLanguage).setVisible(true);
+    }
+
+    private void playSound(String resourcePath) {
+        try {
+            URL soundURL = getClass().getClassLoader().getResource(resourcePath);
+            if (soundURL == null) {
+                System.err.println("找不到资源文件: " + resourcePath);
+                return;
+            }
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundURL);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInput);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void shakeWindow(JFrame frame) {
+        int x = frame.getX();
+        int y = frame.getY();
+        for (int i = 0; i < 10; i++) {
+            frame.setLocation(x + (i % 2 == 0 ? 5 : -5), y);
+            try { Thread.sleep(30); } catch (InterruptedException e) { }
+        }
+        frame.setLocation(x, y);
     }
 
     private void handleBackToLogin() {

@@ -1,6 +1,7 @@
 package view.game;
 
 import model.MapModel;
+import view.Language;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,10 +28,10 @@ public class GamePanel extends JPanel {
     private AbstractGamePanel createRandomMode(MapModel model,int m) {
         int mode = new Random().nextInt(3); // 0、1、2 三种模式
         return switch (m) {
-            case 1 -> new StoryGamePanel(model);
-            case 2 -> new SkillGamePanel(model);
+            case 1 -> new StoryGamePanel(model,2);
+            case 2 -> new StoryGamePanel(model,2);
             case 0 -> new EffectGamePanel(model);
-            default -> new StoryGamePanel(model); // 兜底
+            default -> new StoryGamePanel(model,2); // 兜底
         };
     }
 
@@ -39,6 +40,10 @@ public class GamePanel extends JPanel {
      */
     public void setController(controller.GameController controller) {
         currentPanel.setController(controller);
+    }
+
+    public void updateLanguageTexts(Language currentLanguage) {
+        currentPanel.updateLanguageTexts(currentLanguage);
     }
 
     /**

@@ -1,37 +1,43 @@
 package view.game;
 
+import controller.GameController;
+import view.Language;
+
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class PauseMenuPanel extends JFrame {
     private JPanel pasuePanel;
     private JLabel pauseLabel;  // "得分" 标签
-    private JLabel timeCountLabel;
-    private JLabel stepCountLabel;
+    private JButton saveButton;
+    private JButton loadButton;
     private JButton resumeButton;
     private JButton restartButton;
     private JButton mainMenuButton;
     private JButton soundToggleButton;
-
+    private GameController gameController;
     // 背景图片
     private ImageIcon backgroundImage = new ImageIcon(getClass().getClassLoader().getResource("pause_bg.gif"));
 
-    public PauseMenuPanel(String time, String steps) {
+    public PauseMenuPanel(String time, String steps,Language currentLanguage) {
         // 设置主窗口
-        setTitle("暂停界面");
-        setSize(500, 320);
+        setSize(600, 410);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // 居中显示
         setLayout(new BorderLayout());
-
+        this.setUndecorated(true);
         // 创建背景面板并设置透明
         JPanel backgroundPanel = new JPanel() {
             @Override
@@ -58,15 +64,15 @@ public class PauseMenuPanel extends JFrame {
         JPanel pasueHintPanel = new JPanel();
         pasueHintPanel.setLayout(new GridLayout(1, 1)); // 得分部分上下排
         pasueHintPanel.setOpaque(false);
-        pauseLabel = new JLabel("暂停", JLabel.CENTER);
-        pauseLabel.setFont(new Font("楷体", Font.PLAIN, 32));
+        pauseLabel = new JLabel((currentLanguage == Language.CHINESE)?"暂停":"Pause", JLabel.CENTER);
+        pauseLabel.setFont(new Font("楷体", Font.PLAIN, 40));
         pasueHintPanel.add(pauseLabel);
 
         // 显示最快通关
         JPanel timeCountPanel = new JPanel();
         timeCountPanel.setLayout(new GridLayout(2, 1)); // 最快通关部分上下排
         timeCountPanel.setOpaque(false);
-        JLabel timeCountTextLabel = new JLabel("用时", JLabel.CENTER);
+        JLabel timeCountTextLabel = new JLabel((currentLanguage == Language.CHINESE)?"用时":"Time", JLabel.CENTER);
         timeCountTextLabel.setFont(new Font("楷体", Font.PLAIN, 20));
         JLabel timeCountValueLabel = new JLabel(time, JLabel.CENTER);
         timeCountValueLabel.setFont(new Font("楷体", Font.PLAIN, 20));
@@ -77,7 +83,7 @@ public class PauseMenuPanel extends JFrame {
         JPanel stepCountPanel = new JPanel();
         stepCountPanel.setLayout(new GridLayout(2, 1)); // 最少步数部分上下排
         stepCountPanel.setOpaque(false);
-        JLabel stepCountTextLabel = new JLabel("步数", JLabel.CENTER);
+        JLabel stepCountTextLabel = new JLabel((currentLanguage == Language.CHINESE)?"步数":"Steps", JLabel.CENTER);
         stepCountTextLabel.setFont(new Font("楷体", Font.PLAIN, 20));
         JLabel stepCountValueLabel = new JLabel(steps, JLabel.CENTER);
         stepCountValueLabel.setFont(new Font("楷体", Font.PLAIN, 20));
@@ -98,82 +104,188 @@ public class PauseMenuPanel extends JFrame {
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.setOpaque(false); // 保证背景透明
 
-        JPanel controlButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        controlButtonsPanel.setOpaque(false);
+        JPanel upperButtonPanel = new JPanel();
+        upperButtonPanel.setLayout(new BoxLayout(upperButtonPanel, BoxLayout.Y_AXIS));
+        upperButtonPanel.setOpaque(false); // 保证背景透明
 
-        restartButton = new JButton("重新开始");
-        resumeButton = new JButton("继续游戏");
-        mainMenuButton = new JButton("返回菜单");
+        JPanel upperControlButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 0));
+        upperControlButtonsPanel.setOpaque(false);
+
+        saveButton = new JButton();
+        loadButton = new JButton();
+
+        setupButton(saveButton);
+        setupButton(loadButton);
+
+        if (currentLanguage == Language.CHINESE) {
+            saveButton.setText("保存进度");
+        } else {
+            saveButton.setText("Save");
+        }
+
+        if (currentLanguage == Language.CHINESE) {
+            loadButton.setText("读取进度");
+        } else {
+            loadButton.setText("Load");
+        }
+
+        saveButton.setMargin(new Insets(0, 0, 0, 0));
+        loadButton.setMargin(new Insets(0, 0, 0, 0));
+
+        upperControlButtonsPanel.add(saveButton);
+        upperControlButtonsPanel.add(loadButton);
+
+        saveButton.addActionListener(e -> {
+            String timestamp = LocalDateTime.now()
+                    .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+
+            String filePath = "./" + timestamp + ".txt";
+            this.gameController.saveGame(filePath);
+        });
+
+
+        loadButton.addActionListener(e ->{
+            JFileChooser jf = new JFileChooser(".");
+            jf.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+            jf.setFileFilter(new FileFilter() {
+                @Override
+                public String getDescription() {
+                    return ".txt";
+                }
+
+                @Override
+                public boolean accept(File f) {
+                    if (f.getName().endsWith("txt")) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            });
+            int flag = jf.showOpenDialog(this);
+            if (flag == JFileChooser.APPROVE_OPTION) {
+                String fileName = jf.getSelectedFile().getName();
+                String lastName = fileName.substring(fileName.lastIndexOf(".") + 1);
+                if (!lastName.equals("txt")) {
+                    JOptionPane.showMessageDialog(this, "请选择一个txt格式的文件");
+                    return;
+                }
+                this.gameController.loadGame(jf.getSelectedFile().getAbsolutePath());
+                this.setVisible(false);
+                this.gameController.restartTimer();
+            }
+        });
+        upperButtonPanel.add(upperControlButtonsPanel);
+
+        JPanel midButtonPanel = new JPanel();
+        midButtonPanel.setLayout(new BoxLayout(midButtonPanel, BoxLayout.Y_AXIS));
+        midButtonPanel.setOpaque(false); // 保证背景透明
+
+        JPanel midControlButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        midControlButtonsPanel.setOpaque(false);
+
+        restartButton = new JButton();
+        resumeButton = new JButton();
+        mainMenuButton = new JButton();
 
         setupButton(restartButton);
         setupButton(resumeButton);
         setupButton(mainMenuButton);
 
-        controlButtonsPanel.add(restartButton);
-        controlButtonsPanel.add(resumeButton);
-        controlButtonsPanel.add(mainMenuButton);
+        if (currentLanguage == Language.CHINESE) {
+            restartButton.setText("再启");
+        } else {
+            restartButton.setText("Restart");
+        }
 
-        buttonPanel.add(controlButtonsPanel);
+        if (currentLanguage == Language.CHINESE) {
+            resumeButton.setText("征战");
+        } else {
+            resumeButton.setText("Continue");
+        }
+
+        if (currentLanguage == Language.CHINESE) {
+            mainMenuButton.setText("归返");
+        } else {
+            mainMenuButton.setText("Back");
+        }
+
+        restartButton.setMargin(new Insets(0, 0, 0, 0));
+        resumeButton.setMargin(new Insets(0, 0, 0, 0));
+        mainMenuButton.setMargin(new Insets(0, 0, 0, 0));
+
+        midControlButtonsPanel.add(restartButton);
+        midControlButtonsPanel.add(resumeButton);
+        midControlButtonsPanel.add(mainMenuButton);
+
+        midButtonPanel.add(midControlButtonsPanel);
+
+        JPanel soundTogglePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        soundTogglePanel.setOpaque(false);
 
         // 在按钮区域添加游客模式按钮
-        soundToggleButton = new JButton("切换音效");
+        soundToggleButton = new JButton();
+        if (currentLanguage == Language.CHINESE) {
+            soundToggleButton.setText("切换音效");
+        } else {
+            soundToggleButton.setText("Change Music");
+        }
+
         // 添加排行榜按钮
-        soundToggleButton.setFont(new Font("楷体", Font.PLAIN, 15));
-        soundToggleButton.setForeground(new Color(150, 150, 150)); // 淡灰色
+        soundToggleButton.setFont(new Font("楷体", Font.PLAIN, 18));
+        soundToggleButton.setForeground(Color.WHITE); // 淡灰色
         soundToggleButton.setBorderPainted(false);
         soundToggleButton.setContentAreaFilled(false);
         soundToggleButton.setFocusPainted(false);
         soundToggleButton.setOpaque(false);
-
+        soundToggleButton.setMargin(new Insets(0, 0, 0, 0));
+        soundTogglePanel.add(soundToggleButton);
         // 添加排行榜按钮到buttonPanel
-        buttonPanel.add(Box.createVerticalStrut(10));  // 控制按钮与排行榜之间的间距
-        buttonPanel.add(soundToggleButton);
+
+        upperButtonPanel.setBorder(null);
+        midButtonPanel.setBorder(null);
+
+        buttonPanel.add(upperButtonPanel);
+        buttonPanel.add(midButtonPanel);
+        buttonPanel.add(Box.createVerticalStrut(0));
+        buttonPanel.add(soundTogglePanel);
 
         // 设置按钮事件
-        resumeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 下一关逻辑
-                System.out.println("继续游戏");
-            }
+        resumeButton.addActionListener(e -> {
+            this.setVisible(false);
+            this.gameController.restartTimer();
+        });
+        restartButton.addActionListener(e->{
+            this.setVisible(false);
+            this.gameController.restartGame();
         });
 
-        restartButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 重新开始逻辑
-                System.out.println("重新开始");
-            }
-        });
-
-        mainMenuButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 返回主菜单逻辑
-                System.out.println("返回主菜单");
-            }
+        mainMenuButton.addActionListener(e->{
+            this.setVisible(false);
+            this.gameController.returnToMenu();
         });
 
         soundToggleButton.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                soundToggleButton.setForeground(new Color(255, 200, 0));  // 改为高亮色
+                soundToggleButton.setForeground(new Color(255, 100, 0));  // 改为高亮色
             }
 
             public void mouseExited(MouseEvent e) {
-                soundToggleButton.setForeground(new Color(150, 150, 150));  // 恢复默认色
+                soundToggleButton.setForeground(Color.WHITE);  // 恢复默认色
             }
 
             public void mousePressed(MouseEvent e) {
-                soundToggleButton.setForeground(new Color(255, 180, 0));  // 按下时的颜色
+                soundToggleButton.setForeground(new Color(255, 10, 0));  // 按下时的颜色
                 // 重新开始逻辑
-                System.out.println("查看排行榜");
+                System.out.println("切换音效");
             }
         });
 
 
         // 将组件添加到胜利面板
-        pasuePanel.add(infoPanel,BorderLayout.CENTER);  // 添加得分和其他信息
-        pasuePanel.add(buttonPanel,BorderLayout.SOUTH);  // 添加按钮区域
+        pasuePanel.add(Box.createVerticalStrut(20));
+        pasuePanel.add(infoPanel);
+        pasuePanel.add(buttonPanel,BorderLayout.SOUTH);// 添加得分和其他信息
 
         // 将胜利面板添加到背景面板
         backgroundPanel.add(pasuePanel, BorderLayout.CENTER);
@@ -232,12 +344,16 @@ public class PauseMenuPanel extends JFrame {
         }
     }
 
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
+    }
+
     public static void main(String[] args) {
         // 测试胜利界面
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                PauseMenuPanel pauseMenuPanel1 = new PauseMenuPanel("2:30", "25步");
+                PauseMenuPanel pauseMenuPanel1 = new PauseMenuPanel("2:30", "25步",Language.CHINESE);
                 pauseMenuPanel1.setVisible(true);
             }
         });
