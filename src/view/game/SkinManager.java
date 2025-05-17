@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 
 public class SkinManager {
     private static final String[] SKIN_NAMES = {
-            "classic", "soldier", "cat", "dragon", "emoji", "pixel", "future", "mahjong"
+            "classic", "soldier", "cat", "dragon", "cartoon", "pixel", "sustech"
     };
 
     private static final Map<String, Map<Integer, Image>> skinCache = new HashMap<>();

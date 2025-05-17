@@ -59,6 +59,26 @@ public class GameFrame1 extends JFrame {
         this.gameController.setView(gamePanel);
         gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
         gamePanel.setOpaque(false);
+        // ✅ 添加提示标签
+        JLabel tipLabel = new JLabel("提示：全屏后可开启箭头操作", SwingConstants.CENTER);
+        tipLabel.setFont(new Font("楷体", Font.BOLD, 20));
+        tipLabel.setForeground(new Color(139, 69, 19)); // 棕色
+        tipLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        tipLabel.setVisible(false); // 初始为隐藏
+
+        JPanel tipPanel = new JPanel();
+        tipPanel.setOpaque(false);
+        tipPanel.setLayout(new BoxLayout(tipPanel, BoxLayout.Y_AXIS));
+        tipPanel.add(Box.createVerticalStrut(10)); // 顶部间距
+        tipPanel.add(tipLabel);
+
+        gamePanel.add(tipPanel);
+
+// 初始窗口较小时显示提示文字
+        if (this.getWidth() < 1100 || this.getHeight() < 800) {
+            tipLabel.setVisible(true);
+            new Timer(3000, e -> tipLabel.setVisible(false)).start(); // 3秒后自动隐藏
+        }
         bgPanel.add(gamePanel, BorderLayout.CENTER);
 
         // 创建箭头按钮面板，默认隐藏
