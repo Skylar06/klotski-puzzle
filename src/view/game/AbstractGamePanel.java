@@ -6,10 +6,11 @@ import model.MapModel;
 import view.Language;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -51,7 +52,9 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     };
     private boolean[] skillUsed = new boolean[4]; // 每个技能是否用过
     private JLabel[] centerLabels = new JLabel[4]; // 显示在按钮中间的 "1"/"+" 标签
-
+    // 建议加在类的成员变量中统一配置
+    private static final int BOARD_ROWS = 4; // 高
+    private static final int BOARD_COLS = 5; // 宽
 
     public AbstractGamePanel(MapModel model) {
         this.model = model;
@@ -380,7 +383,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         adDialog.setContentPane(layeredPane);
 
         // ---- 加载广告图片并缩放 ----
-        String[] adImages = { "ad1.png", "ad2.png", "ad3.png" };
+        String[] adImages = {"ad1.png", "ad2.png", "ad3.png"};
         ImageIcon[] adIcons = new ImageIcon[adImages.length];
         for (int i = 0; i < adImages.length; i++) {
             java.net.URL url = getClass().getClassLoader().getResource(adImages[i]);
@@ -425,10 +428,13 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     private void handleSkill(String skillName) {
         switch (skillName) {
-            case "消除" -> eliminateRandomBlock();
-            case "高亮" -> System.out.println("触发技能：高亮可移动");
-            case "打乱" -> System.out.println("触发技能：重新打乱");
-            case "随机" -> {
+            case "破阵" -> eliminateRandomBlock();
+            case "摘星" -> {
+                clearHighlight(); // 如果想重复使用，先清除
+                highlightMovableBlocks();
+            }
+            case "风云" -> shuffleBoxes();
+            case "无常" -> {
                 int idx = (int) (Math.random() * 3);
                 handleSkill(skillNames[idx]);
             }
@@ -437,8 +443,8 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     private void eliminateRandomBlock() {
         List<BoxComponent> candidates = new ArrayList<>();
-        for (BoxComponent box : boxes) {
-            if (box.getType() != 4) { // 假设 type=4 是主角，不允许消除
+        for (BoxComponent box : new ArrayList<>(boxes)) {
+            if (box.getType() != 4) {
                 candidates.add(box);
             }
         }
@@ -447,11 +453,252 @@ public abstract class AbstractGamePanel extends ListenerPanel {
             return;
         }
 
-        // 随机选一个方块
         BoxComponent toRemove = candidates.get((int) (Math.random() * candidates.size()));
-        boxes.remove(toRemove);                    // 从列表中移除
-        boardPanel.remove(toRemove);               // 从面板中移除
-        boardPanel.repaint();                      // 刷新面板
+
+        // 假设 BoxComponent 有 getRow() 和 getCol() 方法
+        int row = toRemove.getRow();
+        int col = toRemove.getCol();
+
+        // 1. 更新模型数据，设为0表示空格
+        model.getMatrix()[row][col] = 0;
+
+        // 2. 移除视图和状态
+        boardPanel.remove(toRemove);
+        boxes.remove(toRemove);
+        toRemove.setVisible(false);
+
+        boardPanel.revalidate();
+        boardPanel.repaint();
+
+        clearHighlight();
+    }
+
+
+    private void highlightMovableBlocks() {
+        for (BoxComponent box : boxes) {
+            if (isMovable(box)) {
+                box.setHighlighted(true);
+            }
+        }
+        new javax.swing.Timer(5000, e -> clearHighlight()).start(); // 5 秒后自动清除
+    }
+
+    private boolean isMovable(BoxComponent box) {
+        int row = box.getRow();
+        int col = box.getCol();
+
+        Rectangle bounds = box.getBounds();
+        int w = Math.round(bounds.width / (float) GRID_SIZE);
+        int h = Math.round(bounds.height / (float) GRID_SIZE);
+
+        boolean[][] occupied = new boolean[BOARD_ROWS][BOARD_COLS];
+        for (BoxComponent b : boxes) {
+            Rectangle bBounds = b.getBounds();
+            int r = b.getRow();
+            int c = b.getCol();
+            int bw = Math.round(bBounds.width / (float) GRID_SIZE);
+            int bh = Math.round(bBounds.height / (float) GRID_SIZE);
+            for (int i = 0; i < bh; i++) {
+                for (int j = 0; j < bw; j++) {
+                    if (r + i < BOARD_ROWS && c + j < BOARD_COLS) {
+                        occupied[r + i][c + j] = true;
+                    }
+                }
+            }
+        }
+
+        return canMoveTo(row - 1, col, w, h, occupied) ||
+                canMoveTo(row + 1, col, w, h, occupied) ||
+                canMoveTo(row, col - 1, w, h, occupied) ||
+                canMoveTo(row, col + 1, w, h, occupied);
+    }
+
+    private boolean canMoveTo(int r, int c, int w, int h, boolean[][] occupied) {
+        if (r < 0 || c < 0 || r + h > BOARD_ROWS || c + w > BOARD_COLS) return false;
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                if (occupied[r + i][c + j]) return false;
+            }
+        }
+        return true;
+    }
+
+    private void clearHighlight() {
+        for (BoxComponent box : boxes) {
+            box.setHighlighted(false);
+        }
+    }
+
+    private static class BlockInfo {
+        int id;
+        int type;
+
+        BlockInfo(int id, int type) {
+            this.id = id;
+            this.type = type;
+        }
+    }
+
+    public void shuffleBoxes() {
+        int rows = model.getHeight();
+        int cols = model.getWidth();
+
+        // 原始模型中，关卡配置就是 type 值（1~4）
+        int[][] oldMatrix = model.getMatrix();
+
+        // 1. 统计原始方块类型（type），仅记录一次
+        List<Integer> blockTypes = new ArrayList<>();
+        boolean[][] visited = new boolean[rows][cols];
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (!visited[i][j] && oldMatrix[i][j] > 0) {
+                    int type = oldMatrix[i][j];
+                    blockTypes.add(type);
+                    markVisited(visited, i, j, type); // 标记已访问方块区域
+                }
+            }
+        }
+
+        // 2. 打乱类型顺序
+        Collections.shuffle(blockTypes);
+
+        // 3. 初始化空矩阵
+        int[][] newMatrix = new int[rows][cols];
+
+        // 4. 依次尝试放入新的位置
+        int idx = 0;
+        outer:
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (idx >= blockTypes.size()) break outer;
+
+                int type = blockTypes.get(idx);
+                if (canPlace(newMatrix, i, j, type)) {
+                    placeBlock(newMatrix, i, j, type);
+                    idx++;
+                }
+            }
+        }
+
+        // 5. 更新模型并重建显示
+        model.setMatrix(newMatrix);
+        rebuildBoxesFromMatrix(newMatrix);
+    }
+
+    private void markVisited(boolean[][] visited, int row, int col, int type) {
+        visited[row][col] = true;
+        switch (type) {
+            case 2 -> visited[row][col + 1] = true;
+            case 3 -> visited[row + 1][col] = true;
+            case 4 -> {
+                visited[row][col + 1] = true;
+                visited[row + 1][col] = true;
+                visited[row + 1][col + 1] = true;
+            }
+        }
+    }
+
+    private int getBlockType(int[][] matrix, int id) {
+        int count = 0;
+        for (int[] row : matrix) {
+            for (int cell : row) {
+                if (cell == id) count++;
+            }
+        }
+
+        return switch (count) {
+            case 1 -> 1;     // 单格
+            case 2 -> {      // 横2 或 竖2
+                for (int i = 0; i < matrix.length; i++) {
+                    for (int j = 0; j < matrix[0].length; j++) {
+                        if (matrix[i][j] == id) {
+                            if (j + 1 < matrix[0].length && matrix[i][j + 1] == id) yield 2; // 横2
+                            else yield 3; // 竖2
+                        }
+                    }
+                }
+                yield 3; // fallback
+            }
+            case 4 -> 4;     // 2x2
+            default -> 1;    // fallback
+        };
+    }
+
+    private void placeBlock(int[][] matrix, int row, int col, int type) {
+        matrix[row][col] = type;
+        switch (type) {
+            case 2 -> matrix[row][col + 1] = type;
+            case 3 -> matrix[row + 1][col] = type;
+            case 4 -> {
+                matrix[row][col + 1] = type;
+                matrix[row + 1][col] = type;
+                matrix[row + 1][col + 1] = type;
+            }
+        }
+    }
+
+    private boolean canPlace(int[][] matrix, int row, int col, int type) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        switch (type) {
+            case 1:
+                return matrix[row][col] == 0;
+            case 2:
+                return col + 1 < cols && matrix[row][col] == 0 && matrix[row][col + 1] == 0;
+            case 3:
+                return row + 1 < rows && matrix[row][col] == 0 && matrix[row + 1][col] == 0;
+            case 4:
+                return row + 1 < rows && col + 1 < cols
+                        && matrix[row][col] == 0
+                        && matrix[row][col + 1] == 0
+                        && matrix[row + 1][col] == 0
+                        && matrix[row + 1][col + 1] == 0;
+            default:
+                return false;
+        }
+    }
+
+    private void rebuildBoxesFromMatrix(int[][] matrix) {
+        boxes.clear();
+        boardPanel.removeAll();
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+        boolean[][] visited = new boolean[rows][cols];
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                int type = matrix[i][j];
+                if (type != 0 && !visited[i][j]) {
+                    BoxComponent box = new BoxComponent(type, i, j);
+                    switch (type) {
+                        case 1 -> box.setSize(GRID_SIZE, GRID_SIZE);
+                        case 2 -> {
+                            box.setSize(GRID_SIZE * 2, GRID_SIZE);
+                            visited[i][j + 1] = true;
+                        }
+                        case 3 -> {
+                            box.setSize(GRID_SIZE, GRID_SIZE * 2);
+                            visited[i + 1][j] = true;
+                        }
+                        case 4 -> {
+                            box.setSize(GRID_SIZE * 2, GRID_SIZE * 2);
+                            visited[i][j + 1] = true;
+                            visited[i + 1][j] = true;
+                            visited[i + 1][j + 1] = true;
+                        }
+                    }
+                    box.setLocation(j * GRID_SIZE, i * GRID_SIZE);
+                    boxes.add(box);
+                    boardPanel.add(box);
+                    visited[i][j] = true;
+                }
+            }
+        }
+
+        boardPanel.revalidate();
+        boardPanel.repaint();
     }
 
     private ImageIcon loadIcon(String path) {
@@ -657,7 +904,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     private void checkWinCondition() {
         if (model.getId(1, 4) == 4 && model.getId(2, 4) == 4) {
-            VictoryScreen v = new VictoryScreen(1000, String.format("%2d%2d",this.elapsedTime/60,this.elapsedTime%60),String.format("%d",this.steps),"2:30", "25步",this.currentLanguage);
+            VictoryScreen v = new VictoryScreen(1000, String.format("%2d%2d", this.elapsedTime / 60, this.elapsedTime % 60), String.format("%d", this.steps), "2:30", "25步", this.currentLanguage);
             v.setGameController(controller);
             v.setVisible(true);
             this.setVisible(false);
@@ -726,13 +973,15 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     public int getElapsedTime() {
         return elapsedTime;
     }
-    public void pauseTimer(){
-        if (this.timer!=null){
+
+    public void pauseTimer() {
+        if (this.timer != null) {
             this.timer.stop();
         }
     }
-    public void restartTimer(){
-        if (this.timer!=null){
+
+    public void restartTimer() {
+        if (this.timer != null) {
             this.timer.start();
         }
     }

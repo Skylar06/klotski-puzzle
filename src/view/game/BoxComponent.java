@@ -10,11 +10,14 @@ public class BoxComponent extends JComponent {
     private boolean isSelected;// 选中状态
     private int type; // 类型：1-4，用于判断是哪种方块（如横2、竖2、大方块等）
     private static String currentSkin = "classic"; // 当前皮肤，默认是古风
+    private int logicalWidth;  // 单元格宽
+    private int logicalHeight; // 单元格高
 
     private static final int BORDER_WIDTH_SELECTED = 3;
     private static final int BORDER_WIDTH_DEFAULT = 1;
 
     private boolean isDisabled = false;
+    private boolean isHighlighted = false;
 
     public BoxComponent(int type, int row, int col) {
         this.type = type;
@@ -36,6 +39,7 @@ public class BoxComponent extends JComponent {
             // 如果没图片，就用默认色块
             g.setColor(Color.LIGHT_GRAY);
             g.fillRect(0, 0, getWidth(), getHeight());
+
         }
 
         // 设置边框
@@ -47,6 +51,16 @@ public class BoxComponent extends JComponent {
         if (isDisabled) {
             this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 4));
         }
+
+        if (isHighlighted) {
+            g.setColor(new Color(255, 255, 180, 120)); // 半透明淡黄色
+            g.fillRect(0, 0, getWidth(), getHeight());
+        }
+    }
+
+    public void setHighlighted(boolean highlighted) {
+        this.isHighlighted = highlighted;
+        repaint();
     }
 
     public void setDisabled(boolean disabled) {
@@ -61,6 +75,14 @@ public class BoxComponent extends JComponent {
     public void setSelected(boolean selected) {
         isSelected = selected;
         this.repaint();
+    }
+
+    public int getLogicalWidth() {
+        return logicalWidth;
+    }
+
+    public int getLogicalHeight() {
+        return logicalHeight;
     }
 
     public int getRow() {
