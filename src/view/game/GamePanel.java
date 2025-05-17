@@ -1,5 +1,6 @@
 package view.game;
 
+import model.LevelManager;
 import model.MapModel;
 import view.Language;
 
@@ -13,9 +14,15 @@ import java.util.Random;
 public class GamePanel extends JPanel {
     private AbstractGamePanel currentPanel;
     private boolean lastUsedTimeLimit = false;
+    private int mode;
+
+    public static GamePanel instance;
 
     public GamePanel(MapModel model,int mode) {
+        this.mode = mode;
         setLayout(new BorderLayout());
+
+        instance = this; // ✅ 注册全局引用
 
         currentPanel = createRandomMode(model,mode);
         add(currentPanel, BorderLayout.CENTER);
@@ -41,6 +48,26 @@ public class GamePanel extends JPanel {
             case 0 -> new EffectGamePanel(model);
             default -> new StoryGamePanel(model,2); // 兜底
         };
+    }
+
+    public static void nextLevel() {
+        if (instance != null) {
+            instance.loadNextLevel();
+        }
+    }
+
+    // ✅ 实际的换关逻辑
+    private void loadNextLevel() {
+        LevelManager.nextLevel();
+        MapModel newMap = LevelManager.getCurrentMap();
+
+        remove(currentPanel);
+        currentPanel = createRandomMode(newMap, mode);
+        add(currentPanel, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+
+        currentPanel.requestFocusInWindow();
     }
 
     /**

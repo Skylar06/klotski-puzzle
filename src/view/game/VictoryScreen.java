@@ -210,8 +210,7 @@ public class VictoryScreen extends JFrame {
         nextLevelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // 下一关逻辑
-                System.out.println("进入下一关");
+                GamePanel.nextLevel(); // 切换下一关
             }
         });
 
