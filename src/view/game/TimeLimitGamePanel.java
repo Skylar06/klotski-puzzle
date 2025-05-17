@@ -60,7 +60,7 @@ public class TimeLimitGamePanel extends AbstractGamePanel {
         countdownTimer = new Timer(1000, e -> {
             if (remainingSeconds > 0) {
                 remainingSeconds--;
-                countdownLabel.setText("剩余时间: " + formatTime(remainingSeconds));
+                countdownLabel.setText("剩余: " + formatTime(remainingSeconds));
             } else {
                 countdownTimer.stop();
                 timeUp();

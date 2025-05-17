@@ -12,6 +12,7 @@ import java.util.Random;
  */
 public class GamePanel extends JPanel {
     private AbstractGamePanel currentPanel;
+    private boolean lastUsedTimeLimit = false;
 
     public GamePanel(MapModel model,int mode) {
         setLayout(new BorderLayout());
@@ -26,10 +27,17 @@ public class GamePanel extends JPanel {
      * 随机选择一个游戏模式面板
      */
     private AbstractGamePanel createRandomMode(MapModel model,int m) {
-        int mode = new Random().nextInt(3); // 0、1、2 三种模式
         return switch (m) {
             case 1 -> new StoryGamePanel(model,2);
-            case 2 -> new StoryGamePanel(model,2);
+            case 2 -> {
+                lastUsedTimeLimit = !lastUsedTimeLimit;
+                if (lastUsedTimeLimit) {
+                    yield new TimeLimitGamePanel(model);
+                } else {
+                    yield new StepsLimitGamePanel(model,8);
+                }
+            }
+
             case 0 -> new EffectGamePanel(model);
             default -> new StoryGamePanel(model,2); // 兜底
         };

@@ -425,7 +425,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     private void handleSkill(String skillName) {
         switch (skillName) {
-            case "消除" -> System.out.println("触发技能：消除");
+            case "消除" -> eliminateRandomBlock();
             case "高亮" -> System.out.println("触发技能：高亮可移动");
             case "打乱" -> System.out.println("触发技能：重新打乱");
             case "随机" -> {
@@ -433,6 +433,25 @@ public abstract class AbstractGamePanel extends ListenerPanel {
                 handleSkill(skillNames[idx]);
             }
         }
+    }
+
+    private void eliminateRandomBlock() {
+        List<BoxComponent> candidates = new ArrayList<>();
+        for (BoxComponent box : boxes) {
+            if (box.getType() != 4) { // 假设 type=4 是主角，不允许消除
+                candidates.add(box);
+            }
+        }
+        if (candidates.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "没有可以消除的方块了！");
+            return;
+        }
+
+        // 随机选一个方块
+        BoxComponent toRemove = candidates.get((int) (Math.random() * candidates.size()));
+        boxes.remove(toRemove);                    // 从列表中移除
+        boardPanel.remove(toRemove);               // 从面板中移除
+        boardPanel.repaint();                      // 刷新面板
     }
 
     private ImageIcon loadIcon(String path) {
