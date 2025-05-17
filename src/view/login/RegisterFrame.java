@@ -30,13 +30,14 @@ public class RegisterFrame extends JFrame {
     private static final String USERNAME_PLACEHOLDER = "请输入用户名";
     private static final String PASSWORD_PLACEHOLDER = "请输入密码";
     private static final String CONFIRM_PASSWORD_PLACEHOLDER = "请确认密码";
+    private LoginFrame loginFrame;
 
-    public RegisterFrame() {
+    public RegisterFrame(LoginFrame loginFrame) {
         this.setTitle("华容道·注册");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setSize(1000, 750);
         this.setLocationRelativeTo(null);
-
+        this.loginFrame = loginFrame;
         // 背景面板
         JPanel bgPanel = new JPanel() {
             Image bg = new ImageIcon(getClass().getClassLoader().getResource("background.gif")).getImage();
@@ -360,8 +361,9 @@ public class RegisterFrame extends JFrame {
     }
 
     private void handleBackToLogin() {
-        this.dispose();  // 关闭当前注册界面
-        new LoginFrame();  // 打开登录界面
+        this.dispose(); // 关闭当前注册界面
+        this.setVisible(false);
+        this.loginFrame.setVisible(true);// 打开登录界面
     }
 
     private void setupButton(JButton button) {

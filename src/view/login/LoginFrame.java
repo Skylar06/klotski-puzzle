@@ -270,7 +270,7 @@ public class LoginFrame extends JFrame {
         this.setVisible(true);
 
         registerBtn.addActionListener(e -> {
-            new RegisterFrame(); // 你需要自己实现这个窗口
+            new RegisterFrame(this); // 你需要自己实现这个窗口
             this.setVisible(false);
         });
 

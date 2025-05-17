@@ -170,9 +170,10 @@ public class PauseMenuPanel extends JFrame {
                     JOptionPane.showMessageDialog(this, "请选择一个txt格式的文件");
                     return;
                 }
-                this.gameController.loadGame(jf.getSelectedFile().getAbsolutePath());
-                this.setVisible(false);
-                this.gameController.restartTimer();
+                if(this.gameController.loadGame(jf.getSelectedFile().getAbsolutePath())) {
+                    this.setVisible(false);
+                    this.gameController.restartTimer();
+                }
             }
         });
         upperButtonPanel.add(upperControlButtonsPanel);

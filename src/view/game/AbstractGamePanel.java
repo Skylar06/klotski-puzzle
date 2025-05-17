@@ -40,7 +40,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     private Image statusBg;
     private Image skillBg;
     private Image globalBg;
-
+    private Language currentLanguage = Language.CHINESE;
     private JLabel[] skillLabels = new JLabel[4];
     private final String[] skillNames = {"破阵", "摘星", "风云", "无常"};
     private final String[] iconPaths = {
@@ -470,7 +470,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         return label;
     }
 
-    private void updateTimeLabel() {
+    public void updateTimeLabel() {
         elapsedTime++; // 每次触发增加1秒
         int minutes = elapsedTime / 60;
         int seconds = elapsedTime % 60;
@@ -479,11 +479,9 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
 
     public void initialGame() {
-        this.setElapsedTime(0);
         if (timer != null && timer.isRunning()) {
             timer.stop();
         }
-
         // 移除旧的键盘和鼠标监听器（需要保留对监听器的引用）
         for (KeyListener listener : boardPanel.getKeyListeners()) {
             boardPanel.removeKeyListener(listener);
@@ -630,6 +628,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         if (stepLabel != null) stepLabel.setText(String.format("Step: %d", this.steps));
         //updateTimeLabel();
         checkWinCondition();
+
         return null;
     }
 
@@ -639,7 +638,10 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     private void checkWinCondition() {
         if (model.getId(1, 4) == 4 && model.getId(2, 4) == 4) {
-            JOptionPane.showMessageDialog(this, "恭喜你！成功将曹操移到了出口！");
+            VictoryScreen v = new VictoryScreen(1000, String.format("%2d%2d",this.elapsedTime/60,this.elapsedTime%60),String.format("%d",this.steps),"2:30", "25步",this.currentLanguage);
+            v.setGameController(controller);
+            v.setVisible(true);
+            this.setVisible(false);
         }
     }
 
@@ -722,5 +724,9 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     public void setElapsedTime(int elapsedTime) {
         this.elapsedTime = elapsedTime;
+    }
+
+    public void setCurrentLanguage(Language currentLanguage) {
+        this.currentLanguage = currentLanguage;
     }
 }

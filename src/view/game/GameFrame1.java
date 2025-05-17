@@ -212,7 +212,9 @@ public class GameFrame1 extends JFrame {
             currentLanguage = (currentLanguage == Language.CHINESE) ? Language.ENGLISH : Language.CHINESE;
             updateLanguageTexts();
         });
-
+        undoBtn.addActionListener(e -> {
+           this.gameController.undoLastMove();
+        });
         topPanel.add(iconPanel, BorderLayout.WEST);
         topPanel.add(langPanel, BorderLayout.EAST);
         return topPanel;

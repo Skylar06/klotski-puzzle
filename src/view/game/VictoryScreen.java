@@ -1,5 +1,6 @@
 package view.game;
 
+import controller.GameController;
 import view.Language;
 
 import javax.sound.sampled.AudioInputStream;
@@ -25,7 +26,7 @@ public class VictoryScreen extends JFrame {
     private JButton restartButton;
     private JButton mainMenuButton;
     private JButton leaderboardButton;
-
+    private GameController gameController;
     // 背景图片
     private ImageIcon backgroundImage = new ImageIcon(getClass().getClassLoader().getResource("victory_bg.gif"));
 
@@ -222,12 +223,9 @@ public class VictoryScreen extends JFrame {
             }
         });
 
-        mainMenuButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 返回主菜单逻辑
-                System.out.println("返回主菜单");
-            }
+        mainMenuButton.addActionListener(e -> {
+            this.setVisible(false);
+            this.gameController.levelSelectFrame.setVisible(true);
         });
 
         leaderboardButton.addMouseListener(new MouseAdapter() {
@@ -310,12 +308,16 @@ public class VictoryScreen extends JFrame {
         }
     }
 
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
+    }
+
     public static void main(String[] args) {
         // 测试胜利界面
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                VictoryScreen victoryScreen = new VictoryScreen(1000,"2:30", "25步", "2:30", "25步",Language.ENGLISH);
+                VictoryScreen victoryScreen = new VictoryScreen(1000,"2:30", "25步", "2:30", "25步",Language.CHINESE);
                 victoryScreen.setVisible(true);
             }
         });

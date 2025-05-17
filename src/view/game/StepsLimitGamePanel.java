@@ -83,6 +83,7 @@ public class StepsLimitGamePanel extends AbstractGamePanel {
     @Override
     public void initialGame() {
         super.initialGame();
+        setElapsedTime(0);
         setSteps(0);
         updateRemainingStepsLabel();
 

@@ -8,6 +8,7 @@ import view.game.GamePanel;
 import view.level.select.LevelSelectFrame;
 import view.login.LoginFrame;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,7 @@ public class GameController {
 
     public void restartGame() {
         this.view.setVisible(true);
+        this.view.getCurrentPanel().pauseTimer();
         // 重置模型
         model.setMatrix(new int[][]{
                 {2, 2, 2, 2, 1},
@@ -53,7 +55,9 @@ public class GameController {
         moveHistory.clear();
         view.getCurrentPanel().repaint();
         // 重置视图
-        view.initialGame(); // 调用视图的初始化方法
+        view.initialGame();
+        view.getCurrentPanel().setElapsedTime(-1);// 调用视图的初始化方法
+        view.getCurrentPanel().updateTimeLabel();
         view.setSteps(0); // 重置步数
         view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
     }
@@ -85,6 +89,7 @@ public class GameController {
                     box.setCol(nextCol);
                     box.setLocation(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());// 计算新坐标
                     box.repaint();// 重新画出移动后的格子
+                    this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
                 }
             }
@@ -108,6 +113,7 @@ public class GameController {
                     box.setCol(nextCol);
                     box.setLocation(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());// 计算新坐标
                     box.repaint();// 重新画出移动后的格子
+                    this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
                 }
             }
@@ -131,6 +137,7 @@ public class GameController {
                     box.setCol(nextCol);
                     box.setLocation(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());// 计算新坐标
                     box.repaint();// 重新画出移动后的格子
+                    this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
                 }
             }
@@ -160,6 +167,7 @@ public class GameController {
                     box.setCol(nextCol);
                     box.setLocation(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());// 计算新坐标
                     box.repaint();// 重新画出移动后的格子
+                    this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
                 }
             }
@@ -219,9 +227,13 @@ public class GameController {
         }
     }
 
-    public void loadGame(String path) {
+    public boolean loadGame(String path) {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
             Save temp = (Save) in.readObject();
+            if (!temp.user.equals(this.user)) {
+                JOptionPane.showMessageDialog(this.gameFrame1, "您只能读取属于您的存档");
+                return false;
+            }
             // 加载游戏状态
             int[][] savedMatrix = temp.model.getMatrix();
             model.setMatrix(savedMatrix);
@@ -231,8 +243,19 @@ public class GameController {
             view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
             view.initialGame(); // 重新初始化游戏界面
             view.getCurrentPanel().setElapsedTime(temp.time);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            return true;
+        } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(this.gameFrame1, "文件未找到: " + path + "。请检查路径是否正确。");
+            return false;
+        } catch (StreamCorruptedException e) {
+            JOptionPane.showMessageDialog(this.gameFrame1, "文件损坏或格式不正确: " + e.getMessage());
+            return false;
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this.gameFrame1, "读取文件时发生错误: " + e.getMessage());
+            return false;
+        } catch (ClassNotFoundException e) {
+            JOptionPane.showMessageDialog(this.gameFrame1, "保存的文件中包含未知的类: " + e.getMessage());
+            return false;
         }
     }
 
@@ -241,6 +264,7 @@ public class GameController {
     }
 
     public void saveGame(String path) {
+        path = "./" + this.user + ".txt";
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path))) {
             // 保存游戏状态，包括地图和步数
             Save newSave = new Save(model,mode,user,this.view.getCurrentPanel().getElapsedTime(), view.getSteps());
