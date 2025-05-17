@@ -66,17 +66,37 @@ public class HintScreen extends JDialog {
         button.setFont(new Font("楷体", Font.BOLD, 20));
         button.setForeground(new Color(60, 30, 0));
 
-        ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("btn1.png"));
-        Image scaledImage = icon.getImage().getScaledInstance(140, 80, Image.SCALE_SMOOTH);
-        button.setIcon(new ImageIcon(scaledImage));
+        ImageIcon originalIcon1 = new ImageIcon(getClass().getClassLoader().getResource("btn1.png"));
+        Image scaledImage1 = originalIcon1.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
+        button.setIcon(new ImageIcon(scaledImage1));
+
+        ImageIcon originalIcon2 = new ImageIcon(getClass().getClassLoader().getResource("btn3.png"));
+        Image scaledImage2 = originalIcon2.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
+
+        ImageIcon originalIcon3 = new ImageIcon(getClass().getClassLoader().getResource("btn2.png"));
+        Image scaledImage3 = originalIcon3.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
+
         button.setHorizontalTextPosition(SwingConstants.CENTER);
         button.setVerticalTextPosition(SwingConstants.CENTER);
         button.setPreferredSize(new Dimension(160, 100));
         button.setMaximumSize(new Dimension(160, 100));
 
         button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage2));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage1));
+            }
+
             public void mousePressed(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage3));
                 playClickSound();
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage1));
             }
         });
     }

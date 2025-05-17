@@ -4,7 +4,6 @@ import controller.GameController;
 import model.MapModel;
 import view.Language;
 import view.game.GameFrame1;
-import view.game.GamePanel;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -25,6 +24,7 @@ public class LevelSelectFrame extends JFrame {
     private JLabel titleLabel;
     private JButton languageBtn;
     private JButton confirmBtn;
+    private JButton loadBtn;
     private JButton helpBtn;
     private JPanel carouselPanel;
     private Language currentLanguage = Language.CHINESE;
@@ -171,16 +171,19 @@ public class LevelSelectFrame extends JFrame {
 
 
     private JPanel createBottomPanel() {
-        JPanel panel = new JPanel();
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         panel.setOpaque(false);
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+        panel.add(Box.createVerticalGlue());
 
-
-        // 确定按钮
         confirmBtn = new JButton("确定");
+        loadBtn = new JButton("读取进度");
+
         setupButton(confirmBtn);
-        confirmBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        setupButton(loadBtn);
+
+        panel.add(confirmBtn);
+        panel.add(loadBtn);
+
         confirmBtn.addActionListener(
             e -> {
                 this.setVisible(false);
@@ -189,9 +192,13 @@ public class LevelSelectFrame extends JFrame {
                 this.gameController.gameFrame1.setVisible(true);
             }
         );
-        // 添加垂直间距
-        panel.add(Box.createVerticalGlue());
-        panel.add(confirmBtn);
+        loadBtn.addActionListener(
+                e -> {
+
+                }
+        );
+
+
 
         return panel;
     }
@@ -358,14 +365,32 @@ public class LevelSelectFrame extends JFrame {
         button.setPreferredSize(new Dimension(160, 120));
         button.setMaximumSize(new Dimension(160, 120));
 
-        ImageIcon originalIcon = new ImageIcon(getClass().getClassLoader().getResource("btn1.png"));
-        Image scaledImage = originalIcon.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
-        ImageIcon scaledIcon = new ImageIcon(scaledImage);
-        button.setIcon(scaledIcon);
+        ImageIcon originalIcon1 = new ImageIcon(getClass().getClassLoader().getResource("btn1.png"));
+        Image scaledImage1 = originalIcon1.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
+        button.setIcon(new ImageIcon(scaledImage1));
+
+        ImageIcon originalIcon2 = new ImageIcon(getClass().getClassLoader().getResource("btn3.png"));
+        Image scaledImage2 = originalIcon2.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
+
+        ImageIcon originalIcon3 = new ImageIcon(getClass().getClassLoader().getResource("btn2.png"));
+        Image scaledImage3 = originalIcon3.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
 
         button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage2));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage1));
+            }
+
             public void mousePressed(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage3));
                 playClickSound();
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage1));
             }
         });
     }

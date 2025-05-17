@@ -301,14 +301,32 @@ public class GameFrame1 extends JFrame {
         button.setPreferredSize(new Dimension(160, 120));
         button.setMaximumSize(new Dimension(160, 120));
 
-        ImageIcon originalIcon = new ImageIcon(getClass().getClassLoader().getResource("btn1.png"));
-        Image scaledImage = originalIcon.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
-        ImageIcon scaledIcon = new ImageIcon(scaledImage);
-        button.setIcon(scaledIcon);
+        ImageIcon originalIcon1 = new ImageIcon(getClass().getClassLoader().getResource("btn1.png"));
+        Image scaledImage1 = originalIcon1.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
+        button.setIcon(new ImageIcon(scaledImage1));
+
+        ImageIcon originalIcon2 = new ImageIcon(getClass().getClassLoader().getResource("btn3.png"));
+        Image scaledImage2 = originalIcon2.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
+
+        ImageIcon originalIcon3 = new ImageIcon(getClass().getClassLoader().getResource("btn2.png"));
+        Image scaledImage3 = originalIcon3.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
 
         button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage2));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage1));
+            }
+
             public void mousePressed(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage3));
                 playClickSound();
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage1));
             }
         });
     }

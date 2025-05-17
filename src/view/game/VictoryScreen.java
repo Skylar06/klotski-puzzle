@@ -267,6 +267,12 @@ public class VictoryScreen extends JFrame {
         Image scaledImage1 = originalIcon1.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
         button.setIcon(new ImageIcon(scaledImage1));
 
+        ImageIcon originalIcon2 = new ImageIcon(getClass().getClassLoader().getResource("btn3.png"));
+        Image scaledImage2 = originalIcon2.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
+
+        ImageIcon originalIcon3 = new ImageIcon(getClass().getClassLoader().getResource("btn2.png"));
+        Image scaledImage3 = originalIcon3.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
+
         // 设置按钮文字
         button.setText(button.getText());
         button.setForeground(new Color(60, 30, 0)); // 文字颜色
@@ -278,7 +284,7 @@ public class VictoryScreen extends JFrame {
 
         button.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                button.setIcon(new ImageIcon(scaledImage1));
+                button.setIcon(new ImageIcon(scaledImage2));
             }
 
             public void mouseExited(MouseEvent e) {
@@ -286,7 +292,7 @@ public class VictoryScreen extends JFrame {
             }
 
             public void mousePressed(MouseEvent e) {
-                button.setIcon(new ImageIcon(scaledImage1));
+                button.setIcon(new ImageIcon(scaledImage3));
                 playClickSound();
             }
 
