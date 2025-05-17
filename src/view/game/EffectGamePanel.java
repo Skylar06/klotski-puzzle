@@ -25,23 +25,23 @@ public class EffectGamePanel extends AbstractGamePanel {
     public EffectGamePanel(MapModel model) {
         super(model);
 
-        currentEffect = EffectType.MIRROR;
-        EFFECT_TEXT = "当前关卡特效：\n镜像模式";
-//        int levelId = model.getLevelId(); // 假设你有这个方法
-//        switch (levelId % 3) {
-//            case 0:
-//                currentEffect = EffectType.MOVE;
-//                EFFECT_TEXT = "当前关卡特效：\n缓慢移动";
-//                break;
-//            case 1:
-//                currentEffect = EffectType.DISABLE;
-//                EFFECT_TEXT = "当前关卡特效：\n禁用方块";
-//                break;
-//            case 2:
-//                currentEffect = EffectType.MIRROR;
-//                EFFECT_TEXT = "当前关卡特效：\n镜像模式";
-//                break;
-//        }
+        // 随机生成一个特效类型
+        Random rand = new Random();
+        int effectIndex = rand.nextInt(3);
+        switch (effectIndex) {
+            case 0:
+                currentEffect = EffectType.MOVE;
+                break;
+            case 1:
+                currentEffect = EffectType.DISABLE;
+                break;
+            case 2:
+                currentEffect = EffectType.MIRROR;
+                break;
+        }
+
+        // 初始化文本，语言默认使用中文（可根据需要传入当前语言）
+        EFFECT_TEXT = getEffectTextByLanguage(Language.CHINESE);
     }
 
     @Override
@@ -116,12 +116,21 @@ public class EffectGamePanel extends AbstractGamePanel {
     }
 
     private String getEffectTextByLanguage(Language language) {
-        switch (language) {
-            case ENGLISH:
-                return "Current Level Effect:\nSlow Movement";
-            case CHINESE:
+        switch (currentEffect) {
+            case MOVE:
+                return language == Language.CHINESE ?
+                        "当前关卡特效：\n缓慢移动" :
+                        "Current Level Effect:\nSlow Movement";
+            case DISABLE:
+                return language == Language.CHINESE ?
+                        "当前关卡特效：\n禁用方块" :
+                        "Current Level Effect:\nDisable Block";
+            case MIRROR:
+                return language == Language.CHINESE ?
+                        "当前关卡特效：\n镜像模式" :
+                        "Current Level Effect:\nMirror Mode";
             default:
-                return "当前关卡特效：\n缓慢移动";
+                return "";
         }
     }
 

@@ -49,6 +49,8 @@ public abstract class AbstractGamePanel extends ListenerPanel {
             "skill_shuffle.png",
             "skill_random.png"
     };
+    private boolean[] skillUsed = new boolean[4]; // 每个技能是否用过
+    private JLabel[] centerLabels = new JLabel[4]; // 显示在按钮中间的 "1"/"+" 标签
 
 
     public AbstractGamePanel(MapModel model) {
@@ -161,7 +163,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         outerPanel.add(leftPanel, gbc);
 
         // 棋盘区（使用固定比例）
-        boardPanel = new BackgroundPanel(boardBg){
+        boardPanel = new BackgroundPanel(boardBg) {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -252,73 +254,174 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     // 辅助方法：获取对应语言的技能名称
     private String getChineseSkillName(String key) {
         switch (key) {
-            case "破阵": return "破阵";
-            case "摘星": return "摘星";
-            case "风云": return "风云";
-            case "无常": return "无常";
-            default: return key;
+            case "破阵":
+                return "破阵";
+            case "摘星":
+                return "摘星";
+            case "风云":
+                return "风云";
+            case "无常":
+                return "无常";
+            default:
+                return key;
         }
     }
 
     private String getEnglishSkillName(String key) {
         switch (key) {
-            case "破阵": return "Remove";
-            case "摘星": return "Highlight";
-            case "风云": return "Shuffle";
-            case "无常": return "Random";
-            default: return key;
+            case "破阵":
+                return "Remove";
+            case "摘星":
+                return "Highlight";
+            case "风云":
+                return "Shuffle";
+            case "无常":
+                return "Random";
+            default:
+                return key;
         }
     }
-    public abstract void updateLanguageTexts(Language currentLanguage) ;
+
+    public abstract void updateLanguageTexts(Language currentLanguage);
 
     private JPanel createSkillButton(String text, String iconPath) {
+        int index = skillCount; // 保存当前下标
+
         JButton button = new JButton();
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setContentAreaFilled(false);
         button.setOpaque(false);
 
-        // 图标加载
         ImageIcon icon = loadIcon(iconPath);
         button.setIcon(icon);
 
-        // 文字标签
         JLabel textLabel = new JLabel(text, SwingConstants.CENTER);
         textLabel.setFont(new Font("楷体", Font.BOLD, 20));
         textLabel.setForeground(Color.WHITE);
         textLabel.setVisible(false);
-        textLabel.setOpaque(false);
         skillLabels[skillCount] = textLabel;
+
+        // 中心数字标签（初始为"1"）
+        JLabel centerLabel = new JLabel("1", SwingConstants.CENTER);
+        centerLabel.setFont(new Font("微软雅黑", Font.BOLD, 28));
+        centerLabel.setForeground(Color.YELLOW);
+        centerLabel.setVisible(false);
+        centerLabels[skillCount] = centerLabel;
+
         skillCount++;
 
-        // 覆盖层式布局
-        JPanel layered = new JPanel(new BorderLayout());
-        layered.setOpaque(false);
-        layered.add(button, BorderLayout.CENTER);
-        layered.add(textLabel, BorderLayout.SOUTH);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(false);
+        panel.add(button, BorderLayout.CENTER);
+        panel.add(textLabel, BorderLayout.SOUTH);
+        panel.add(centerLabel, BorderLayout.NORTH);
 
-        // 悬停效果切换
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 button.setIcon(null);
                 textLabel.setVisible(true);
+                centerLabel.setText(skillUsed[index] ? "+" : "1");
+                centerLabel.setVisible(true);
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
                 button.setIcon(icon);
                 textLabel.setVisible(false);
+                centerLabel.setVisible(false);
             }
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                handleSkill(text); // 根据文字触发技能
+                if (!skillUsed[index]) {
+                    handleSkill(text);
+                    skillUsed[index] = true;
+                } else {
+                    showAdPopup(index);
+                    // 弹出广告
+                }
+                // 🔄 模拟再次悬停以刷新按钮状态
+                MouseEvent fakeHover = new MouseEvent(button, MouseEvent.MOUSE_ENTERED, System.currentTimeMillis(), 0, 0, 0, 0, false);
+                for (MouseListener ml : button.getMouseListeners()) {
+                    ml.mouseEntered(fakeHover);
+                }
             }
         });
 
-        return wrapWithPanel(layered);  // 返回 JPanel
+        return panel;
     }
+
+    private void showAdPopup(int index) {
+        JDialog adDialog = new JDialog((Frame) null, "观看广告", true);
+        adDialog.setSize(400, 300);
+        adDialog.setLocationRelativeTo(null);
+        adDialog.setLayout(null);
+
+        // ---- 大图广告区域 ----
+        JLabel imageLabel = new JLabel();
+        imageLabel.setBounds(0, 0, 400, 300);
+        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        imageLabel.setVerticalAlignment(SwingConstants.CENTER);
+
+        // ---- 倒计时标签，叠加在图片左上角 ----
+        JLabel countdownLabel = new JLabel("10");
+        countdownLabel.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        countdownLabel.setForeground(Color.WHITE);
+        countdownLabel.setBounds(10, 10, 100, 30); // 位置在左上角
+
+        // ---- 分层面板：图片底层，倒计时顶层 ----
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.setPreferredSize(new Dimension(400, 300));
+        layeredPane.add(imageLabel, Integer.valueOf(0));
+        layeredPane.add(countdownLabel, Integer.valueOf(1));
+
+        adDialog.setContentPane(layeredPane);
+
+        // ---- 加载广告图片并缩放 ----
+        String[] adImages = { "ad1.png", "ad2.png", "ad3.png" };
+        ImageIcon[] adIcons = new ImageIcon[adImages.length];
+        for (int i = 0; i < adImages.length; i++) {
+            java.net.URL url = getClass().getClassLoader().getResource(adImages[i]);
+            if (url != null) {
+                Image scaled = new ImageIcon(url).getImage().getScaledInstance(400, 300, Image.SCALE_SMOOTH);
+                adIcons[i] = new ImageIcon(scaled);
+            } else {
+                System.err.println("资源未找到: " + adImages[i]);
+            }
+        }
+
+        // ---- 大图轮播 ----
+        final int[] imageIndex = {0};
+        Timer imageTimer = new Timer(1000, e -> {
+            imageLabel.setIcon(adIcons[imageIndex[0]]);
+            imageIndex[0] = (imageIndex[0] + 1) % adIcons.length;
+        });
+        imageTimer.start();
+
+        // ---- 倒计时逻辑 ----
+        Timer countdownTimer = new Timer(1000, null);
+        countdownTimer.addActionListener(new ActionListener() {
+            int secondsLeft = 10;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                secondsLeft--;
+                countdownLabel.setText(String.valueOf(secondsLeft));
+                if (secondsLeft <= 0) {
+                    countdownTimer.stop();
+                    imageTimer.stop();
+                    adDialog.dispose();
+                    skillUsed[index] = false;
+                }
+            }
+        });
+        countdownTimer.start();
+
+        adDialog.setVisible(true);
+    }
+
 
     private void handleSkill(String skillName) {
         switch (skillName) {
@@ -454,7 +557,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 boardPanel.requestFocusInWindow();
-                if(e.getButton() == MouseEvent.BUTTON1) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
                     doMouseClick(e.getPoint());
                 }
             }
@@ -602,17 +705,20 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     public int getElapsedTime() {
         return elapsedTime;
     }
-    public void pauseTimer(){
+
+    public void pauseTimer() {
         this.timer.stop();
     }
-    public void restartTimer(){
+
+    public void restartTimer() {
         this.timer.start();
     }
 
     public void setModel(MapModel model) {
         this.model = model;
     }
-    public void restartTime(){
+
+    public void restartTime() {
         this.elapsedTime = 0;
     }
 }
