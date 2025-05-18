@@ -3,6 +3,9 @@ package view.game;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class BoxComponent extends JComponent {
     private int row;
@@ -18,6 +21,7 @@ public class BoxComponent extends JComponent {
 
     private boolean isDisabled = false;
     private boolean isHighlighted = false;
+    private LinkedList<Point> trailPoints = new LinkedList<>();
 
     public BoxComponent(int type, int row, int col) {
         this.type = type;
@@ -30,6 +34,14 @@ public class BoxComponent extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g.create();
+        for (int i = 0; i < trailPoints.size(); i++) {
+            Point p = trailPoints.get(i);
+            float alpha = (float) i / trailPoints.size();
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha * 0.3f));
+            g2.setColor(Color.GRAY);
+            g2.fillOval(p.x - getX() - 4, p.y - getY() - 4, 8, 8);
+        }
 
         // 加载皮肤图片
         Image skinImage = SkinManager.getBoxImage(currentSkin, type);
@@ -56,6 +68,86 @@ public class BoxComponent extends JComponent {
             g.setColor(new Color(255, 255, 180, 120)); // 半透明淡黄色
             g.fillRect(0, 0, getWidth(), getHeight());
         }
+    }
+
+    public void setLocationAnimated(int targetX, int targetY) {
+        int startX = getX();
+        int startY = getY();
+        int dx = targetX - startX;
+        int dy = targetY - startY;
+
+        int frames = 15;
+        Timer animTimer = new Timer(10, null);
+        final int[] currentFrame = {0};
+
+        animTimer.addActionListener(e -> {
+            currentFrame[0]++;
+            float progress = currentFrame[0] / (float) frames;
+            int newX = startX + Math.round(dx * progress);
+            int newY = startY + Math.round(dy * progress);
+            setLocation(newX, newY);
+
+            // 拖尾
+            trailPoints.add(new Point(newX + getWidth() / 2, newY + getHeight() / 2));
+            if (trailPoints.size() > 10) {
+                trailPoints.removeFirst();
+            }
+
+            repaint(); // <---- 加强刷帧
+
+            if (currentFrame[0] >= frames) {
+                animTimer.stop();
+                setLocation(targetX, targetY);
+                repaint();
+                triggerShakeIfOutOfBounds(); // <- 确保调用
+            }
+        });
+
+        animTimer.start();
+    }
+
+    public void shake() {
+        int originalX = getX();
+        Timer shakeTimer = new Timer(10, null);
+        final int[] count = {0};
+        shakeTimer.addActionListener(e -> {
+            count[0]++;
+            int offset = (count[0] % 2 == 0) ? 4 : -4;
+            setLocation(originalX + offset, getY());
+            if (count[0] >= 6) {
+                shakeTimer.stop();
+                setLocation(originalX, getY());
+            }
+        });
+        shakeTimer.start();
+    }
+
+    private void triggerShakeIfOutOfBounds() {
+        Rectangle parentBounds = getParent().getBounds();
+        boolean hitBoundary = false;
+        if (getX() < 0 || getY() < 0 ||
+                getX() + getWidth() > parentBounds.width ||
+                getY() + getHeight() > parentBounds.height) {
+            hitBoundary = true;
+        }
+
+        if (!hitBoundary) return;
+
+        int originalX = getX();
+        int originalY = getY();
+        Timer shakeTimer = new Timer(10, null);
+        final int[] count = {0};
+        shakeTimer.addActionListener(e -> {
+            count[0]++;
+            int offsetX = (count[0] % 2 == 0) ? 2 : -2;
+            int offsetY = (count[0] % 2 == 0) ? 1 : -1;
+            setLocation(originalX + offsetX, originalY + offsetY);
+            if (count[0] >= 6) {
+                shakeTimer.stop();
+                setLocation(originalX, originalY);
+            }
+        });
+        shakeTimer.start();
     }
 
     public void setHighlighted(boolean highlighted) {

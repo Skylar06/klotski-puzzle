@@ -87,12 +87,20 @@ public class GameController {
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
                     box.setCol(nextCol);
-                    box.setLocation(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());// 计算新坐标
+                    box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     box.repaint();// 重新画出移动后的格子
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
                 }
             }
+            // 比如是普通 2 宽方块
+            if (!model.checkInWidthSize(nextCol) || !model.checkInHeightSize(nextRow)) {
+                // 越界不能移动，触发震动
+                BoxComponent box = view.getSelectedBox();
+                box.shake();
+                return false;
+            }
+
         } else if (model.getId(row, col) == 2) {
             int nextRow = row + direction.getRow();// 计算目标位置
             int nextCol = col + direction.getCol();
@@ -111,12 +119,20 @@ public class GameController {
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
                     box.setCol(nextCol);
-                    box.setLocation(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());// 计算新坐标
+                    box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     box.repaint();// 重新画出移动后的格子
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
                 }
             }
+            // 比如是普通 2 宽方块
+            if (!model.checkInWidthSize(nextCol) || !model.checkInHeightSize(nextRow)) {
+                // 越界不能移动，触发震动
+                BoxComponent box = view.getSelectedBox();
+                box.shake();
+                return false;
+            }
+
         } else if (model.getId(row, col) == 3) {
             int nextRow = row + direction.getRow();// 计算目标位置
             int nextCol = col + direction.getCol();
@@ -135,12 +151,20 @@ public class GameController {
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
                     box.setCol(nextCol);
-                    box.setLocation(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());// 计算新坐标
+                    box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     box.repaint();// 重新画出移动后的格子
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
                 }
             }
+            // 比如是普通 2 宽方块
+            if (!model.checkInWidthSize(nextCol) || !model.checkInHeightSize(nextRow)) {
+                // 越界不能移动，触发震动
+                BoxComponent box = view.getSelectedBox();
+                box.shake();
+                return false;
+            }
+
         } else if (model.getId(row, col) == 4) {
             int nextRow = row + direction.getRow();// 计算目标位置
             int nextCol = col + direction.getCol();
@@ -165,11 +189,18 @@ public class GameController {
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
                     box.setCol(nextCol);
-                    box.setLocation(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());// 计算新坐标
+                    box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     box.repaint();// 重新画出移动后的格子
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
                 }
+            }
+            // 比如是普通 2 宽方块
+            if (!model.checkInWidthSize(nextCol) || !model.checkInHeightSize(nextRow)) {
+                // 越界不能移动，触发震动
+                BoxComponent box = view.getSelectedBox();
+                box.shake();
+                return false;
             }
         }
         return false;

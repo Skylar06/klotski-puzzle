@@ -1,11 +1,13 @@
 package view.game;
 
+import controller.GameController;
 import model.LevelManager;
 import model.MapModel;
 import view.Language;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyListener;
 import java.util.Random;
 
 /**
@@ -15,6 +17,7 @@ public class GamePanel extends JPanel {
     private AbstractGamePanel currentPanel;
     private boolean lastUsedTimeLimit = false;
     private int mode;
+    private GameController controller;
 
     public static GamePanel instance;
 
@@ -26,6 +29,9 @@ public class GamePanel extends JPanel {
 
         currentPanel = createRandomMode(model,mode);
         add(currentPanel, BorderLayout.CENTER);
+
+        MusicPlayer player = MusicPlayer.getInstance();
+        player.play("/bgm.wav");
 
         currentPanel.requestFocusInWindow();
     }
@@ -56,7 +62,6 @@ public class GamePanel extends JPanel {
         }
     }
 
-    // ✅ 实际的换关逻辑
     private void loadNextLevel() {
         LevelManager.nextLevel();
         MapModel newMap = LevelManager.getCurrentMap();
@@ -64,16 +69,28 @@ public class GamePanel extends JPanel {
         remove(currentPanel);
         currentPanel = createRandomMode(newMap, mode);
         add(currentPanel, BorderLayout.CENTER);
+
+        if (controller != null) {
+            currentPanel.setController(controller);
+            currentPanel.addKeyListener((KeyListener) controller);
+        }
+
+        currentPanel.setFocusable(true);
+        SwingUtilities.invokeLater(() -> {
+            currentPanel.requestFocusInWindow();
+            currentPanel.initialGame(); // 重新初始化，刷新棋盘数据和状态
+            currentPanel.repaint();     // 强制重绘
+        });
+
         revalidate();
         repaint();
-
-        currentPanel.requestFocusInWindow();
     }
 
     /**
      * 暴露设置控制器的方法（外部可以使用）
      */
     public void setController(controller.GameController controller) {
+        this.controller = controller;
         currentPanel.setController(controller);
     }
 

@@ -30,6 +30,7 @@ public class PauseMenuPanel extends JFrame {
     private GameController gameController;
     // 背景图片
     private ImageIcon backgroundImage = new ImageIcon(getClass().getClassLoader().getResource("pause_bg.gif"));
+    private MusicPlayer musicPlayer;
 
     public PauseMenuPanel(String time, String steps,Language currentLanguage) {
         // 设置主窗口
@@ -224,12 +225,17 @@ public class PauseMenuPanel extends JFrame {
         JPanel soundTogglePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         soundTogglePanel.setOpaque(false);
 
+        this.musicPlayer = MusicPlayer.getInstance();
+        boolean isMuted = musicPlayer.isMuted();
+        musicPlayer.play("/bgm.wav");
+
+
         // 在按钮区域添加游客模式按钮
         soundToggleButton = new JButton();
         if (currentLanguage == Language.CHINESE) {
-            soundToggleButton.setText("切换音效");
+            soundToggleButton.setText(isMuted ? "音效关" : "音效开");
         } else {
-            soundToggleButton.setText("Change Music");
+            soundToggleButton.setText(isMuted ? "Music Off" : "Music On");
         }
 
         // 添加排行榜按钮
@@ -268,17 +274,28 @@ public class PauseMenuPanel extends JFrame {
 
         soundToggleButton.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                soundToggleButton.setForeground(new Color(255, 100, 0));  // 改为高亮色
+                soundToggleButton.setForeground(new Color(255, 100, 0));
             }
 
             public void mouseExited(MouseEvent e) {
-                soundToggleButton.setForeground(Color.WHITE);  // 恢复默认色
+                soundToggleButton.setForeground(Color.WHITE);
             }
 
             public void mousePressed(MouseEvent e) {
-                soundToggleButton.setForeground(new Color(255, 10, 0));  // 按下时的颜色
-                // 重新开始逻辑
-                System.out.println("切换音效");
+                soundToggleButton.setForeground(new Color(255, 10, 0));
+
+                // 切换音效状态
+                musicPlayer.toggleMute();
+
+                // 更新按钮文字（实时状态）
+                boolean isNowMuted = musicPlayer.isMuted();
+                if (currentLanguage == Language.CHINESE) {
+                    soundToggleButton.setText(isNowMuted ? "音效关" : "音效开");
+                } else {
+                    soundToggleButton.setText(isNowMuted ? "Music Off" : "Music On");
+                }
+
+                System.out.println("当前音效状态：" + (isNowMuted ? "关闭" : "开启"));
             }
         });
 
