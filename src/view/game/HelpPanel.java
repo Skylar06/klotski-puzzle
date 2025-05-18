@@ -122,61 +122,112 @@ public class HelpPanel extends JPanel {
 
     private void initContentMap() {
         contentMap.put("游戏简介", """
-            <html><body style='font-family:KaiTi; color:#FFFFFF; text-align:center;'>
-            <h2>游戏简介</h2>
-            <p>《三国华容道》是一款结合三国题材与经典滑块玩法的益智游戏。</p>
-            </body></html>
-            """);
+        <html><body style='font-family:KaiTi; color:#ffffff; text-align:center;'>
+        <h2>游戏简介</h2>
+        <p>《三国华容道》是一款融合三国历史、古风美术与经典滑块解谜的益智策略游戏。</p>
+        <p>玩家需通过合理移动方块，助“曹操”突围华容道。游戏设有多种模式与特效，考验操作与策略并重。</p>
+        </body></html>
+    """);
 
         contentMap.put("基本操作", """
-            <html><body style='font-family:KaiTi; color:#FFFFFF; text-align:center;'>
-            <h2>基本操作</h2>
-            <ul style='list-style:none; padding-left:0;'>
-              <li>使用鼠标点击滑动方块</li>
-              <li>目标：帮助“曹操”从出口逃出</li>
-            </ul>
-            </body></html>
-            """);
-
-        contentMap.put("技能说明", """
-            <html><body style='font-family:KaiTi; color:#FFFFFF; text-align:center;'>
-            <h2>技能说明</h2>
-            <p>每种关卡可能带有不同的技能按钮，可用于重置、移动等。</p>
-            </body></html>
-            """);
+        <html><body style='font-family:KaiTi; color:#ffffff; text-align:center;'>
+        <h2>基本操作</h2>
+        <ul style='list-style:none; padding-left:0;'>
+          <li>使用鼠标点击或滑动任意方块进行操作</li>
+          <li>部分设备支持手势滑动控制方向</li>
+          <li>目标：将“曹操”移动至棋盘底部中央出口</li>
+          <li>技能按钮位于状态区下方，可增强通关效率</li>
+        </ul>
+        </body></html>
+    """);
 
         contentMap.put("关卡类型", """
-            <html><body style='font-family:KaiTi; color:#FFFFFF; text-align:center;'>
-            <h2>关卡类型</h2>
-            <ul style='list-style:none; padding-left:0;'>
-            <li>剧情关卡</li>
-            <li>技能关卡</li>
-            <li>滑动特效关卡</li>
-            </ul>
-            </body></html>
-            """);
+        <html><body style='font-family:KaiTi; color:#ffffff; text-align:center;'>
+        <h2>关卡类型</h2>
+        <ul style='list-style:none; padding-left:0;'>
+          <li><b>剧情模式：</b>每一关讲述三国经典桥段，左上角显示故事文本</li>
+          <li><b>极限模式：</b>时间紧迫，步数有限，挑战你的极限操作</li>
+          <li><b>特效模式：</b>含有各种棋盘视觉效果，如镜像、震动、缓动滑移等</li>
+        </ul>
+        </body></html>
+    """);
+
+        contentMap.put("技能说明", """
+        <html><body style='font-family:KaiTi; color:#ffffff; text-align:center;'>
+        <h2>技能说明</h2>
+        <p>每个关卡支持技能使用，每种技能初始可用1次，之后观看视频可补充使用次数。</p>
+        <ul style='list-style:none; padding-left:0;'>
+          <li><b>摘星：</b>高亮所有可移动的方块（不包含 2×2 的曹操）</li>
+          <li><b>破阵：</b>移除一个随机的 1×1 方块，为曹操开路</li>
+          <li><b>风云：</b>打乱当前棋盘布局（不会卡死）</li>
+          <li><b>无常：</b>随机交换两个方块位置，可能意外破局</li>
+        </ul>
+        <p>技能按钮上悬停显示使用次数，点击后若可用将生效，若已用完可观看广告补充。</p>
+        </body></html>
+    """);
 
         contentMap.put("通关判定", """
-            <html><body style='font-family:KaiTi; color:#FFFFFF; text-align:center;'>
-            <h2>通关判定</h2>
-            <p>当“曹操”方块移动到指定出口区域即为胜利。</p>
-            </body></html>
-            """);
+        <html><body style='font-family:KaiTi; color:#ffffff; text-align:center;'>
+        <h2>通关判定</h2>
+        <p>当曹操（2×2 方块）完整移动至棋盘底部中央（出口位置）时，即视为通关。</p>
+        <p>极限模式可能要求在限定步数或时间内达成此目标。</p>
+        </body></html>
+    """);
 
         contentMap.put("胜利结算", """
-            <html><body style='font-family:KaiTi; color:#FFFFFF; text-align:center;'>
-            <h2>胜利结算</h2>
-            <p>显示分数、最少步数、最快时间、成就与排行榜入口。</p>
-            </body></html>
-            """);
+        <html><body style='font-family:KaiTi; color:#ffffff; text-align:center;'>
+        <h2>胜利结算</h2>
+        <p>通关后将弹出胜利面板，展示以下内容：</p>
+        <ul style='list-style:none; padding-left:0;'>
+          <li><b>本关得分：</b>综合用时与步数计算</li>
+          <li><b>最快时间：</b>历史最快通关记录</li>
+          <li><b>最少步数：</b>历史最优解法步数</li>
+          <li><b>封神榜入口：</b>可查看全球排行前十</li>
+          <li><b>再启、转战、归返：</b>分别代表重开、下一关与返回主菜单</li>
+        </ul>
+        </body></html>
+    """);
+
+        contentMap.put("皮肤系统", """
+        <html><body style='font-family:KaiTi; color:#ffffff; text-align:center;'>
+        <h2>皮肤系统</h2>
+        <p>游戏支持多种主题方块皮肤，带来截然不同的视觉体验：</p>
+        <ul style='list-style:none; padding-left:0;'>
+          <li><b>古风：</b>典雅宣纸风格，书画质感</li>
+          <li><b>武将：</b>三国武将头像还原，辨识度高</li>
+          <li><b>猫猫：</b>萌系风格，趣味十足</li>
+          <li><b>卡通：</b>简约风动画线条感</li>
+          <li><b>奶龙：</b>软萌可爱，适合轻松氛围</li>
+          <li><b>像素：</b>8-bit 复古像素风</li>
+          <li><b>南科大：</b>以南科大元素为主题的纪念皮肤</li>
+        </ul>
+        <p>可在设置界面或登录时更换，部分皮肤可能需达成成就解锁。</p>
+        </body></html>
+    """);
+
+        contentMap.put("封神榜", """
+        <html><body style='font-family:KaiTi; color:#ffffff; text-align:center;'>
+        <h2>封神榜</h2>
+        <p>封神榜为游戏的排行榜系统，展示表现最佳的十位玩家：</p>
+        <ul style='list-style:none; padding-left:0;'>
+          <li>可切换按“最少步数”或“最快时间”排名</li>
+          <li>若你未进入前十，将显示第十名及你自己的成绩</li>
+          <li>前三名拥有专属展示背景</li>
+        </ul>
+        <p>榜单每日更新一次，快来挑战极限，留下你的封神之名！</p>
+        </body></html>
+    """);
 
         contentMap.put("历史背景", """
-            <html><body style='font-family:KaiTi; color:#FFFFFF; text-align:center;'>
-            <h2>历史背景</h2>
-            <p>“华容道”出自《三国演义》——曹操兵败后，被关羽放行的一段故事。</p>
-            </body></html>
-            """);
+        <html><body style='font-family:KaiTi; color:#ffffff; text-align:center;'>
+        <h2>历史背景</h2>
+        <p>“华容道”典故出自《三国演义》第五十回，讲述曹操败走麦城，被关羽拦截于华容道。</p>
+        <p>但因旧日恩情，关羽最終义释曹操。此为三国历史中最富争议与人性光辉的篇章之一。</p>
+        <p>本游戏以此为灵感，结合策略与解谜，为玩家还原这段波澜壮阔的历史瞬间。</p>
+        </body></html>
+    """);
     }
+
 
     private void playClickSound() {
         try {
@@ -200,7 +251,7 @@ public class HelpPanel extends JPanel {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("三国华容道 - 帮助文档");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(900, 600);
+            frame.setSize(640, 480);
             frame.setContentPane(new HelpPanel());
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);

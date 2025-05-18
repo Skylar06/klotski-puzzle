@@ -23,6 +23,9 @@ public class BoxComponent extends JComponent {
     private boolean isHighlighted = false;
     private LinkedList<Point> trailPoints = new LinkedList<>();
 
+    private boolean isDragging = false;
+    private Point dragOffset;
+
     public BoxComponent(int type, int row, int col) {
         this.type = type;
         this.row = row;
@@ -70,6 +73,29 @@ public class BoxComponent extends JComponent {
         }
     }
 
+    public void startDrag(Point point) {
+        dragOffset = new Point(point.x - getX(), point.y - getY());
+        isDragging = true;
+    }
+
+    public void drag(Point point) {
+        if (isDragging) {
+            int newX = point.x - dragOffset.x;
+            int newY = point.y - dragOffset.y;
+
+            // 边界检查
+            newX = Math.max(0, Math.min(newX, getParent().getWidth() - getWidth()));
+            newY = Math.max(0, Math.min(newY, getParent().getHeight() - getHeight()));
+
+            setLocation(newX, newY);
+        }
+    }
+
+    public void endDrag() {
+        isDragging = false;
+        dragOffset = null;
+    }
+
     public void setLocationAnimated(int targetX, int targetY) {
         int startX = getX();
         int startY = getY();
@@ -100,6 +126,42 @@ public class BoxComponent extends JComponent {
                 setLocation(targetX, targetY);
                 repaint();
                 triggerShakeIfOutOfBounds(); // <- 确保调用
+            }
+        });
+
+        animTimer.start();
+    }
+
+    public void setLocationAnimatedSlow(int targetX, int targetY) {
+        int startX = getX();
+        int startY = getY();
+        int dx = targetX - startX;
+        int dy = targetY - startY;
+
+        int frames = 50;  // 帧数多，动画时间更长
+        Timer animTimer = new Timer(15, null);  // 间隔时间变长，速度变慢
+        final int[] currentFrame = {0};
+
+        animTimer.addActionListener(e -> {
+            currentFrame[0]++;
+            float progress = currentFrame[0] / (float) frames;
+            int newX = startX + Math.round(dx * progress);
+            int newY = startY + Math.round(dy * progress);
+            setLocation(newX, newY);
+
+            // 拖尾效果如果有的话，照旧
+            trailPoints.add(new Point(newX + getWidth() / 2, newY + getHeight() / 2));
+            if (trailPoints.size() > 10) {
+                trailPoints.removeFirst();
+            }
+
+            repaint();
+
+            if (currentFrame[0] >= frames) {
+                animTimer.stop();
+                setLocation(targetX, targetY);
+                repaint();
+                triggerShakeIfOutOfBounds();
             }
         });
 

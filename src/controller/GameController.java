@@ -30,6 +30,8 @@ public class GameController {
     private int mode;
     private boolean mirrorMode = false; // 是否为镜像模式
     private boolean isVisitor = false;
+    private boolean isSlowMode = false;
+
     public GameController(MapModel model, LevelSelectFrame levelSelectFrame, LoginFrame loginFrame) {
         this.model = model;
         this.loginFrame = loginFrame;
@@ -37,6 +39,10 @@ public class GameController {
         this.levelSelectFrame.setGameController(this);
         this.loginFrame.setGameController(this);
         this.loginFrame.setLevelSelectFrame(this.levelSelectFrame);
+    }
+
+    public void setSlowMode(boolean slow) {
+        this.isSlowMode = slow;
     }
 
     public void setMirrorMode(boolean mirrorMode) {
@@ -81,7 +87,11 @@ public class GameController {
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
                     box.setCol(nextCol);
-                    box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                    if (isSlowMode) {
+                        box.setLocationAnimatedSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                    } else {
+                        box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                    }
                     box.repaint();// 重新画出移动后的格子
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
@@ -113,7 +123,11 @@ public class GameController {
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
                     box.setCol(nextCol);
-                    box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                    if (isSlowMode) {
+                        box.setLocationAnimatedSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                    } else {
+                        box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                    }
                     box.repaint();// 重新画出移动后的格子
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
@@ -145,7 +159,11 @@ public class GameController {
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
                     box.setCol(nextCol);
-                    box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                    if (isSlowMode) {
+                        box.setLocationAnimatedSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                    } else {
+                        box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                    }
                     box.repaint();// 重新画出移动后的格子
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
@@ -183,7 +201,11 @@ public class GameController {
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
                     box.setCol(nextCol);
-                    box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                    if (isSlowMode) {
+                        box.setLocationAnimatedSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                    } else {
+                        box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                    }
                     box.repaint();// 重新画出移动后的格子
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;

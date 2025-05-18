@@ -57,6 +57,9 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     // 建议加在类的成员变量中统一配置
     private static final int BOARD_ROWS = 4; // 高
     private static final int BOARD_COLS = 5; // 宽
+    private BoxComponent draggedBox;
+    private int originalRow;  // 新增：记录拖拽起始位置的行
+    private int originalCol;  // 新增：记录拖拽起始位置的列
 
     public AbstractGamePanel(MapModel model) {
         this.model = model;
@@ -804,6 +807,65 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
         revalidate();
         repaint();
+
+        // 在AbstractGamePanel.java中修改MouseAdapter实现
+        boardPanel.addMouseMotionListener(new MouseAdapter() {
+            private Point startPoint; // 起始坐标
+            private BoxComponent activeBox; // 当前激活的方块
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                activeBox = (BoxComponent) boardPanel.getComponentAt(e.getPoint());
+                if (activeBox != null) {
+                    activeBox.setSelected(true);
+                    startPoint = e.getPoint(); // 初始化起始坐标
+                }
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (activeBox == null || startPoint == null) return;
+
+                // 计算相对位移
+                int dx = e.getX() - startPoint.x;
+                int dy = e.getY() - startPoint.y;
+
+                // 动画移动方块
+                activeBox.setLocationAnimated(
+                        activeBox.getX() + dx,
+                        activeBox.getY() + dy
+                );
+
+                // 更新起始坐标为当前位置（持续追踪）
+                startPoint = e.getPoint();
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (activeBox == null) return;
+
+                // 计算拖拽后的最终位置
+                Point endPoint = e.getPoint();
+                int newRow = activeBox.getRow() + (endPoint.y - startPoint.y) / GRID_SIZE;
+                int newCol = activeBox.getCol() + (endPoint.x - startPoint.x) / GRID_SIZE;
+
+                // 验证移动合法性（上下左右一格）
+                Direction direction = null;
+                if (newRow != activeBox.getRow() && newCol == activeBox.getCol()) {
+                    direction = newRow > activeBox.getRow() ? Direction.DOWN : Direction.UP;
+                } else if (newCol != activeBox.getCol() && newRow == activeBox.getRow()) {
+                    direction = newCol > activeBox.getCol() ? Direction.RIGHT : Direction.LEFT;
+                }
+
+                if (direction != null && controller.doMove(activeBox.getRow(), activeBox.getCol(), direction)) {
+                    afterMove();
+                }
+
+                activeBox.setSelected(false);
+                activeBox = null;
+                startPoint = null;
+            }
+        });
 
         boardPanel.addKeyListener(new KeyAdapter() {
             @Override

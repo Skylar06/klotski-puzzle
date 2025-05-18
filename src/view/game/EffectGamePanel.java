@@ -239,9 +239,9 @@ public class EffectGamePanel extends AbstractGamePanel {
     }
 
     private void applyMoveEffect() {
-        // 启动缓动效果：棋子缓慢移动
-        // 这里可以加入缓动动画的逻辑
-        System.out.println("缓动移动特效已启用");
+        if (controller != null) {
+            controller.setSlowMode(true);
+        }
     }
 
     private void applyDisableEffect() {
