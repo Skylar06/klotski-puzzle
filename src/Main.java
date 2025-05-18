@@ -13,10 +13,10 @@ public class Main {
             LoginFrame loginFrame = new LoginFrame();// 创建登录窗口
             loginFrame.setVisible(true);// 显示登录窗口
             MapModel mapModel = new MapModel(new int[][]{// 创建游戏地图数据
-                    {2, 2, 1, 4, 4},
-                    {2, 2, 1, 4, 4},
-                    {2, 2, 3, 0, 0},
-                    {2, 2, 3, 1, 1}
+                    {2, 2, 4, 4, 1},
+                    {2, 2, 4, 4, 1},
+                    {0, 0, 2, 2, 3},
+                    {2, 2, 1, 1, 3}
             });
 
             LevelSelectFrame levelSelectFrame = new LevelSelectFrame();

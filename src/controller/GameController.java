@@ -1,10 +1,12 @@
 package controller;
 
 import model.Direction;
+import model.LevelManager;
 import model.MapModel;
 import view.game.BoxComponent;
 import view.game.GameFrame1;
 import view.game.GamePanel;
+import view.game.Save;
 import view.level.select.LevelSelectFrame;
 import view.login.LoginFrame;
 
@@ -26,7 +28,7 @@ public class GameController {
     private String user;
     private int mode;
     private boolean mirrorMode = false; // 是否为镜像模式
-
+    private boolean isVisitor = false;
     public GameController(MapModel model, LevelSelectFrame levelSelectFrame, LoginFrame loginFrame) {
         this.model = model;
         this.loginFrame = loginFrame;
@@ -42,19 +44,10 @@ public class GameController {
 
     public void restartGame() {
         this.view.setVisible(true);
+        this.view.getCurrentPanel().setVisible(true);
         this.view.getCurrentPanel().pauseTimer();
         // 重置模型
-        model.setMatrix(new int[][]{
-                {2, 2, 2, 2, 1},
-                {1, 3, 2, 2, 0},
-                {1, 3, 4, 4, 1},
-                {2, 2, 4, 4, 0}
-        }); // 这里替换成初始棋盘数据
-
-        // 清空移动历史
-        moveHistory.clear();
-        view.getCurrentPanel().repaint();
-        // 重置视图
+        model.setMatrix(LevelManager.getCurrentMap().getMatrix());// 重置视图
         view.initialGame();
         view.getCurrentPanel().setElapsedTime(-1);// 调用视图的初始化方法
         view.getCurrentPanel().updateTimeLabel();
@@ -221,7 +214,7 @@ public class GameController {
             BoxComponent box = view.getSelectedBox();
             box.setRow(lastMove.getFromRow());
             box.setCol(lastMove.getFromCol());
-            box.setLocation(lastMove.getFromCol() * view.getGRID_SIZE() + 2, lastMove.getFromRow() * view.getGRID_SIZE() + 2);
+            box.setLocation(lastMove.getFromCol() * view.getGRID_SIZE(), lastMove.getFromRow() * view.getGRID_SIZE());
             box.repaint();
             view.setSteps(view.getSteps() - 1);
             view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
@@ -259,6 +252,10 @@ public class GameController {
     }
 
     public boolean loadGame(String path) {
+        if (isVisitor){
+            JOptionPane.showMessageDialog(this.gameFrame1, "不录之身禁止导入");
+            return false;
+        }
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
             Save temp = (Save) in.readObject();
             if (!temp.user.equals(this.user)) {
@@ -267,6 +264,9 @@ public class GameController {
             }
             // 加载游戏状态
             int[][] savedMatrix = temp.model.getMatrix();
+//            this.view = new GamePanel(temp.model,temp.mode);
+//            this.gameFrame1.setGamePanel(view);
+//            this.view.setVisible(true);
             model.setMatrix(savedMatrix);
             view.setSteps(temp.step);
             this.mode = temp.mode;
@@ -295,6 +295,9 @@ public class GameController {
     }
 
     public void saveGame(String path) {
+        if (isVisitor){
+            JOptionPane.showMessageDialog(this.gameFrame1, "不录之身禁止录存");
+        }
         path = "./" + this.user + ".txt";
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path))) {
             // 保存游戏状态，包括地图和步数
@@ -303,6 +306,14 @@ public class GameController {
         } catch (IOException e) {
             throw new RuntimeException("保存游戏失败", e);
         }
+    }
+
+    public boolean isVisitor() {
+        return isVisitor;
+    }
+
+    public void setVisitor(boolean visitor) {
+        isVisitor = visitor;
     }
 
     public void setUser(String user) {
@@ -331,18 +342,17 @@ public class GameController {
         this.levelSelectFrame.setVisible(true);
         this.gameFrame1.setVisible(false);
     }
-}
-class Save implements Serializable{
-    public MapModel model;
-    public int mode;
-    public String user;
-    public int time;
-    public int step;
-    public Save(MapModel model, int mode, String user, int time, int step) {
+
+    public MapModel getModel() {
+        return model;
+    }
+
+    public void setModel(MapModel model) {
         this.model = model;
-        this.user = user;
-        this.mode = mode;
-        this.time = time;
-        this.step = step;
+    }
+
+    public String getUser() {
+        return user;
     }
 }
+

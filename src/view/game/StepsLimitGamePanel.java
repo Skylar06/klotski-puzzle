@@ -51,7 +51,12 @@ public class StepsLimitGamePanel extends AbstractGamePanel {
             updateRemainingStepsLabel();
         } else {
             // 步数用尽时的处理
-            JOptionPane.showMessageDialog(this, "步数用尽，游戏失败！");
+            boardPanel.setEnabled(false);
+            view.game.LoseScreen loseScreen = new view.game.LoseScreen(
+                    String.format("%2d:%2d", this.elapsedTime/60, this.elapsedTime % 60),
+                    String.format("%d", this.steps), Language.CHINESE);
+            loseScreen.setGameController(this.controller);
+            loseScreen.setVisible(true);
             boardPanel.setEnabled(false);
             // 如果需要可以返回特定组件，这里保持与父类一致的null
         }
@@ -83,7 +88,6 @@ public class StepsLimitGamePanel extends AbstractGamePanel {
     @Override
     public void initialGame() {
         super.initialGame();
-        setElapsedTime(0);
         setSteps(0);
         updateRemainingStepsLabel();
 

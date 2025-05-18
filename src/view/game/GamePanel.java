@@ -69,10 +69,10 @@ public class GamePanel extends JPanel {
         remove(currentPanel);
         currentPanel = createRandomMode(newMap, mode);
         add(currentPanel, BorderLayout.CENTER);
-
+        this.controller.setModel(newMap);
         if (controller != null) {
             currentPanel.setController(controller);
-            currentPanel.addKeyListener((KeyListener) controller);
+            //currentPanel.addKeyListener((KeyListener) controller);
         }
 
         currentPanel.setFocusable(true);

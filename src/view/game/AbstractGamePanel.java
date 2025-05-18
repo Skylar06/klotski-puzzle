@@ -904,7 +904,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     private void checkWinCondition() {
         if (model.getId(1, 4) == 4 && model.getId(2, 4) == 4) {
-            VictoryScreen v = new VictoryScreen(1000, String.format("%2d%2d", this.elapsedTime / 60, this.elapsedTime % 60), String.format("%d", this.steps), "2:30", "25步", this.currentLanguage);
+            VictoryScreen v = new VictoryScreen(1000, String.format("%2d:%2d", this.elapsedTime / 60, this.elapsedTime % 60), String.format("%d", this.steps), "2:30", "25步", this.currentLanguage);
             v.setGameController(controller);
             v.setVisible(true);
             this.setVisible(false);

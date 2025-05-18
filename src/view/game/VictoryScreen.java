@@ -207,23 +207,23 @@ public class VictoryScreen extends JFrame {
         buttonPanel.add(leaderboardPanel);
 
         // 设置按钮事件
-        nextLevelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                GamePanel.nextLevel(); // 切换下一关
-            }
+        nextLevelButton.addActionListener(e ->{
+            GamePanel.nextLevel(); // 切换下一关
+            this.setVisible(false);
+
         });
 
-        restartButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 重新开始逻辑
-                System.out.println("重新开始");
-            }
+        restartButton.addActionListener(e -> {
+            this.setVisible(false);
+            this.gameController.restartGame();
         });
 
         mainMenuButton.addActionListener(e -> {
             this.setVisible(false);
+            this.dispose();
+            if (gameController.gameFrame1 != null) {
+                gameController.gameFrame1.dispose(); // 关闭游戏界面
+            }
             this.gameController.levelSelectFrame.setVisible(true);
         });
 

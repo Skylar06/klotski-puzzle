@@ -208,6 +208,7 @@ public class LoginFrame extends JFrame {
         guestModeBtn.addActionListener(e->{
             levelSelectFrame.setVisible(true);
             gameController.setUser("无名游侠");
+            this.gameController.setVisitor(true);
             this.setVisible(false);
         });
         // 按钮事件
@@ -220,7 +221,7 @@ public class LoginFrame extends JFrame {
             try {
                 File file = new File("user.txt");
                 if (!file.exists()) {
-                    showLoginError( (currentLanguage == Language.CHINESE) ? "客卿录未存" : "User file not found");
+                    showLoginError( (currentLanguage == Language.CHINESE) ? "客卿未录存" : "User file not found");
                     return;
                 }
                 String line;
@@ -299,11 +300,10 @@ public class LoginFrame extends JFrame {
             // 这里可以添加游客模式逻辑，进入游戏界面
             if (gameFrame != null) {
                 gameFrame.setVisible(true);
-                //gameFrame.setGuestMode(true); // 设置游戏框架为游客模式
+
                 LoginFrame.this.setVisible(false); // 隐藏登录界面
             }
         });
-
     }
 
     private void showLoginError(String message) {

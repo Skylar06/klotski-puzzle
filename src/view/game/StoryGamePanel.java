@@ -276,9 +276,15 @@ public class StoryGamePanel extends AbstractGamePanel {
 
         // 现在才真正初始化游戏和启动计时器
         super.initialGame();
-        setElapsedTime(0);
         super.setController(this.controller);
 
         isStoryCompleted = true;
+    }
+
+    public void setModeLevels(int[][][] modeLevels, int currentLevelIndex) {
+        // 在关卡开始时设置地图和索引
+        if (currentLevelIndex >= 0 && currentLevelIndex < modeLevels.length) {
+            model.setMatrix(modeLevels[currentLevelIndex]);
+        }
     }
 }

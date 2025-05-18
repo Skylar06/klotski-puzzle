@@ -1,9 +1,11 @@
 package view.level.select;
 
 import controller.GameController;
+import model.LevelManager;
 import model.MapModel;
 import view.Language;
 import view.game.GameFrame1;
+import view.game.Save;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -15,7 +17,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -193,8 +195,35 @@ public class LevelSelectFrame extends JFrame {
             }
         );
         loadBtn.addActionListener(
-                e -> {
-
+                event -> {
+                    if (this.gameController.isVisitor()){
+                        JOptionPane.showMessageDialog(this, "不录之身禁止导入");
+                        return;
+                    }
+                    try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("./"+this.gameController.getUser()+".txt"))) {
+                        Save temp = (Save) in.readObject();
+                        if (!temp.user.equals(this.gameController.getUser())) {
+                            JOptionPane.showMessageDialog(this, "您只能读取属于您的存档");
+                            return;
+                        }
+                        // 加载游戏状态
+                        int[][] savedMatrix = temp.model.getMatrix();
+                        model.setMatrix(savedMatrix);
+                        this.gameController.setModel(temp.model);
+                        this.gameController.setMode(temp.mode);
+                        this.gameController.gameFrame1 = new GameFrame1(temp.model,temp.mode,this.gameController);
+                        this.gameController.gameFrame1.setVisible(true);
+                        this.gameController.loadGame("./"+this.gameController.getUser()+".txt");
+                        this.setVisible(false);
+                    } catch (FileNotFoundException e) {
+                        JOptionPane.showMessageDialog(this, "初来乍到，未染红尘");
+                    } catch (StreamCorruptedException e) {
+                        JOptionPane.showMessageDialog(this, "文件损坏或格式不正确: " + e.getMessage());
+                    } catch (IOException e) {
+                        JOptionPane.showMessageDialog(this, "读取文件时发生错误: " + e.getMessage());
+                    } catch (ClassNotFoundException e) {
+                        JOptionPane.showMessageDialog(this, "保存的文件中包含未知的类: " + e.getMessage());
+                    }
                 }
         );
 
@@ -435,6 +464,17 @@ public class LevelSelectFrame extends JFrame {
 
     public void setGameController(GameController gameController) {
         this.gameController = gameController;
+        if (this.model == null) {
+            this.model = new MapModel(new int[][]{
+                    {2, 2, 4, 4, 1},
+                    {2, 2, 4, 4, 1},
+                    {0, 0, 2, 2, 3},
+                    {2, 2, 1, 1, 3}
+            });
+            this.gameController.setModel(this.model);
+        } else {
+            this.model.setMatrix(LevelManager.getCurrentMap().getMatrix());
+        }
     }
 
     public void setModel(MapModel model) {

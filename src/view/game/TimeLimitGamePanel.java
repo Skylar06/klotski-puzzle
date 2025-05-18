@@ -11,16 +11,17 @@ public class TimeLimitGamePanel extends AbstractGamePanel {
     private static final int COUNTDOWN_SECONDS = 120; // 固定倒计时
     private JLabel countdownLabel;
     private Timer countdownTimer;
-    private int remainingSeconds;
 
     public TimeLimitGamePanel(MapModel model) {
         super(model);
-        this.remainingSeconds = COUNTDOWN_SECONDS;
-        replaceTimeLabel();
-        startCountdown();
     }
 
     private void replaceTimeLabel() {
+        // 移除原有的倒计时标签
+        if (countdownLabel != null) {
+            statusPanel.remove(countdownLabel);
+        }
+
         Component[] comps = statusPanel.getComponents();
         for (Component c : comps) {
             if (c instanceof JLabel lbl && lbl.getText().startsWith("时间")) {
@@ -28,7 +29,9 @@ public class TimeLimitGamePanel extends AbstractGamePanel {
                 break;
             }
         }
-        countdownLabel = createStyledLabel("剩余: " + formatTime(remainingSeconds),
+
+        // 创建新的倒计时标签
+        countdownLabel = createStyledLabel("剩余: " + formatTime(COUNTDOWN_SECONDS - this.elapsedTime),
                 "楷体", Font.BOLD, 20, Color.WHITE);
 
         int insertIndex = 0;
@@ -44,23 +47,30 @@ public class TimeLimitGamePanel extends AbstractGamePanel {
     }
 
     @Override
+    public void initialGame() {
+        super.initialGame();
+        replaceTimeLabel();
+        startCountdown();
+    }
+
+    @Override
     public void updateLanguageTexts(Language currentLanguage) {
         updateCommonLabels(currentLanguage);
-        // 更新步数标签、时间标签的文本
         int minutes = elapsedTime / 60;
         int seconds = elapsedTime % 60;
         String prefix = currentLanguage == Language.CHINESE ? "剩余: " : "Remaining: ";
-
-        // 更新步数标签、时间标签的文本
         stepLabel.setText((currentLanguage == Language.CHINESE ? "步数：" : "Steps: ") + steps);
         timeLabel.setText(String.format("%s%02d:%02d", prefix, minutes, seconds));
     }
 
     private void startCountdown() {
+        if (countdownTimer!=null) {
+            countdownTimer.start();
+            return;
+        }
         countdownTimer = new Timer(1000, e -> {
-            if (remainingSeconds > 0) {
-                remainingSeconds--;
-                countdownLabel.setText("剩余: " + formatTime(remainingSeconds));
+            if (COUNTDOWN_SECONDS - elapsedTime > 0) {
+                countdownLabel.setText("剩余: " + formatTime(COUNTDOWN_SECONDS - elapsedTime));
             } else {
                 countdownTimer.stop();
                 timeUp();
@@ -76,7 +86,15 @@ public class TimeLimitGamePanel extends AbstractGamePanel {
     }
 
     private void timeUp() {
-        JOptionPane.showMessageDialog(this, "时间到！挑战失败。");
+        if (countdownTimer != null) {
+            countdownTimer.stop();
+        }
+        view.game.LoseScreen loseScreen = new view.game.LoseScreen(
+                String.format("%2d:%2d", COUNTDOWN_SECONDS / 60, COUNTDOWN_SECONDS % 60),
+                String.format("%d", this.steps), Language.CHINESE);
+        loseScreen.setGameController(this.controller);
+
+        loseScreen.setVisible(true);
         boardPanel.setEnabled(false);
     }
 }

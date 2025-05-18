@@ -1,5 +1,6 @@
 package view.game;
 
+import controller.GameController;
 import view.Language;
 
 import javax.sound.sampled.AudioInputStream;
@@ -19,7 +20,7 @@ public class LoseScreen extends JFrame {
     private JButton restartButton;
     private JButton mainMenuButton;
     private JButton leaderboardButton;
-
+    private GameController gameController;
     // 背景图片
     private ImageIcon backgroundImage = new ImageIcon(getClass().getClassLoader().getResource("lose_bg.gif"));
 
@@ -155,19 +156,18 @@ public class LoseScreen extends JFrame {
         buttonPanel.add(leaderboardPanel);
 
 
-        restartButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 重新开始逻辑
-                System.out.println("重新开始");
-            }
+        restartButton.addActionListener(e -> {
+            this.gameController.restartGame();
+            this.setVisible(false);
+            remove(this);
         });
 
-        mainMenuButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 返回主菜单逻辑
-                System.out.println("返回主菜单");
+        mainMenuButton.addActionListener(e ->{
+            this.gameController.levelSelectFrame.setVisible(true);
+            this.setVisible(false);
+            this.dispose();
+            if (gameController.gameFrame1 != null) {
+                gameController.gameFrame1.dispose(); // 关闭游戏界面
             }
         });
 
@@ -255,6 +255,10 @@ public class LoseScreen extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
     }
 
     public static void main(String[] args) {

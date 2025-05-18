@@ -36,6 +36,10 @@ public class MapModel implements Serializable {
     }
 
     public void setMatrix(int[][] matrix) {
-        this.matrix = matrix;
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                this.matrix[i][j] = matrix[i][j];
+            }
+        }
     }
 }
