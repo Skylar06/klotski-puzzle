@@ -49,6 +49,24 @@ public class GameFrame1 extends JFrame {
         bgPanel.setLayout(new BorderLayout());  // 使用 BorderLayout 来帮助居中显示
         this.setContentPane(bgPanel);
 
+        // 加载鼠标图标图片（你需要准备一张图片，比如 cursor.png）
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Image cursorImage = toolkit.getImage(getClass().getResource("/cursor.png")); // 自定义图标路径
+// 设置热点（鼠标点击的焦点，一般设置为图像中心或左上角）
+        Point hotspot = new Point(0, 0);
+// 创建自定义光标
+        Cursor customCursor = toolkit.createCustomCursor(cursorImage, hotspot, "Custom Cursor");
+// 应用到整个窗口
+        this.setCursor(customCursor);
+
+        MouseTrailLayer trailLayer = new MouseTrailLayer();
+        trailLayer.setBounds(0, 0, getWidth(), getHeight()); // 全覆盖
+        trailLayer.setFocusable(false);
+
+// 将其添加到顶层（必须在 setVisible 前或手动调用 repaint）
+        this.getLayeredPane().add(trailLayer, JLayeredPane.PALETTE_LAYER); // 比普通组件高一层
+
+
         // 1. 顶部按钮面板直接添加到 NORTH
         JPanel topPanel = createTopPanel();
         bgPanel.add(topPanel, BorderLayout.NORTH);
