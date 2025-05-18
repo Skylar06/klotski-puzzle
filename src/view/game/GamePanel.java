@@ -18,6 +18,7 @@ public class GamePanel extends JPanel {
     private boolean lastUsedTimeLimit = false;
     private int mode;
     private GameController controller;
+    public int level = 0;
 
     public static GamePanel instance;
 
@@ -41,7 +42,7 @@ public class GamePanel extends JPanel {
      */
     private AbstractGamePanel createRandomMode(MapModel model,int m) {
         return switch (m) {
-            case 1 -> new StoryGamePanel(model,2);
+            case 1 -> new StoryGamePanel(model,level);
             case 2 -> {
                 lastUsedTimeLimit = !lastUsedTimeLimit;
                 if (lastUsedTimeLimit) {
@@ -52,7 +53,7 @@ public class GamePanel extends JPanel {
             }
 
             case 0 -> new EffectGamePanel(model);
-            default -> new StoryGamePanel(model,2); // 兜底
+            default -> new StoryGamePanel(model,level); // 兜底
         };
     }
 
@@ -63,6 +64,7 @@ public class GamePanel extends JPanel {
     }
 
     private void loadNextLevel() {
+        level++;
         LevelManager.nextLevel();
         MapModel newMap = new MapModel(LevelManager.getCurrentMap());
 
