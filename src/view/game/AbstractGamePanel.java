@@ -2,8 +2,10 @@ package view.game;
 
 import controller.GameController;
 import model.Direction;
+import model.LevelManager;
 import model.MapModel;
 import view.Language;
+import view.Leaderboard;
 
 import javax.swing.*;
 import javax.swing.Timer;
@@ -741,6 +743,9 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         int minutes = elapsedTime / 60;
         int seconds = elapsedTime % 60;
         timeLabel.setText(String.format("时间: %02d:%02d", minutes, seconds));
+        if (elapsedTime % 60 == 0&&this.controller.isVisitor()) {
+            this.controller.saveGame("./"+this.controller.getUser()+".txt");
+        }
     }
 
 
@@ -904,7 +909,12 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     private void checkWinCondition() {
         if (model.getId(1, 4) == 4 && model.getId(2, 4) == 4) {
-            VictoryScreen v = new VictoryScreen(1000, String.format("%2d:%2d", this.elapsedTime / 60, this.elapsedTime % 60), String.format("%d", this.steps), "2:30", "25步", this.currentLanguage);
+            this.pauseTimer();
+            if (LevelManager.getCurrentLevelIndex()==0){
+                Leaderboard.instance.addRecord(this.controller.getUser(),this.steps, this.elapsedTime);
+            }
+            VictoryScreen v = new VictoryScreen(1000-this.elapsedTime*3-this.steps*5, String.format("%2d:%2d", this.elapsedTime / 60, this.elapsedTime % 60), String.format("%d", this.steps),
+                    String.format("%2d:%2d",Leaderboard.instance.getFastestTime()/60,Leaderboard.instance.getFastestTime()%60), String.format("%d", Leaderboard.instance.getFastestSteps()), this.currentLanguage);
             v.setGameController(controller);
             v.setVisible(true);
             this.setVisible(false);

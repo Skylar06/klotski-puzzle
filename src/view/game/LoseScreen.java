@@ -2,6 +2,7 @@ package view.game;
 
 import controller.GameController;
 import view.Language;
+import view.LeaderboardFrame;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -183,7 +184,8 @@ public class LoseScreen extends JFrame {
             public void mousePressed(MouseEvent e) {
                 leaderboardButton.setForeground(new Color(255, 10, 0));  // 按下时的颜色
                 // 重新开始逻辑
-                System.out.println("查看排行榜");
+                LeaderboardFrame frame = new LeaderboardFrame();
+                frame.setVisible(true);
             }
         });
 

@@ -14,8 +14,7 @@ public class LevelManager {
                     {2, 2, 1, 0, 0},
                     {2, 2, 3, 4, 4},
                     {2, 2, 3, 4, 4}
-            },
-            // 可以继续添加更多地图
+            }
     };
 
     public static MapModel getCurrentMap() {

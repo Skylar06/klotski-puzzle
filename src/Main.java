@@ -1,5 +1,6 @@
 import controller.GameController;
 import model.MapModel;
+import view.Leaderboard;
 import view.game.GameFrame1;
 import view.game.GamePanel;
 import view.level.select.LevelSelectFrame;
@@ -23,6 +24,7 @@ public class Main {
             levelSelectFrame.setVisible(false);
             levelSelectFrame.setModel(mapModel);
             GameController gameController = new GameController(mapModel,levelSelectFrame,loginFrame);
+            Leaderboard.initialize();
 //            GameFrame1 gameFrame = new GameFrame1(mapModel);// 创建游戏主窗口
 //            gameFrame.setVisible(false);// 初始隐藏游戏窗口
 //            loginFrame.setGameFrame(gameFrame);// 关联登录窗口和游戏窗口

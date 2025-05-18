@@ -11,6 +11,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -200,29 +201,57 @@ public class LevelSelectFrame extends JFrame {
                         JOptionPane.showMessageDialog(this, "不录之身禁止导入");
                         return;
                     }
-                    try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("./"+this.gameController.getUser()+".txt"))) {
-                        Save temp = (Save) in.readObject();
-                        if (!temp.user.equals(this.gameController.getUser())) {
-                            JOptionPane.showMessageDialog(this, "您只能读取属于您的存档");
+                    JFileChooser jf = new JFileChooser(".");
+                    jf.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                    jf.setFileFilter(new FileFilter() {
+                        @Override
+                        public String getDescription() {
+                            return ".txt";
+                        }
+
+                        @Override
+                        public boolean accept(File f) {
+                            if (f.getName().endsWith("txt")) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                    });
+                    int flag = jf.showOpenDialog(this);
+                    if (flag == JFileChooser.APPROVE_OPTION) {
+                        String fileName = jf.getSelectedFile().getName();
+                        String lastName = fileName.substring(fileName.lastIndexOf(".") + 1);
+                        if (!lastName.equals("txt")) {
+                            JOptionPane.showMessageDialog(this, "请选择一个txt格式的文件");
                             return;
                         }
-                        // 加载游戏状态
-                        int[][] savedMatrix = temp.model.getMatrix();
-                        model.setMatrix(savedMatrix);
-                        this.gameController.setModel(temp.model);
-                        this.gameController.setMode(temp.mode);
-                        this.gameController.gameFrame1 = new GameFrame1(temp.model,temp.mode,this.gameController);
-                        this.gameController.gameFrame1.setVisible(true);
-                        this.gameController.loadGame("./"+this.gameController.getUser()+".txt");
-                        this.setVisible(false);
-                    } catch (FileNotFoundException e) {
-                        JOptionPane.showMessageDialog(this, "初来乍到，未染红尘");
-                    } catch (StreamCorruptedException e) {
-                        JOptionPane.showMessageDialog(this, "文件损坏或格式不正确: " + e.getMessage());
-                    } catch (IOException e) {
-                        JOptionPane.showMessageDialog(this, "读取文件时发生错误: " + e.getMessage());
-                    } catch (ClassNotFoundException e) {
-                        JOptionPane.showMessageDialog(this, "保存的文件中包含未知的类: " + e.getMessage());
+                        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(jf.getSelectedFile().getPath()))) {
+                            Save temp = (Save) in.readObject();
+                            if (!temp.user.equals(this.gameController.getUser())) {
+                                JOptionPane.showMessageDialog(this, "您只能读取属于您的存档");
+                                return;
+                            }
+                            // 加载游戏状态
+                            int[][] savedMatrix = temp.model.getMatrix();
+                            model.setMatrix(savedMatrix);
+                            this.gameController.setModel(temp.model);
+                            this.gameController.setMode(temp.mode);
+                            this.gameController.gameFrame1 = new GameFrame1(temp.model,temp.mode,this.gameController);
+                            this.gameController.gameFrame1.setVisible(true);
+                            this.setVisible(false);
+                            this.gameController.getMoveHistory().clear();
+                            this.gameController.gameFrame1.getGamePanel().getCurrentPanel().setElapsedTime(temp.time);
+                            this.gameController.gameFrame1.getGamePanel().getCurrentPanel().setSteps(temp.step);
+                        } catch (FileNotFoundException e) {
+                            JOptionPane.showMessageDialog(this, "初来乍到，未染红尘");
+                        } catch (StreamCorruptedException e) {
+                            JOptionPane.showMessageDialog(this, "文件损坏或格式不正确: " + e.getMessage());
+                        } catch (IOException e) {
+                            JOptionPane.showMessageDialog(this, "读取文件时发生错误: " + e.getMessage());
+                        } catch (ClassNotFoundException e) {
+                            JOptionPane.showMessageDialog(this, "保存的文件中包含未知的类: " + e.getMessage());
+                        }
                     }
                 }
         );

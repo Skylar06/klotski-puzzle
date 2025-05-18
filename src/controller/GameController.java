@@ -274,6 +274,7 @@ public class GameController {
             view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
             view.initialGame(); // 重新初始化游戏界面
             view.getCurrentPanel().setElapsedTime(temp.time);
+            this.moveHistory.clear();
             return true;
         } catch (FileNotFoundException e) {
             JOptionPane.showMessageDialog(this.gameFrame1, "文件未找到: " + path + "。请检查路径是否正确。");
@@ -297,6 +298,7 @@ public class GameController {
     public void saveGame(String path) {
         if (isVisitor){
             JOptionPane.showMessageDialog(this.gameFrame1, "不录之身禁止录存");
+            return;
         }
         path = "./" + this.user + ".txt";
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path))) {
@@ -349,6 +351,10 @@ public class GameController {
 
     public void setModel(MapModel model) {
         this.model = model;
+    }
+
+    public List<Move> getMoveHistory() {
+        return moveHistory;
     }
 
     public String getUser() {
