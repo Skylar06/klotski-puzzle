@@ -17,8 +17,8 @@ public class LevelManager {
             }
     };
 
-    public static MapModel getCurrentMap() {
-        return new MapModel(maps[currentLevel]);
+    public static int[][] getCurrentMap() {
+        return maps[currentLevel];
     }
 
     public static void nextLevel() {

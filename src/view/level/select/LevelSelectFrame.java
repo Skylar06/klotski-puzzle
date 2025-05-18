@@ -191,6 +191,7 @@ public class LevelSelectFrame extends JFrame {
             e -> {
                 this.setVisible(false);
                 this.gameController.setMode(this.currentCarouselIndex);
+                this.model.setMatrix(LevelManager.getCurrentMap());
                 this.gameController.gameFrame1 = new GameFrame1(this.model,this.currentCarouselIndex,this.gameController);
                 this.gameController.gameFrame1.setVisible(true);
             }
@@ -502,7 +503,7 @@ public class LevelSelectFrame extends JFrame {
             });
             this.gameController.setModel(this.model);
         } else {
-            this.model.setMatrix(LevelManager.getCurrentMap().getMatrix());
+            this.model.setMatrix(LevelManager.getCurrentMap());
         }
     }
 

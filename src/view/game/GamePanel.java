@@ -64,7 +64,7 @@ public class GamePanel extends JPanel {
 
     private void loadNextLevel() {
         LevelManager.nextLevel();
-        MapModel newMap = LevelManager.getCurrentMap();
+        MapModel newMap = new MapModel(LevelManager.getCurrentMap());
 
         remove(currentPanel);
         currentPanel = createRandomMode(newMap, mode);

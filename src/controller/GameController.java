@@ -47,7 +47,7 @@ public class GameController {
         this.view.getCurrentPanel().setVisible(true);
         this.view.getCurrentPanel().pauseTimer();
         // 重置模型
-        model.setMatrix(LevelManager.getCurrentMap().getMatrix());// 重置视图
+        model.setMatrix(LevelManager.getCurrentMap());// 重置视图
         view.initialGame();
         view.getCurrentPanel().setElapsedTime(-1);// 调用视图的初始化方法
         view.getCurrentPanel().updateTimeLabel();
