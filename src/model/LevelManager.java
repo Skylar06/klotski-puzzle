@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Arrays;
+
 public class LevelManager {
     private static int currentLevel = 0;
     private static final int[][][] maps = {
@@ -18,7 +20,11 @@ public class LevelManager {
     };
 
     public static int[][] getCurrentMap() {
-        return maps[currentLevel];
+        int[][] tempMap = new int[maps[0].length][maps[0][0].length];
+        for (int i = 0; i < maps[currentLevel].length; i++) {
+            tempMap[i] = Arrays.copyOf(maps[currentLevel][i], maps[currentLevel][i].length);
+        }
+        return tempMap;
     }
 
     public static void nextLevel() {
