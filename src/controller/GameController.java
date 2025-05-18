@@ -50,9 +50,6 @@ public class GameController {
         // 重置模型
         model.setMatrix(LevelManager.getCurrentMap());// 重置视图
         view.initialGame();
-        for (int i =0 ;i<4;i++){
-            System.out.println(Arrays.toString(LevelManager.getCurrentMap()[i]));
-        }
         view.getCurrentPanel().setElapsedTime(-1);// 调用视图的初始化方法
         view.getCurrentPanel().updateTimeLabel();
         view.setSteps(0); // 重置步数

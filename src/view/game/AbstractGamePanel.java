@@ -846,7 +846,6 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     @Override
     public void doMouseClick(Point point) {
         Point p = SwingUtilities.convertPoint(this, point, boardPanel);
-        System.out.println(point);
         Component c = boardPanel.getComponentAt(point);
         if (c instanceof BoxComponent clicked) {
             if (selectedBox == null) {
