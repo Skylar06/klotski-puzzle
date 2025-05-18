@@ -449,7 +449,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     private void eliminateRandomBlock() {
         List<BoxComponent> candidates = new ArrayList<>();
         for (BoxComponent box : new ArrayList<>(boxes)) {
-            if (box.getType() != 4) {
+            if (box.getType() == 1) {
                 candidates.add(box);
             }
         }
@@ -493,36 +493,45 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         int col = box.getCol();
 
         Rectangle bounds = box.getBounds();
-        int w = Math.round(bounds.width / (float) GRID_SIZE);
-        int h = Math.round(bounds.height / (float) GRID_SIZE);
+        int w = (int) Math.ceil(bounds.getWidth() / (float) GRID_SIZE); // 精确计算占位格数
+        int h = (int) Math.ceil(bounds.getHeight() / (float) GRID_SIZE);
 
         boolean[][] occupied = new boolean[BOARD_ROWS][BOARD_COLS];
         for (BoxComponent b : boxes) {
+            if (b == box) continue; // ✨ 关键修复：排除自身
             Rectangle bBounds = b.getBounds();
             int r = b.getRow();
             int c = b.getCol();
-            int bw = Math.round(bBounds.width / (float) GRID_SIZE);
-            int bh = Math.round(bBounds.height / (float) GRID_SIZE);
+            int bw = (int) Math.ceil(bBounds.getWidth() / (float) GRID_SIZE);
+            int bh = (int) Math.ceil(bBounds.getHeight() / (float) GRID_SIZE);
+
             for (int i = 0; i < bh; i++) {
                 for (int j = 0; j < bw; j++) {
-                    if (r + i < BOARD_ROWS && c + j < BOARD_COLS) {
-                        occupied[r + i][c + j] = true;
-                    }
+                    int occupiedRow = r + i;
+                    int occupiedCol = c + j;
+                    if (occupiedRow < 0 || occupiedRow >= BOARD_ROWS) continue;
+                    if (occupiedCol < 0 || occupiedCol >= BOARD_COLS) continue;
+                    occupied[occupiedRow][occupiedCol] = true;
                 }
             }
         }
 
-        return canMoveTo(row - 1, col, w, h, occupied) ||
-                canMoveTo(row + 1, col, w, h, occupied) ||
-                canMoveTo(row, col - 1, w, h, occupied) ||
-                canMoveTo(row, col + 1, w, h, occupied);
+        // 检查四个方向移动一格后的可行性
+        return canMoveTo(row - 1, col, w, h, occupied) || // 上
+                canMoveTo(row + 1, col, w, h, occupied) || // 下
+                canMoveTo(row, col - 1, w, h, occupied) || // 左
+                canMoveTo(row, col + 1, w, h, occupied);  // 右
     }
 
-    private boolean canMoveTo(int r, int c, int w, int h, boolean[][] occupied) {
-        if (r < 0 || c < 0 || r + h > BOARD_ROWS || c + w > BOARD_COLS) return false;
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                if (occupied[r + i][c + j]) return false;
+    private boolean canMoveTo(int targetRow, int targetCol, int w, int h, boolean[][] occupied) {
+        // 边界检查
+        if (targetRow < 0 || targetRow + h > BOARD_ROWS) return false;
+        if (targetCol < 0 || targetCol + w > BOARD_COLS) return false;
+
+        // 检查目标区域是否全部可移动
+        for (int row = targetRow; row < targetRow + h; row++) {
+            for (int col = targetCol; col < targetCol + w; col++) {
+                if (occupied[row][col]) return false;
             }
         }
         return true;
