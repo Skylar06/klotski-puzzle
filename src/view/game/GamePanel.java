@@ -74,7 +74,9 @@ public class GamePanel extends JPanel {
         this.controller.setModel(newMap);
         if (controller != null) {
             currentPanel.setController(controller);
-            //currentPanel.addKeyListener((KeyListener) controller);
+        }
+        if (this.controller != null) {
+            this.controller.clearMove();
         }
 
         currentPanel.setFocusable(true);

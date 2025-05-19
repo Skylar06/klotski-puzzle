@@ -371,5 +371,9 @@ public class GameController {
     public String getUser() {
         return user;
     }
+
+    public void clearMove(){
+        this.moveHistory.clear();
+    }
 }
 
