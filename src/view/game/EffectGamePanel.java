@@ -42,6 +42,30 @@ public class EffectGamePanel extends AbstractGamePanel {
 
         // 初始化文本，语言默认使用中文（可根据需要传入当前语言）
         EFFECT_TEXT = getEffectTextByLanguage(Language.CHINESE);
+
+        clearSkillButtons();
+    }
+
+    // **新增方法：移除技能区**
+    private void removeSkillPanel() {
+        // 检查 outerPanel 是否已经初始化
+        if (outerPanel != null) {
+            // 获取左侧面板（statusPanel + skillPanel）
+            for (Component comp : outerPanel.getComponents()) {
+                if (comp instanceof JPanel leftPanel) {
+                    // 遍历左侧面板的子组件，找到 skillPanel 并移除
+                    for (Component skillComp : leftPanel.getComponents()) {
+                        if (skillComp instanceof JPanel && ((JPanel) skillComp).getLayout() instanceof GridLayout) {
+                            leftPanel.remove(skillComp); // 移除技能区
+                            break;
+                        }
+                    }
+                    leftPanel.revalidate();
+                    leftPanel.repaint();
+                    break;
+                }
+            }
+        }
     }
 
     @Override

@@ -232,6 +232,14 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     }
 
+    protected void clearSkillButtons() {
+        if (skillPanel != null) {
+            skillPanel.removeAll(); // 移除所有按钮
+            skillPanel.revalidate();
+            skillPanel.repaint();
+        }
+    }
+
     public void updateCommonLabels(Language currentLanguage) {
         if (currentLanguage == Language.CHINESE) {
             skinToggleBtn.setText("当前皮肤：" + BoxComponent.getCurrentSkin());
@@ -754,7 +762,8 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         elapsedTime++; // 每次触发增加1秒
         int minutes = elapsedTime / 60;
         int seconds = elapsedTime % 60;
-        timeLabel.setText(String.format("时间: %02d:%02d", minutes, seconds));
+        String prefix = currentLanguage == Language.CHINESE ? "时间: " : "Time: ";
+        timeLabel.setText(String.format("%s%02d:%02d", prefix, minutes, seconds));
         if (elapsedTime % 60 == 0&&this.controller.isVisitor()) {
             this.controller.saveGame("./"+this.controller.getUser()+".txt");
         }
@@ -966,7 +975,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     public BoxComponent afterMove() {
         this.steps++;
-        if (stepLabel != null) stepLabel.setText(String.format("Step: %d", this.steps));
+        stepLabel.setText((currentLanguage == Language.CHINESE ? "步数：" : "Steps: ") + steps);
         //updateTimeLabel();
         checkWinCondition();
 
