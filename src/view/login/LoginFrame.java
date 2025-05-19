@@ -251,7 +251,7 @@ public class LoginFrame extends JFrame {
                         this.setVisible(false);
                     }
                 } else {
-                    showLoginError( (currentLanguage == Language.CHINESE) ? "客卿录未存" : "User file not found");
+                    showLoginError( (currentLanguage == Language.CHINESE) ? "丹青谱录无此玄机" : "The password is false");
                 }
             } catch (IOException ex) {
                 showLoginError((currentLanguage == Language.CHINESE) ? "登入未果：" + ex.getMessage() : "Login failed: " + ex.getMessage());
