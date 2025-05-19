@@ -205,7 +205,6 @@ public class GameFrame1 extends JFrame {
         topPanel.setOpaque(false);
         topPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        // 左侧图标按钮
         JPanel iconPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
         iconPanel.setOpaque(false);
         helpButton = createHoverButton("help.png", "帮助");
@@ -217,7 +216,6 @@ public class GameFrame1 extends JFrame {
         iconPanel.add(stopButton);
         iconPanel.add(undoButton);
 
-        // 右侧语言按钮
         JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         langPanel.setOpaque(false);
         languageButton = new JButton("中/En");
@@ -256,7 +254,7 @@ public class GameFrame1 extends JFrame {
     }
 
     private JButton createHoverButton(String imagePath, String text) {
-        JButton button = createIconButton(imagePath, text);
+        JButton button = setUpIconButton(imagePath, text);
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -268,16 +266,15 @@ public class GameFrame1 extends JFrame {
 
             @Override
             public void mouseExited(MouseEvent e) {
-                button.setIcon(new ImageIcon(getScaledImage(imagePath, 32, 32)));
+                button.setIcon(new ImageIcon(getImage(imagePath, 32, 32)));
                 button.setText("");
             }
         });
         return button;
     }
 
-    // 修改图片加载方法，添加错误处理
-    private Image getScaledImage(String imagePath, int width, int height) {
-        URL url = getClass().getResource("/" + imagePath); // 添加斜杠确保从根目录查找
+    private Image getImage(String imagePath, int width, int height) {
+        URL url = getClass().getResource("/" + imagePath);
         if (url == null) {
             System.err.println("图片资源未找到: " + imagePath);
             return new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -285,19 +282,19 @@ public class GameFrame1 extends JFrame {
         return new ImageIcon(url).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
     }
 
-    private JButton createIconButton(String imagePath, String tooltip) {
+    private JButton setUpIconButton(String imagePath, String tooltip) {
         URL iconURL = getClass().getClassLoader().getResource(imagePath);
         if (iconURL == null) {
             System.err.println("图标资源未找到: " + imagePath);
             return new JButton(tooltip);
         }
         ImageIcon originalIcon = new ImageIcon(iconURL);
-        Image scaledImage = originalIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH); // 控制大小
+        Image scaledImage = originalIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
 
         JButton button = new JButton(scaledIcon);
         button.setToolTipText(tooltip);
-        button.setPreferredSize(new Dimension(50, 50)); // 设置大小，避免撑开
+        button.setPreferredSize(new Dimension(50, 50));
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setFocusPainted(false);
@@ -352,7 +349,7 @@ public class GameFrame1 extends JFrame {
 
     private void updateLanguageTexts() {
         if (currentLanguage == Language.CHINESE) {
-            languageButton.setText("中 / En");
+            languageButton.setText("中原/外邦");
         } else {
             languageButton.setText("En / 中");
         }
@@ -367,7 +364,7 @@ public class GameFrame1 extends JFrame {
     }
 
     public static void main(String[] args) {
-        MapModel mapModel = new MapModel(new int[][]{// 创建游戏地图数据
+        MapModel mapModel = new MapModel(new int[][]{
                 {2, 2, 2, 2, 1},
                 {1, 3, 2, 2, 0},
                 {1, 3, 4, 4, 1},

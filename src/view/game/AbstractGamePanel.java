@@ -15,9 +15,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
-/**
- * 抽象游戏面板类，封装共有功能：地图渲染、移动逻辑、胜利判断等。
- */
 public abstract class AbstractGamePanel extends ListenerPanel {
     protected List<BoxComponent> boxes;
     protected MapModel model;
@@ -27,18 +24,16 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     public JLabel timeLabel;
     private Timer timer;
     protected int elapsedTime = 0;
-    protected final int GRID_SIZE = 90;
+    protected final int girdSize = 90;
     protected BoxComponent selectedBox = null;
-    private final int INITIAL_WIDTH = 1000;
-    private final int INITIAL_HEIGHT = 750;
+    private final int initialWidth = 1000;
+    private final int intitalHeight = 750;
     private JButton skinToggleBtn;
     private int skillCount = 0;
-
-    protected JPanel boardPanel;   // 棋盘区域
-    protected JPanel statusPanel;  // 状态区域（剧情）
-    protected JPanel skillPanel;   // 技能区域
-    protected JPanel outerPanel;   // 外框架，用于统一布局
-
+    protected JPanel boardPanel;
+    protected JPanel statusPanel;
+    protected JPanel skillPanel;
+    protected JPanel outerPanel;
     private Image boardBg;
     private Image statusBg;
     private Image skillBg;
@@ -46,32 +41,25 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     private Language currentLanguage = Language.CHINESE;
     private JLabel[] skillLabels = new JLabel[4];
     private final String[] skillNames = {"破阵", "摘星", "风云", "无常"};
-    private final String[] iconPaths = {
-            "skill_remove.png",
-            "skill_highlight.png",
-            "skill_shuffle.png",
-            "skill_random.png"
-    };
-    private boolean[] skillUsed = new boolean[4]; // 每个技能是否用过
-    private JLabel[] centerLabels = new JLabel[4]; // 显示在按钮中间的 "1"/"+" 标签
-    // 建议加在类的成员变量中统一配置
-    private static final int BOARD_ROWS = 4; // 高
-    private static final int BOARD_COLS = 5; // 宽
-    private BoxComponent draggedBox;
-    private int originalRow;  // 新增：记录拖拽起始位置的行
-    private int originalCol;  // 新增：记录拖拽起始位置的列
+    private final String[] iconPaths = {"skill_remove.png", "skill_highlight.png", "skill_shuffle.png", "skill_random.png"};
+    private boolean[] skillUsed = new boolean[4];
+    private JLabel[] centerLabels = new JLabel[4];
+    private static final int rows = 4;
+    private static final int columns = 5;
+//    private BoxComponent draggedBox;
+//    private int originalRow;
+//    private int originalCol;
 
     public AbstractGamePanel(MapModel model) {
         this.model = model;
         this.boxes = new ArrayList<>();
         setLayout(new BorderLayout());
         setFocusable(true);
-        setPreferredSize(new Dimension(INITIAL_WIDTH, INITIAL_HEIGHT));
+        setPreferredSize(new Dimension(initialWidth, intitalHeight));
         setOpaque(false);
 
         loadBackgrounds();
         initAllPanels();
-
         initialGame();
     }
 
@@ -82,7 +70,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
             statusBg = loadImage("status_bg.png");
             skillBg = loadImage("skill_bg.png");
         } catch (Exception e) {
-            System.err.println("背景图片加载失败：" + e.getMessage());
+//            System.err.println("背景图片加载失败：" + e.getMessage());
         }
     }
 
@@ -90,7 +78,6 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
     }
-
     private Image loadImage(String name) throws IOException {
         var url = getClass().getClassLoader().getResource(name);
         if (url == null) {
@@ -100,7 +87,6 @@ public abstract class AbstractGamePanel extends ListenerPanel {
     }
 
     public void initAllPanels() {
-        // 外框架使用 GridBagLayout 实现更灵活的布局
         outerPanel = new JPanel(new GridBagLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -108,9 +94,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
                 if (globalBg != null) {
                     int xOffset = 30;
                     int yOffset = 30;
-                    g.drawImage(globalBg, xOffset, yOffset,
-                            getWidth() - 2 * xOffset,
-                            getHeight() - 2 * yOffset, this);
+                    g.drawImage(globalBg, xOffset, yOffset, getWidth() - 2 * xOffset, getHeight() - 2 * yOffset, this);
                 }
             }
         };
@@ -120,57 +104,50 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
         GridBagConstraints gbc = new GridBagConstraints();
 
-        // 左侧区域（状态区 + 技能区）
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         leftPanel.setOpaque(false);
 
-        // 状态区
-        // 状态区布局优化版
+        //状态
         statusPanel = new BackgroundPanel(statusBg);
         statusPanel.setPreferredSize(new Dimension(200, 160));
         statusPanel.setMaximumSize(new Dimension(200, 160));
-        statusPanel.setOpaque(true);  // 必须设置为true才能显示背景色
-        statusPanel.setBackground(new Color(30, 30, 30));  // 深色背景
-
-// 使用BoxLayout垂直布局
+        statusPanel.setOpaque(true);
+        statusPanel.setBackground(new Color(30, 30, 30));
         statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.Y_AXIS));
 
-// 创建带样式的标签
         stepLabel = createStyledLabel("步数: 0", "楷体", Font.BOLD, 22, Color.WHITE);
         timeLabel = createStyledLabel("时间: 00:00", "楷体", Font.BOLD, 20, Color.WHITE);
 
-// 垂直布局配置
-        statusPanel.add(Box.createVerticalGlue());  // 顶部弹性空间
+        statusPanel.add(Box.createVerticalGlue());
         statusPanel.add(stepLabel);
-        statusPanel.add(Box.createVerticalStrut(10));  // 标签间距
+        statusPanel.add(Box.createVerticalStrut(10));
         statusPanel.add(timeLabel);
-        statusPanel.add(Box.createVerticalGlue());  // 底部弹性空间
+        statusPanel.add(Box.createVerticalGlue());
 
         leftPanel.add(statusPanel);
-        leftPanel.add(Box.createRigidArea(new Dimension(0, 20))); // 间距
+        leftPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // 技能区
+        //技能
         skillPanel = new BackgroundPanel(skillBg);
         skillPanel.setPreferredSize(new Dimension(200, 200));
         skillPanel.setMaximumSize(new Dimension(200, 200));
-        skillPanel.setLayout(new GridLayout(2, 2, 5, 5));  // 四宫格布局
+        skillPanel.setLayout(new GridLayout(2, 2, 5, 5));
         for (int i = 0; i < 4; i++) {
             String skillName = skillNames[i];
             String iconPath = iconPaths[i];
-            JPanel buttonPanel = createSkillButton(skillName, iconPath);  // 修改返回类型为 JPanel
+            JPanel buttonPanel = createSkillButton(skillName, iconPath);
             skillPanel.add(buttonPanel);
         }
 
         leftPanel.add(skillPanel);
-        leftPanel.add(Box.createRigidArea(new Dimension(0, 20))); // 间距
+        leftPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
         outerPanel.add(leftPanel, gbc);
 
-        // 棋盘区（使用固定比例）
         boardPanel = new BackgroundPanel(boardBg) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -180,51 +157,47 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         boardPanel.setLayout(null);
         boardPanel.setPreferredSize(new Dimension(450, 360));
         boardPanel.setFocusable(true);
-        // 新增：添加键盘监听器并请求焦点
-        boardPanel.setFocusable(true);
+//        boardPanel.setFocusable(true);
 
         gbc.gridx = 1;
         gbc.gridy = 0;
-        gbc.insets = new Insets(0, 30, 0, 0); // 与左侧保持间距
+        gbc.insets = new Insets(0, 30, 0, 0);
         gbc.anchor = GridBagConstraints.CENTER;
         outerPanel.add(boardPanel, gbc);
 
         setPreferredSize(new Dimension(900, 600));
         setMaximumSize(new Dimension(900, 600));
 
+        //换皮肤
         String[] skinList = SkinManager.getAvailableSkins();
         int[] currentSkinIndex = {0};
 
         skinToggleBtn = new JButton("当前皮肤：" + skinList[currentSkinIndex[0]]);
         skinToggleBtn.setFont(new Font("楷体", Font.PLAIN, 15));
-        skinToggleBtn.setForeground(new Color(255, 248, 220)); // 淡灰色
+        skinToggleBtn.setForeground(new Color(255, 248, 220));
         skinToggleBtn.setBorderPainted(false);
         skinToggleBtn.setContentAreaFilled(false);
         skinToggleBtn.setFocusPainted(false);
         skinToggleBtn.setOpaque(false);
 
-
         skinToggleBtn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                skinToggleBtn.setForeground(new Color(250, 250, 0));  // 改为高亮色
+                skinToggleBtn.setForeground(new Color(250, 250, 0));
             }
 
             public void mouseExited(MouseEvent e) {
-                skinToggleBtn.setForeground(new Color(255, 248, 220));  // 恢复默认色
+                skinToggleBtn.setForeground(new Color(255, 248, 220));
             }
 
             public void mousePressed(MouseEvent e) {
-                skinToggleBtn.setForeground(new Color(255, 180, 0));  // 按下时的颜色
-                // 切换到下一个皮肤
+                skinToggleBtn.setForeground(new Color(255, 180, 0));
                 currentSkinIndex[0] = (currentSkinIndex[0] + 1) % skinList.length;
                 String newSkin = skinList[currentSkinIndex[0]];
                 BoxComponent.setCurrentSkin(newSkin);
-                skinToggleBtn.setText("当前皮肤：" + newSkin);
+//                skinToggleBtn.setText("当前皮肤：" + newSkin);
 
-                // 刷新所有 BoxComponent（假设你有 boardPanel 或类似容器）
-                boardPanel.repaint(); // 或者你可以遍历所有 box：box.repaint()
-
-                System.out.println("切换皮肤：" + newSkin);
+                boardPanel.repaint();
+//                System.out.println("切换皮肤：" + newSkin);
             }
         });
         skinToggleBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -234,7 +207,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     protected void clearSkillButtons() {
         if (skillPanel != null) {
-            skillPanel.removeAll(); // 移除所有按钮
+            skillPanel.removeAll();
             skillPanel.revalidate();
             skillPanel.repaint();
         }
@@ -244,17 +217,15 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         if (currentLanguage == Language.CHINESE) {
             skinToggleBtn.setText("当前皮肤：" + BoxComponent.getCurrentSkin());
             updateSkillLabels(Language.CHINESE);
-        } else { // English
+        } else {
             skinToggleBtn.setText("Current Skin: " + BoxComponent.getCurrentSkin());
             updateSkillLabels(Language.ENGLISH);
         }
         int minutes = elapsedTime / 60;
         int seconds = elapsedTime % 60;
         String prefix = currentLanguage == Language.CHINESE ? "时间: " : "Time: ";
-
-        // 更新步数标签、时间标签的文本
-        stepLabel.setText((currentLanguage == Language.CHINESE ? "步数：" : "Steps: ") + steps);
         timeLabel.setText(String.format("%s%02d:%02d", prefix, minutes, seconds));
+        stepLabel.setText((currentLanguage == Language.CHINESE ? "步数：" : "Steps: ") + steps);
     }
 
     public void updateSkillLabels(Language language) {
@@ -267,42 +238,30 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         }
     }
 
-    // 辅助方法：获取对应语言的技能名称
     private String getChineseSkillName(String key) {
         switch (key) {
-            case "破阵":
-                return "破阵";
-            case "摘星":
-                return "摘星";
-            case "风云":
-                return "风云";
-            case "无常":
-                return "无常";
-            default:
-                return key;
+            case "破阵": return "破阵";
+            case "摘星": return "摘星";
+            case "风云": return "风云";
+            case "无常": return "无常";
+            default: return key;
         }
     }
 
     private String getEnglishSkillName(String key) {
         switch (key) {
-            case "破阵":
-                return "Remove";
-            case "摘星":
-                return "Highlight";
-            case "风云":
-                return "Shuffle";
-            case "无常":
-                return "Random";
-            default:
-                return key;
+            case "破阵": return "Remove";
+            case "摘星": return "Highlight";
+            case "风云": return "Shuffle";
+            case "无常": return "Random";
+            default: return key;
         }
     }
 
     public abstract void updateLanguageTexts(Language currentLanguage);
 
     private JPanel createSkillButton(String text, String iconPath) {
-        int index = skillCount; // 保存当前下标
-
+        int index = skillCount;
         JButton button = new JButton();
         button.setFocusPainted(false);
         button.setBorderPainted(false);
@@ -318,12 +277,11 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         textLabel.setVisible(false);
         skillLabels[skillCount] = textLabel;
 
-        // 中心数字标签（初始为"1"）
-        JLabel centerLabel = new JLabel("1", SwingConstants.CENTER);
-        centerLabel.setFont(new Font("微软雅黑", Font.BOLD, 28));
-        centerLabel.setForeground(Color.YELLOW);
-        centerLabel.setVisible(false);
-        centerLabels[skillCount] = centerLabel;
+        JLabel countLabel = new JLabel("1", SwingConstants.CENTER);
+        countLabel.setFont(new Font("微软雅黑", Font.BOLD, 28));
+        countLabel.setForeground(Color.YELLOW);
+        countLabel.setVisible(false);
+        centerLabels[skillCount] = countLabel;
 
         skillCount++;
 
@@ -331,22 +289,22 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         panel.setOpaque(false);
         panel.add(button, BorderLayout.CENTER);
         panel.add(textLabel, BorderLayout.SOUTH);
-        panel.add(centerLabel, BorderLayout.NORTH);
+        panel.add(countLabel, BorderLayout.NORTH);
 
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 button.setIcon(null);
                 textLabel.setVisible(true);
-                centerLabel.setText(skillUsed[index] ? "+" : "1");
-                centerLabel.setVisible(true);
+                countLabel.setText(skillUsed[index] ? "+" : "1");
+                countLabel.setVisible(true);
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
                 button.setIcon(icon);
                 textLabel.setVisible(false);
-                centerLabel.setVisible(false);
+                countLabel.setVisible(false);
             }
 
             @Override
@@ -355,47 +313,40 @@ public abstract class AbstractGamePanel extends ListenerPanel {
                     handleSkill(text);
                     skillUsed[index] = true;
                 } else {
-                    showAdPopup(index);
-                    // 弹出广告
+                    showAddvertisement(index);
                 }
-                // 🔄 模拟再次悬停以刷新按钮状态
+                //模拟再次悬停！！！
                 MouseEvent fakeHover = new MouseEvent(button, MouseEvent.MOUSE_ENTERED, System.currentTimeMillis(), 0, 0, 0, 0, false);
                 for (MouseListener ml : button.getMouseListeners()) {
                     ml.mouseEntered(fakeHover);
                 }
             }
         });
-
         return panel;
     }
 
-    private void showAdPopup(int index) {
+    private void showAddvertisement(int index) {
         JDialog adDialog = new JDialog((Frame) null, "观看广告", true);
         adDialog.setSize(400, 300);
         adDialog.setLocationRelativeTo(null);
         adDialog.setLayout(null);
 
-        // ---- 大图广告区域 ----
         JLabel imageLabel = new JLabel();
         imageLabel.setBounds(0, 0, 400, 300);
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         imageLabel.setVerticalAlignment(SwingConstants.CENTER);
 
-        // ---- 倒计时标签，叠加在图片左上角 ----
         JLabel countdownLabel = new JLabel("10");
         countdownLabel.setFont(new Font("微软雅黑", Font.BOLD, 20));
         countdownLabel.setForeground(Color.WHITE);
-        countdownLabel.setBounds(10, 10, 100, 30); // 位置在左上角
+        countdownLabel.setBounds(10, 10, 100, 30);
 
-        // ---- 分层面板：图片底层，倒计时顶层 ----
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(400, 300));
         layeredPane.add(imageLabel, Integer.valueOf(0));
         layeredPane.add(countdownLabel, Integer.valueOf(1));
-
         adDialog.setContentPane(layeredPane);
 
-        // ---- 加载广告图片并缩放 ----
         String[] adImages = {"ad1.png", "ad2.png", "ad3.png"};
         ImageIcon[] adIcons = new ImageIcon[adImages.length];
         for (int i = 0; i < adImages.length; i++) {
@@ -404,11 +355,10 @@ public abstract class AbstractGamePanel extends ListenerPanel {
                 Image scaled = new ImageIcon(url).getImage().getScaledInstance(400, 300, Image.SCALE_SMOOTH);
                 adIcons[i] = new ImageIcon(scaled);
             } else {
-                System.err.println("资源未找到: " + adImages[i]);
+//                System.err.println("资源未找到: " + adImages[i]);
             }
         }
 
-        // ---- 大图轮播 ----
         final int[] imageIndex = {0};
         Timer imageTimer = new Timer(1000, e -> {
             imageLabel.setIcon(adIcons[imageIndex[0]]);
@@ -416,7 +366,6 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         });
         imageTimer.start();
 
-        // ---- 倒计时逻辑 ----
         Timer countdownTimer = new Timer(1000, null);
         countdownTimer.addActionListener(new ActionListener() {
             int secondsLeft = 10;
@@ -434,111 +383,93 @@ public abstract class AbstractGamePanel extends ListenerPanel {
             }
         });
         countdownTimer.start();
-
         adDialog.setVisible(true);
     }
 
-
     private void handleSkill(String skillName) {
         switch (skillName) {
-            case "破阵" -> eliminateRandomBlock();
+            case "破阵" -> eliminateBlock();
             case "摘星" -> {
-                clearHighlight(); // 如果想重复使用，先清除
-                highlightMovableBlocks();
+                clearHighlight();
+                highlightBlock();
             }
             case "风云" -> shuffleBoxes();
             case "无常" -> {
-                int idx = (int) (Math.random() * 3);
-                handleSkill(skillNames[idx]);
+                int index = (int) (Math.random() * 3);
+                handleSkill(skillNames[index]);
             }
         }
     }
 
-    private void eliminateRandomBlock() {
-        List<BoxComponent> candidates = new ArrayList<>();
-        for (BoxComponent box : new ArrayList<>(boxes)) {
+    private void eliminateBlock() {
+        List<BoxComponent> boxes = new ArrayList<>();
+        for (BoxComponent box : new ArrayList<>(this.boxes)) {
             if (box.getType() == 1) {
-                candidates.add(box);
+                boxes.add(box);
             }
         }
-        if (candidates.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "没有可以消除的方块了！");
+        if (boxes.isEmpty()) {
+//            JOptionPane.showMessageDialog(this, "没有可以消除的方块了！");
             return;
         }
 
-        BoxComponent toRemove = candidates.get((int) (Math.random() * candidates.size()));
-
-        // 假设 BoxComponent 有 getRow() 和 getCol() 方法
-        int row = toRemove.getRow();
-        int col = toRemove.getCol();
-
-        // 1. 更新模型数据，设为0表示空格
+        BoxComponent removed = boxes.get((int) (Math.random() * boxes.size()));
+        int row = removed.getRow();
+        int col = removed.getCol();
         model.getMatrix()[row][col] = 0;
 
-        // 2. 移除视图和状态
-        boardPanel.remove(toRemove);
-        boxes.remove(toRemove);
-        toRemove.setVisible(false);
-
+        boardPanel.remove(removed);
+        this.boxes.remove(removed);
+        removed.setVisible(false);
         boardPanel.revalidate();
         boardPanel.repaint();
 
         clearHighlight();
     }
 
-
-    private void highlightMovableBlocks() {
+    private void highlightBlock() {
         for (BoxComponent box : boxes) {
             if (isMovable(box)) {
                 box.setHighlighted(true);
             }
         }
-        new javax.swing.Timer(5000, e -> clearHighlight()).start(); // 5 秒后自动清除
+        new javax.swing.Timer(5000, e -> clearHighlight()).start();
     }
 
     private boolean isMovable(BoxComponent box) {
         int row = box.getRow();
         int col = box.getCol();
-
         Rectangle bounds = box.getBounds();
-        int w = (int) Math.ceil(bounds.getWidth() / (float) GRID_SIZE); // 精确计算占位格数
-        int h = (int) Math.ceil(bounds.getHeight() / (float) GRID_SIZE);
+        int width = (int) Math.ceil(bounds.getWidth() / (float) girdSize);
+        int height = (int) Math.ceil(bounds.getHeight() / (float) girdSize);
 
-        boolean[][] occupied = new boolean[BOARD_ROWS][BOARD_COLS];
+        boolean[][] occupied = new boolean[rows][columns];
         for (BoxComponent b : boxes) {
-            if (b == box) continue; // ✨ 关键修复：排除自身
+            if (b == box) continue;
             Rectangle bBounds = b.getBounds();
-            int r = b.getRow();
-            int c = b.getCol();
-            int bw = (int) Math.ceil(bBounds.getWidth() / (float) GRID_SIZE);
-            int bh = (int) Math.ceil(bBounds.getHeight() / (float) GRID_SIZE);
+            int br = b.getRow();
+            int bc = b.getCol();
+            int bw = (int) Math.ceil(bBounds.getWidth() / (float) girdSize);
+            int bh = (int) Math.ceil(bBounds.getHeight() / (float) girdSize);
 
             for (int i = 0; i < bh; i++) {
                 for (int j = 0; j < bw; j++) {
-                    int occupiedRow = r + i;
-                    int occupiedCol = c + j;
-                    if (occupiedRow < 0 || occupiedRow >= BOARD_ROWS) continue;
-                    if (occupiedCol < 0 || occupiedCol >= BOARD_COLS) continue;
+                    int occupiedRow = br + i;
+                    int occupiedCol = bc + j;
+                    if (occupiedRow < 0 || occupiedRow >= rows) continue;
+                    if (occupiedCol < 0 || occupiedCol >= columns) continue;
                     occupied[occupiedRow][occupiedCol] = true;
                 }
             }
         }
-
-        // 检查四个方向移动一格后的可行性
-        return canMoveTo(row - 1, col, w, h, occupied) || // 上
-                canMoveTo(row + 1, col, w, h, occupied) || // 下
-                canMoveTo(row, col - 1, w, h, occupied) || // 左
-                canMoveTo(row, col + 1, w, h, occupied);  // 右
+        return canMoveTo(row - 1, col, width, height, occupied) || canMoveTo(row + 1, col, width, height, occupied) || canMoveTo(row, col - 1, width, height, occupied) || canMoveTo(row, col + 1, width, height, occupied);
     }
 
-    private boolean canMoveTo(int targetRow, int targetCol, int w, int h, boolean[][] occupied) {
-        // 边界检查
-        if (targetRow < 0 || targetRow + h > BOARD_ROWS) return false;
-        if (targetCol < 0 || targetCol + w > BOARD_COLS) return false;
-
-        // 检查目标区域是否全部可移动
-        for (int row = targetRow; row < targetRow + h; row++) {
-            for (int col = targetCol; col < targetCol + w; col++) {
+    private boolean canMoveTo(int r, int c, int w, int h, boolean[][] occupied) {
+        if (r < 0 || r + h > rows) return false;
+        if (c < 0 || c + w > columns) return false;
+        for (int row = r; row < r + h; row++) {
+            for (int col = c; col < c + w; col++) {
                 if (occupied[row][col]) return false;
             }
         }
@@ -551,72 +482,100 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         }
     }
 
-    private static class BlockInfo {
-        int id;
-        int type;
+//    private static class BlockInfo {
+//        int id;
+//        int type;
+//
+//        BlockInfo(int id, int type) {
+//            this.id = id;
+//            this.type = type;
+//        }
+//    }
 
-        BlockInfo(int id, int type) {
-            this.id = id;
-            this.type = type;
-        }
-    }
-
-    public void shuffleBoxes() {
+    public boolean shuffleBoxes() {
         int rows = model.getHeight();
         int cols = model.getWidth();
-
-        // 原始模型中，关卡配置就是 type 值（1~4）
         int[][] oldMatrix = model.getMatrix();
-
-        // 1. 统计原始方块类型（type），仅记录一次
         List<Integer> blockTypes = new ArrayList<>();
-        boolean[][] visited = new boolean[rows][cols];
+        boolean[][] occuiped = new boolean[rows][cols];
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                if (!visited[i][j] && oldMatrix[i][j] > 0) {
+                if (!occuiped[i][j] && oldMatrix[i][j] > 0) {
                     int type = oldMatrix[i][j];
                     blockTypes.add(type);
-                    markVisited(visited, i, j, type); // 标记已访问方块区域
+                    markOccupied(occuiped, i, j, type);
                 }
             }
         }
-
-        // 2. 打乱类型顺序
         Collections.shuffle(blockTypes);
 
-        // 3. 初始化空矩阵
         int[][] newMatrix = new int[rows][cols];
 
-        // 4. 依次尝试放入新的位置
-        int idx = 0;
-        outer:
+        if (!tryPlaceBlocks(newMatrix, blockTypes, 0)) {
+//            System.err.println("无法放置所有方块！");
+            return false;
+        }
+
+        model.setMatrix(newMatrix);
+        rebuildBoxesFromMatrix(newMatrix);
+        return true;
+    }
+
+    private boolean tryPlaceBlocks(int[][] matrix, List<Integer> blockTypes, int index) {
+        if (index >= blockTypes.size()) return true;
+
+        int type = blockTypes.get(index);
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                if (idx >= blockTypes.size()) break outer;
-
-                int type = blockTypes.get(idx);
-                if (canPlace(newMatrix, i, j, type)) {
-                    placeBlock(newMatrix, i, j, type);
-                    idx++;
+                if (canPlace(matrix, i, j, type)) {
+                    placeBlock(matrix, i, j, type);
+                    if (tryPlaceBlocks(matrix, blockTypes, index + 1)) {
+                        return true;
+                    }
+                    removeBlock(matrix, i, j, type);
                 }
             }
         }
-
-        // 5. 更新模型并重建显示
-        model.setMatrix(newMatrix);
-        rebuildBoxesFromMatrix(newMatrix);
+        return false;
     }
 
-    private void markVisited(boolean[][] visited, int row, int col, int type) {
-        visited[row][col] = true;
+    private void removeBlock(int[][] matrix, int row, int col, int type) {
         switch (type) {
-            case 2 -> visited[row][col + 1] = true;
-            case 3 -> visited[row + 1][col] = true;
+            case 1:
+                matrix[row][col] = 0;
+                break;
+            case 2:
+                matrix[row][col] = 0;
+                if (col + 1 < matrix[0].length) matrix[row][col + 1] = 0;
+                break;
+            case 3:
+                matrix[row][col] = 0;
+                if (row + 1 < matrix.length) matrix[row + 1][col] = 0;
+                break;
+            case 4:
+                matrix[row][col] = 0;
+                if (row + 1 < matrix.length && col + 1 < matrix[0].length) {
+                    matrix[row][col + 1] = 0;
+                    matrix[row + 1][col] = 0;
+                    matrix[row + 1][col + 1] = 0;
+                }
+                break;
+        }
+    }
+
+    private void markOccupied(boolean[][] occupied, int row, int col, int type) {
+        occupied[row][col] = true;
+        switch (type) {
+            case 2 -> occupied[row][col + 1] = true;
+            case 3 -> occupied[row + 1][col] = true;
             case 4 -> {
-                visited[row][col + 1] = true;
-                visited[row + 1][col] = true;
-                visited[row + 1][col + 1] = true;
+                occupied[row][col + 1] = true;
+                occupied[row + 1][col] = true;
+                occupied[row + 1][col + 1] = true;
             }
         }
     }
@@ -630,33 +589,42 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         }
 
         return switch (count) {
-            case 1 -> 1;     // 单格
-            case 2 -> {      // 横2 或 竖2
+            case 1 -> 1;
+            case 2 -> {
                 for (int i = 0; i < matrix.length; i++) {
                     for (int j = 0; j < matrix[0].length; j++) {
                         if (matrix[i][j] == id) {
-                            if (j + 1 < matrix[0].length && matrix[i][j + 1] == id) yield 2; // 横2
-                            else yield 3; // 竖2
+                            if (j + 1 < matrix[0].length && matrix[i][j + 1] == id) yield 2;
+                            else yield 3;
                         }
                     }
                 }
-                yield 3; // fallback
+                yield 3;
             }
-            case 4 -> 4;     // 2x2
-            default -> 1;    // fallback
+            case 4 -> 4;
+            default -> 1;
         };
     }
 
     private void placeBlock(int[][] matrix, int row, int col, int type) {
-        matrix[row][col] = type;
         switch (type) {
-            case 2 -> matrix[row][col + 1] = type;
-            case 3 -> matrix[row + 1][col] = type;
-            case 4 -> {
+            case 1:
+                matrix[row][col] = type;
+                break;
+            case 2:
+                matrix[row][col] = type;
+                matrix[row][col + 1] = type;
+                break;
+            case 3:
+                matrix[row][col] = type;
+                matrix[row + 1][col] = type;
+                break;
+            case 4:
+                matrix[row][col] = type;
                 matrix[row][col + 1] = type;
                 matrix[row + 1][col] = type;
                 matrix[row + 1][col + 1] = type;
-            }
+                break;
         }
     }
 
@@ -666,17 +634,17 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
         switch (type) {
             case 1:
-                return matrix[row][col] == 0;
+                return row >= 0 && row < rows && col >= 0 && col < cols && matrix[row][col] == 0;
             case 2:
-                return col + 1 < cols && matrix[row][col] == 0 && matrix[row][col + 1] == 0;
+                return row >= 0 && row < rows && col >= 0 && col + 1 < cols
+                        && matrix[row][col] == 0 && matrix[row][col + 1] == 0;
             case 3:
-                return row + 1 < rows && matrix[row][col] == 0 && matrix[row + 1][col] == 0;
+                return row >= 0 && row + 1 < rows && col >= 0 && col < cols
+                        && matrix[row][col] == 0 && matrix[row + 1][col] == 0;
             case 4:
-                return row + 1 < rows && col + 1 < cols
-                        && matrix[row][col] == 0
-                        && matrix[row][col + 1] == 0
-                        && matrix[row + 1][col] == 0
-                        && matrix[row + 1][col + 1] == 0;
+                return row >= 0 && row + 1 < rows && col >= 0 && col + 1 < cols
+                        && matrix[row][col] == 0 && matrix[row][col + 1] == 0
+                        && matrix[row + 1][col] == 0 && matrix[row + 1][col + 1] == 0;
             default:
                 return false;
         }
@@ -687,38 +655,37 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         boardPanel.removeAll();
         int rows = matrix.length;
         int cols = matrix[0].length;
-        boolean[][] visited = new boolean[rows][cols];
+        boolean[][] occuiped = new boolean[rows][cols];
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 int type = matrix[i][j];
-                if (type != 0 && !visited[i][j]) {
+                if (type != 0 && !occuiped[i][j]) {
                     BoxComponent box = new BoxComponent(type, i, j);
                     switch (type) {
-                        case 1 -> box.setSize(GRID_SIZE, GRID_SIZE);
+                        case 1 -> box.setSize(girdSize, girdSize);
                         case 2 -> {
-                            box.setSize(GRID_SIZE * 2, GRID_SIZE);
-                            visited[i][j + 1] = true;
+                            box.setSize(girdSize * 2, girdSize);
+                            occuiped[i][j + 1] = true;
                         }
                         case 3 -> {
-                            box.setSize(GRID_SIZE, GRID_SIZE * 2);
-                            visited[i + 1][j] = true;
+                            box.setSize(girdSize, girdSize * 2);
+                            occuiped[i + 1][j] = true;
                         }
                         case 4 -> {
-                            box.setSize(GRID_SIZE * 2, GRID_SIZE * 2);
-                            visited[i][j + 1] = true;
-                            visited[i + 1][j] = true;
-                            visited[i + 1][j + 1] = true;
+                            box.setSize(girdSize * 2, girdSize * 2);
+                            occuiped[i][j + 1] = true;
+                            occuiped[i + 1][j] = true;
+                            occuiped[i + 1][j + 1] = true;
                         }
                     }
-                    box.setLocation(j * GRID_SIZE, i * GRID_SIZE);
+                    box.setLocation(j * girdSize, i * girdSize);
                     boxes.add(box);
                     boardPanel.add(box);
-                    visited[i][j] = true;
+                    occuiped[i][j] = true;
                 }
             }
         }
-
         boardPanel.revalidate();
         boardPanel.repaint();
     }
@@ -730,16 +697,15 @@ public abstract class AbstractGamePanel extends ListenerPanel {
                 Image image = new ImageIcon(url).getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
                 return new ImageIcon(image);
             } else {
-                System.err.println("找不到图标: " + path);
+//                System.err.println("找不到图标: " + path);
                 return null;
             }
         } catch (Exception e) {
-            System.err.println("图标加载失败: " + path);
+//            System.err.println("图标加载失败: " + path);
             return null;
         }
     }
 
-    // 包装按钮为一个透明面板，方便布局与美观
     private JPanel wrapWithPanel(JComponent comp) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
@@ -747,19 +713,18 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         return panel;
     }
 
-    // 辅助方法：创建统一样式的标签
     public JLabel createStyledLabel(String text, String fontName, int fontStyle, int fontSize, Color color) {
         JLabel label = new JLabel(text);
         label.setForeground(color);
         label.setFont(new Font(fontName, fontStyle, fontSize));
-        label.setAlignmentX(Component.CENTER_ALIGNMENT);  // 水平居中
-        label.setVerticalAlignment(SwingConstants.CENTER);  // 垂直居中
-        label.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));  // 添加内边距
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        label.setVerticalAlignment(SwingConstants.CENTER);
+        label.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         return label;
     }
 
     public void updateTimeLabel() {
-        elapsedTime++; // 每次触发增加1秒
+        elapsedTime++;
         int minutes = elapsedTime / 60;
         int seconds = elapsedTime % 60;
         String prefix = currentLanguage == Language.CHINESE ? "时间: " : "Time: ";
@@ -769,12 +734,10 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         }
     }
 
-
     public void initialGame() {
         if (timer != null && timer.isRunning()) {
             timer.stop();
         }
-        // 移除旧的键盘和鼠标监听器（需要保留对监听器的引用）
         for (KeyListener listener : boardPanel.getKeyListeners()) {
             boardPanel.removeKeyListener(listener);
         }
@@ -783,6 +746,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         }
         boxes.clear();
         boardPanel.removeAll();
+
         int[][] map = new int[model.getHeight()][model.getWidth()];
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[0].length; j++) {
@@ -796,26 +760,26 @@ public abstract class AbstractGamePanel extends ListenerPanel {
                 switch (map[i][j]) {
                     case 1 -> {
                         box = new BoxComponent(1, i, j);
-                        box.setSize(GRID_SIZE, GRID_SIZE);
+                        box.setSize(girdSize, girdSize);
                     }
                     case 2 -> {
                         box = new BoxComponent(2, i, j);
-                        box.setSize(GRID_SIZE * 2, GRID_SIZE);
+                        box.setSize(girdSize * 2, girdSize);
                         map[i][j + 1] = 0;
                     }
                     case 3 -> {
                         box = new BoxComponent(3, i, j);
-                        box.setSize(GRID_SIZE, GRID_SIZE * 2);
+                        box.setSize(girdSize, girdSize * 2);
                         map[i + 1][j] = 0;
                     }
                     case 4 -> {
                         box = new BoxComponent(4, i, j);
-                        box.setSize(GRID_SIZE * 2, GRID_SIZE * 2);
+                        box.setSize(girdSize * 2, girdSize * 2);
                         map[i + 1][j] = map[i][j + 1] = map[i + 1][j + 1] = 0;
                     }
                 }
                 if (box != null) {
-                    box.setLocation(j * GRID_SIZE, i * GRID_SIZE);
+                    box.setLocation(j * girdSize, i * girdSize);
                     boxes.add(box);
                     boardPanel.add(box);
                 }
@@ -826,17 +790,17 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         revalidate();
         repaint();
 
-        // 在AbstractGamePanel.java中修改MouseAdapter实现
+        //鼠标拖拽（未完成）
         boardPanel.addMouseMotionListener(new MouseAdapter() {
-            private Point startPoint; // 起始坐标
-            private BoxComponent activeBox; // 当前激活的方块
+            private Point startPoint;
+            private BoxComponent activeBox;
 
             @Override
             public void mousePressed(MouseEvent e) {
                 activeBox = (BoxComponent) boardPanel.getComponentAt(e.getPoint());
                 if (activeBox != null) {
                     activeBox.setSelected(true);
-                    startPoint = e.getPoint(); // 初始化起始坐标
+                    startPoint = e.getPoint();
                 }
             }
 
@@ -844,17 +808,13 @@ public abstract class AbstractGamePanel extends ListenerPanel {
             public void mouseDragged(MouseEvent e) {
                 if (activeBox == null || startPoint == null) return;
 
-                // 计算相对位移
                 int dx = e.getX() - startPoint.x;
                 int dy = e.getY() - startPoint.y;
 
-                // 动画移动方块
                 activeBox.setLocationSliding(
                         activeBox.getX() + dx,
                         activeBox.getY() + dy
                 );
-
-                // 更新起始坐标为当前位置（持续追踪）
                 startPoint = e.getPoint();
             }
 
@@ -862,12 +822,10 @@ public abstract class AbstractGamePanel extends ListenerPanel {
             public void mouseReleased(MouseEvent e) {
                 if (activeBox == null) return;
 
-                // 计算拖拽后的最终位置
                 Point endPoint = e.getPoint();
-                int newRow = activeBox.getRow() + (endPoint.y - startPoint.y) / GRID_SIZE;
-                int newCol = activeBox.getCol() + (endPoint.x - startPoint.x) / GRID_SIZE;
+                int newRow = activeBox.getRow() + (endPoint.y - startPoint.y) / girdSize;
+                int newCol = activeBox.getCol() + (endPoint.x - startPoint.x) / girdSize;
 
-                // 验证移动合法性（上下左右一格）
                 Direction direction = null;
                 if (newRow != activeBox.getRow() && newCol == activeBox.getCol()) {
                     direction = newRow > activeBox.getRow() ? Direction.DOWN : Direction.UP;
@@ -917,10 +875,8 @@ public abstract class AbstractGamePanel extends ListenerPanel {
             boardPanel.requestFocus();
         });
 
-
-        // 初始化计时器（1秒触发一次）
         timer = new Timer(1000, e -> updateTimeLabel());
-        timer.start(); // 关键：启动计时器
+        timer.start();
     }
 
     @Override
@@ -944,10 +900,10 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     @Override
     public void doMoveRight() {
-        System.out.println("Click VK_RIGHT");
+//        System.out.println("Click VK_RIGHT");
         if (selectedBox != null) {
             if (controller.doMove(selectedBox.getRow(), selectedBox.getCol(), Direction.RIGHT)) {
-                afterMove();// 移动成功后更新步数
+                afterMove();
             }
         }
     }
@@ -978,7 +934,6 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         stepLabel.setText((currentLanguage == Language.CHINESE ? "步数：" : "Steps: ") + steps);
         //updateTimeLabel();
         checkWinCondition();
-
         return null;
     }
 
@@ -1012,8 +967,8 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         return selectedBox;
     }
 
-    public int getGRID_SIZE() {
-        return GRID_SIZE;
+    public int getGirdSize() {
+        return girdSize;
     }
 
     public void loadGame(String path) {
@@ -1024,9 +979,6 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         controller.saveGame(path);
     }
 
-    /**
-     * 用于带背景图的面板组件
-     */
     protected static class BackgroundPanel extends JPanel {
         private final Image bg;
 
