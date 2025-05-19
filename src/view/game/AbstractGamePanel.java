@@ -764,7 +764,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         int seconds = elapsedTime % 60;
         String prefix = currentLanguage == Language.CHINESE ? "时间: " : "Time: ";
         timeLabel.setText(String.format("%s%02d:%02d", prefix, minutes, seconds));
-        if (elapsedTime % 60 == 0 &&! this.controller.isVisitor()) {
+        if (elapsedTime % 60 == 59 &&! this.controller.isVisitor()) {
             this.controller.saveGame("./"+this.controller.getUser()+".txt");
         }
     }
