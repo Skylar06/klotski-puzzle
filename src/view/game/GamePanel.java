@@ -7,28 +7,22 @@ import view.Language;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyListener;
 import java.util.Random;
 
-/**
- * GamePanel 作为桥梁，根据传入的 MapModel 随机加载一个具体的游戏模式面板。
- */
 public class GamePanel extends JPanel {
     private AbstractGamePanel currentPanel;
     private boolean lastUsedTimeLimit = false;
     private int mode;
     private GameController controller;
     public int level = 0;
-
     public static GamePanel instance;
 
-    public GamePanel(MapModel model,int mode) {
+    public GamePanel(MapModel model, int mode) {
         this.mode = mode;
         setLayout(new BorderLayout());
 
-        instance = this; // ✅ 注册全局引用
-
-        currentPanel = createRandomMode(model,mode);
+        instance = this;
+        currentPanel = createRandomMode(model, mode);
         add(currentPanel, BorderLayout.CENTER);
 
         MusicPlayer player = MusicPlayer.getInstance();
@@ -37,23 +31,22 @@ public class GamePanel extends JPanel {
         currentPanel.requestFocusInWindow();
     }
 
-    /**
-     * 随机选择一个游戏模式面板
-     */
-    private AbstractGamePanel createRandomMode(MapModel model,int m) {
+    private AbstractGamePanel createRandomMode(MapModel model, int m) {
+        Random random = new Random();
+        int min = 10, max = 20;
+        int randomNumber = random.nextInt(21) + 10;
         return switch (m) {
-            case 1 -> new StoryGamePanel(model,level);
+            case 1 -> new StoryGamePanel(model, level);
             case 2 -> {
                 lastUsedTimeLimit = !lastUsedTimeLimit;
                 if (lastUsedTimeLimit) {
                     yield new TimeLimitGamePanel(model);
                 } else {
-                    yield new StepsLimitGamePanel(model,8);
+                    yield new StepsLimitGamePanel(model, randomNumber);
                 }
             }
-
             case 0 -> new EffectGamePanel(model);
-            default -> new StoryGamePanel(model,level); // 兜底
+            default -> new StoryGamePanel(model, level);
         };
     }
 
@@ -82,17 +75,14 @@ public class GamePanel extends JPanel {
         currentPanel.setFocusable(true);
         SwingUtilities.invokeLater(() -> {
             currentPanel.requestFocusInWindow();
-            currentPanel.initialGame(); // 重新初始化，刷新棋盘数据和状态
-            currentPanel.repaint();     // 强制重绘
+            currentPanel.initialGame();
+            currentPanel.repaint();
         });
 
         revalidate();
         repaint();
     }
 
-    /**
-     * 暴露设置控制器的方法（外部可以使用）
-     */
     public void setController(controller.GameController controller) {
         this.controller = controller;
         currentPanel.setController(controller);
@@ -102,14 +92,12 @@ public class GamePanel extends JPanel {
         currentPanel.updateLanguageTexts(currentLanguage);
     }
 
-    /**
-     * 设置步数标签（显示 step）
-     */
+
     public void setStepLabel(JLabel label) {
         currentPanel.setStepLabel(label);
     }
 
-    public void initialGame(){
+    public void initialGame() {
         currentPanel.initialGame();
     }
 
@@ -126,7 +114,7 @@ public class GamePanel extends JPanel {
     }
 
     public int getGRID_SIZE() {
-        return currentPanel.getGRID_SIZE();
+        return currentPanel.getGirdSize();
     }
 
     public JLabel getStepLabel() {
@@ -141,9 +129,6 @@ public class GamePanel extends JPanel {
         currentPanel.steps = steps;
     }
 
-    /**
-     * 提供读取和保存功能
-     */
     public void saveGame(String path) {
         currentPanel.saveGame(path);
     }

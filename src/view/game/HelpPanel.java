@@ -18,9 +18,8 @@ public class HelpPanel extends JPanel {
 
     public HelpPanel() {
         setLayout(new BorderLayout());
-        setBackground(new Color(248, 241, 229)); // 宣纸底色
+        setBackground(new Color(248, 241, 229));
 
-        // 加载背景图资源
         URL bgUrl = getClass().getResource("/help_bg.jpg");
         if (bgUrl != null) {
             bgImage = new ImageIcon(bgUrl).getImage();
@@ -28,19 +27,18 @@ public class HelpPanel extends JPanel {
             System.err.println("背景图加载失败，请检查路径！");
         }
 
-        // 内容映射
         contentMap = new LinkedHashMap<>();
         initContentMap();
 
-        // 左侧目录
+        //目录
         DefaultListModel<String> listModel = new DefaultListModel<>();
         contentMap.keySet().forEach(listModel::addElement);
         sectionList = new JList<>(listModel);
         sectionList.setFont(new Font("楷体", Font.PLAIN, 20));
         sectionList.setBackground(new Color(252, 248, 237));
-        sectionList.setSelectionBackground(new Color(139, 94, 60)); // 褐红
+        sectionList.setSelectionBackground(new Color(139, 94, 60));
         sectionList.setSelectionForeground(Color.WHITE);
-        sectionList.setFixedCellHeight(50); // 增加行高，让文字不挤
+        sectionList.setFixedCellHeight(50);
         sectionList.setBorder(BorderFactory.createTitledBorder(
                 new LineBorder(new Color(139, 94, 60), 2, true),
                 "帮助目录", TitledBorder.CENTER, TitledBorder.TOP,
@@ -49,15 +47,13 @@ public class HelpPanel extends JPanel {
 
         sectionList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value,
-                                                          int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                label.setHorizontalAlignment(SwingConstants.CENTER); // 文字居中
+                label.setHorizontalAlignment(SwingConstants.CENTER);
                 return label;
             }
         });
 
-        // 鼠标悬停效果
         sectionList.addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseMoved(MouseEvent e) {
                 int index = sectionList.locationToIndex(e.getPoint());
@@ -72,18 +68,18 @@ public class HelpPanel extends JPanel {
                 String selected = sectionList.getSelectedValue();
                 contentPane.setText(contentMap.getOrDefault(selected, "<html><body>暂无内容</body></html>"));
                 contentPane.setCaretPosition(0);
-                playClickSound(); // 播放音效
+                playClickSound();
             }
         });
 
         JScrollPane listScrollPane = new JScrollPane(sectionList);
         listScrollPane.setPreferredSize(new Dimension(220, 0));
 
-        // 右侧内容区
+        //内容
         contentPane = new JEditorPane();
         contentPane.setEditable(false);
         contentPane.setContentType("text/html");
-        contentPane.setOpaque(false); // 背景透明以显示背景图
+        contentPane.setOpaque(false);
         contentPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
         contentPane.setFont(new Font("楷体", Font.PLAIN, 18));
 
@@ -100,15 +96,12 @@ public class HelpPanel extends JPanel {
         contentScrollPane.setOpaque(false);
         contentScrollPane.setBorder(BorderFactory.createLineBorder(new Color(139, 94, 60), 2));
 
-        // 分割面板
+        //分割
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listScrollPane, contentScrollPane);
         splitPane.setDividerLocation(220);
         splitPane.setDividerSize(3);
         splitPane.setBorder(null);
-
         add(splitPane, BorderLayout.CENTER);
-
-        // 默认选中第一个
         sectionList.setSelectedIndex(0);
     }
 
@@ -246,15 +239,14 @@ public class HelpPanel extends JPanel {
         }
     }
 
-    // 测试用主函数
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("三国华容道 - 帮助文档");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(640, 480);
-            frame.setContentPane(new HelpPanel());
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
-        });
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> {
+//            JFrame frame = new JFrame("三国华容道 - 帮助文档");
+//            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//            frame.setSize(640, 480);
+//            frame.setContentPane(new HelpPanel());
+//            frame.setLocationRelativeTo(null);
+//            frame.setVisible(true);
+//        });
+//    }
 }
