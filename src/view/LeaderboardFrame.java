@@ -4,9 +4,13 @@ import view.Leaderboard;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.net.URL;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.util.ArrayList;
 
@@ -99,7 +103,8 @@ public class LeaderboardFrame extends JFrame {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        JButton backButton = new JButton("返回");
+        JButton backButton = new JButton("归返");
+        setupButton(backButton);
         backButton.setFont(new Font("楷体", Font.BOLD, 20));
         backButton.addActionListener(e -> {
             this.setVisible(false);
@@ -131,4 +136,64 @@ public class LeaderboardFrame extends JFrame {
             LeaderboardFrame frame = new LeaderboardFrame();
         });
     }
+
+    private void setupButton(JButton button) {
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);  // 确保按钮背景透明
+        button.setFocusPainted(false);
+        button.setOpaque(false);
+        button.setFont(new Font("楷体", Font.BOLD, 22));
+
+        // 设置按钮图标并调整尺寸
+        ImageIcon originalIcon1 = new ImageIcon(getClass().getClassLoader().getResource("btn1.png"));
+        Image scaledImage1 = originalIcon1.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
+        button.setIcon(new ImageIcon(scaledImage1));
+
+        ImageIcon originalIcon2 = new ImageIcon(getClass().getClassLoader().getResource("btn3.png"));
+        Image scaledImage2 = originalIcon2.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
+
+        ImageIcon originalIcon3 = new ImageIcon(getClass().getClassLoader().getResource("btn2.png"));
+        Image scaledImage3 = originalIcon3.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
+
+        // 设置按钮文字
+        button.setText(button.getText());
+        button.setForeground(new Color(60, 30, 0)); // 文字颜色
+        button.setHorizontalTextPosition(SwingConstants.CENTER); // 文字居中
+        button.setVerticalTextPosition(SwingConstants.CENTER);  // 文字放在图标下方
+
+        button.setPreferredSize(new Dimension(160, 120));  // 增加高度以容纳文字
+        button.setMaximumSize(new Dimension(160, 120));
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage2));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage1));
+            }
+
+            public void mousePressed(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage3));
+                playClickSound();
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                button.setIcon(new ImageIcon(scaledImage1));
+            }
+        });
+    }
+
+    private void playClickSound() {
+        try {
+            URL soundURL = getClass().getClassLoader().getResource("clickBtn.wav");
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundURL);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

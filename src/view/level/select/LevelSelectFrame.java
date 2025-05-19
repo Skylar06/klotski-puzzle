@@ -5,6 +5,7 @@ import model.LevelManager;
 import model.MapModel;
 import view.Language;
 import view.game.GameFrame1;
+import view.game.HelpPanel;
 import view.game.Save;
 
 import javax.sound.sampled.AudioInputStream;
@@ -120,6 +121,15 @@ public class LevelSelectFrame extends JFrame {
         iconPanel.setOpaque(false);
         helpBtn = createHoverButton("help.png", (currentLanguage == Language.CHINESE) ?"帮助":"Help");
         iconPanel.add(helpBtn);
+
+        helpBtn.addActionListener(e -> {
+            JFrame frame = new JFrame("三国华容道 - 帮助文档");
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.setSize(640, 480);
+            frame.setContentPane(new HelpPanel());
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
 
         // 右侧语言按钮
         JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));

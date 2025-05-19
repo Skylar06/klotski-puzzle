@@ -234,6 +234,14 @@ public class GameFrame1 extends JFrame {
         languageBtn = new JButton("中/En");
         setupButton(languageBtn);
         langPanel.add(languageBtn);
+        helpBtn.addActionListener(e -> {
+            JFrame frame = new JFrame("三国华容道 - 帮助文档");
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.setSize(640, 480);
+            frame.setContentPane(new HelpPanel());
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
         stopBtn.addActionListener(e -> {
             int min = this.gamePanel.getCurrentPanel().getElapsedTime()/60;
             int seconds = this.gamePanel.getCurrentPanel().getElapsedTime()%60;
