@@ -3,26 +3,21 @@ package view.game;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 public class BoxComponent extends JComponent {
     private int row;
-    private int col;// 在网格中的行列位置
-    private boolean isSelected;// 选中状态
-    private int type; // 类型：1-4，用于判断是哪种方块（如横2、竖2、大方块等）
-    private static String currentSkin = "classic"; // 当前皮肤，默认是古风
-    private int logicalWidth;  // 单元格宽
-    private int logicalHeight; // 单元格高
-
-    private static final int BORDER_WIDTH_SELECTED = 3;
-    private static final int BORDER_WIDTH_DEFAULT = 1;
-
+    private int col;
+    private boolean isSelected;
+    private int type;
+    private static String currentSkin = "classic";
+    private int width1;
+    private int height1;
+    private static final int selectedBorder = 3;
+    private static final int border = 1;
     private boolean isDisabled = false;
     private boolean isHighlighted = false;
-    private LinkedList<Point> trailPoints = new LinkedList<>();
-
+    private LinkedList<Point> trail = new LinkedList<>();
     private boolean isDragging = false;
     private Point dragOffset;
 
@@ -31,76 +26,46 @@ public class BoxComponent extends JComponent {
         this.row = row;
         this.col = col;
         this.isSelected = false;
-        setOpaque(false); // 让背景透明，便于绘图
+        setOpaque(false);
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g.create();
-        for (int i = 0; i < trailPoints.size(); i++) {
-            Point p = trailPoints.get(i);
-            float alpha = (float) i / trailPoints.size();
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha * 0.3f));
-            g2.setColor(Color.GRAY);
-            g2.fillOval(p.x - getX() - 4, p.y - getY() - 4, 8, 8);
-        }
 
-        // 加载皮肤图片
+        //皮肤
         Image skinImage = SkinManager.getBoxImage(currentSkin, type);
         if (skinImage != null) {
             g.drawImage(skinImage, 0, 0, getWidth(), getHeight(), this);
         } else {
-            // 如果没图片，就用默认色块
             g.setColor(Color.LIGHT_GRAY);
             g.fillRect(0, 0, getWidth(), getHeight());
-
         }
 
-        // 设置边框
+        //边框
         Border border = isSelected ?
-                BorderFactory.createLineBorder(Color.RED, BORDER_WIDTH_SELECTED) :
-                BorderFactory.createLineBorder(Color.DARK_GRAY, BORDER_WIDTH_DEFAULT);
+                BorderFactory.createLineBorder(Color.RED, selectedBorder) :
+                BorderFactory.createLineBorder(Color.DARK_GRAY, BoxComponent.border);
         this.setBorder(border);
 
+        //禁用功能
         if (isDisabled) {
             this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 4));
         }
 
+        //高亮功能
         if (isHighlighted) {
-            g.setColor(new Color(255, 255, 180, 120)); // 半透明淡黄色
+            g.setColor(new Color(255, 255, 180, 120));
             g.fillRect(0, 0, getWidth(), getHeight());
         }
     }
 
-    public void startDrag(Point point) {
-        dragOffset = new Point(point.x - getX(), point.y - getY());
-        isDragging = true;
-    }
-
-    public void drag(Point point) {
-        if (isDragging) {
-            int newX = point.x - dragOffset.x;
-            int newY = point.y - dragOffset.y;
-
-            // 边界检查
-            newX = Math.max(0, Math.min(newX, getParent().getWidth() - getWidth()));
-            newY = Math.max(0, Math.min(newY, getParent().getHeight() - getHeight()));
-
-            setLocation(newX, newY);
-        }
-    }
-
-    public void endDrag() {
-        isDragging = false;
-        dragOffset = null;
-    }
-
-    public void setLocationAnimated(int targetX, int targetY) {
-        int startX = getX();
-        int startY = getY();
-        int dx = targetX - startX;
-        int dy = targetY - startY;
+    //平滑
+    public void setLocationSliding(int x1, int y1) {
+        int x0 = getX();
+        int y0 = getY();
+        int dx = x1 - x0;
+        int dy = y1 - y0;
 
         int frames = 15;
         Timer animTimer = new Timer(10, null);
@@ -109,76 +74,73 @@ public class BoxComponent extends JComponent {
         animTimer.addActionListener(e -> {
             currentFrame[0]++;
             float progress = currentFrame[0] / (float) frames;
-            int newX = startX + Math.round(dx * progress);
-            int newY = startY + Math.round(dy * progress);
+            int newX = x0 + Math.round(dx * progress);
+            int newY = y0 + Math.round(dy * progress);
             setLocation(newX, newY);
 
-            // 拖尾
-            trailPoints.add(new Point(newX + getWidth() / 2, newY + getHeight() / 2));
-            if (trailPoints.size() > 10) {
-                trailPoints.removeFirst();
-            }
+//            trail.add(new Point(newX + getWidth() / 2, newY + getHeight() / 2));
+//            if (trail.size() > 10) {
+//                trail.removeFirst();
+//            }
 
-            repaint(); // <---- 加强刷帧
+            repaint();
 
             if (currentFrame[0] >= frames) {
                 animTimer.stop();
-                setLocation(targetX, targetY);
+                setLocation(x1, y1);
                 repaint();
-                triggerShakeIfOutOfBounds(); // <- 确保调用
+                triggerShakeIfOutOfBounds();
             }
         });
-
         animTimer.start();
     }
 
-    public void setLocationAnimatedSlow(int targetX, int targetY) {
-        int startX = getX();
-        int startY = getY();
-        int dx = targetX - startX;
-        int dy = targetY - startY;
+    //缓动模式
+    public void setLocationSlow(int x1, int y1) {
+        int x0 = getX();
+        int y0 = getY();
+        int dx = x1 - x0;
+        int dy = y1 - y0;
 
-        int frames = 50;  // 帧数多，动画时间更长
+        int frames = 50;
         Timer animTimer = new Timer(15, null);  // 间隔时间变长，速度变慢
         final int[] currentFrame = {0};
 
         animTimer.addActionListener(e -> {
             currentFrame[0]++;
             float progress = currentFrame[0] / (float) frames;
-            int newX = startX + Math.round(dx * progress);
-            int newY = startY + Math.round(dy * progress);
+            int newX = x0 + Math.round(dx * progress);
+            int newY = y0 + Math.round(dy * progress);
             setLocation(newX, newY);
 
-            // 拖尾效果如果有的话，照旧
-            trailPoints.add(new Point(newX + getWidth() / 2, newY + getHeight() / 2));
-            if (trailPoints.size() > 10) {
-                trailPoints.removeFirst();
-            }
+//            trail.add(new Point(newX + getWidth() / 2, newY + getHeight() / 2));
+//            if (trail.size() > 10) {
+//                trail.removeFirst();
+//            }
 
             repaint();
 
             if (currentFrame[0] >= frames) {
                 animTimer.stop();
-                setLocation(targetX, targetY);
+                setLocation(x1, y1);
                 repaint();
                 triggerShakeIfOutOfBounds();
             }
         });
-
         animTimer.start();
     }
 
     public void shake() {
-        int originalX = getX();
+        int x0 = getX();
         Timer shakeTimer = new Timer(10, null);
-        final int[] count = {0};
+        final int[] currentFrame = {0};
         shakeTimer.addActionListener(e -> {
-            count[0]++;
-            int offset = (count[0] % 2 == 0) ? 4 : -4;
-            setLocation(originalX + offset, getY());
-            if (count[0] >= 6) {
+            currentFrame[0]++;
+            int offset = (currentFrame[0] % 2 == 0) ? 4 : -4;
+            setLocation(x0 + offset, getY());
+            if (currentFrame[0] >= 6) {
                 shakeTimer.stop();
-                setLocation(originalX, getY());
+                setLocation(x0, getY());
             }
         });
         shakeTimer.start();
@@ -187,26 +149,24 @@ public class BoxComponent extends JComponent {
     private void triggerShakeIfOutOfBounds() {
         Rectangle parentBounds = getParent().getBounds();
         boolean hitBoundary = false;
-        if (getX() < 0 || getY() < 0 ||
-                getX() + getWidth() > parentBounds.width ||
-                getY() + getHeight() > parentBounds.height) {
+        if (getX() < 0 || getY() < 0 || getX() + getWidth() > parentBounds.width || getY() + getHeight() > parentBounds.height) {
             hitBoundary = true;
         }
 
         if (!hitBoundary) return;
 
-        int originalX = getX();
-        int originalY = getY();
+        int x0 = getX();
+        int y0 = getY();
         Timer shakeTimer = new Timer(10, null);
-        final int[] count = {0};
+        final int[] currentFrame = {0};
         shakeTimer.addActionListener(e -> {
-            count[0]++;
-            int offsetX = (count[0] % 2 == 0) ? 2 : -2;
-            int offsetY = (count[0] % 2 == 0) ? 1 : -1;
-            setLocation(originalX + offsetX, originalY + offsetY);
-            if (count[0] >= 6) {
+            currentFrame[0]++;
+            int offsetX = (currentFrame[0] % 2 == 0) ? 2 : -2;
+            int offsetY = (currentFrame[0] % 2 == 0) ? 1 : -1;
+            setLocation(x0 + offsetX, y0 + offsetY);
+            if (currentFrame[0] >= 6) {
                 shakeTimer.stop();
-                setLocation(originalX, originalY);
+                setLocation(x0, y0);
             }
         });
         shakeTimer.start();
@@ -231,12 +191,12 @@ public class BoxComponent extends JComponent {
         this.repaint();
     }
 
-    public int getLogicalWidth() {
-        return logicalWidth;
+    public int getWidth1() {
+        return width1;
     }
 
-    public int getLogicalHeight() {
-        return logicalHeight;
+    public int getHeight1() {
+        return height1;
     }
 
     public int getRow() {

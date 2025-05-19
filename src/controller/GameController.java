@@ -13,7 +13,6 @@ import view.login.LoginFrame;
 import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -88,9 +87,9 @@ public class GameController {
                     box.setRow(nextRow);
                     box.setCol(nextCol);
                     if (isSlowMode) {
-                        box.setLocationAnimatedSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                        box.setLocationSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     } else {
-                        box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                        box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     }
                     box.repaint();// 重新画出移动后的格子
                     this.recordMove(new Move(row,col,nextRow,nextCol));
@@ -124,9 +123,9 @@ public class GameController {
                     box.setRow(nextRow);
                     box.setCol(nextCol);
                     if (isSlowMode) {
-                        box.setLocationAnimatedSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                        box.setLocationSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     } else {
-                        box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                        box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     }
                     box.repaint();// 重新画出移动后的格子
                     this.recordMove(new Move(row,col,nextRow,nextCol));
@@ -160,9 +159,9 @@ public class GameController {
                     box.setRow(nextRow);
                     box.setCol(nextCol);
                     if (isSlowMode) {
-                        box.setLocationAnimatedSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                        box.setLocationSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     } else {
-                        box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                        box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     }
                     box.repaint();// 重新画出移动后的格子
                     this.recordMove(new Move(row,col,nextRow,nextCol));
@@ -202,9 +201,9 @@ public class GameController {
                     box.setRow(nextRow);
                     box.setCol(nextCol);
                     if (isSlowMode) {
-                        box.setLocationAnimatedSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                        box.setLocationSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     } else {
-                        box.setLocationAnimated(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                        box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     }
                     box.repaint();// 重新画出移动后的格子
                     this.recordMove(new Move(row,col,nextRow,nextCol));

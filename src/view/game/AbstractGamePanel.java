@@ -849,7 +849,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
                 int dy = e.getY() - startPoint.y;
 
                 // 动画移动方块
-                activeBox.setLocationAnimated(
+                activeBox.setLocationSliding(
                         activeBox.getX() + dx,
                         activeBox.getY() + dy
                 );
