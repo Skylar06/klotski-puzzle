@@ -22,12 +22,12 @@ import java.util.List;
 public class GameController {
     public LevelSelectFrame levelSelectFrame;
     public LoginFrame loginFrame;
-    public GameFrame1 gameFrame1;// 持有游戏界面引用
+    public GameFrame1 gameFrame1;
     private GamePanel view;
-    private MapModel model;// 持有数据模型引用
+    private MapModel model;
     private String user;
     private int mode;
-    private boolean mirrorMode = false; // 是否为镜像模式
+    private boolean mirrorMode = false;
     private boolean isVisitor = false;
     private boolean isSlowMode = false;
 
@@ -52,12 +52,11 @@ public class GameController {
         this.view.setVisible(true);
         this.view.getCurrentPanel().setVisible(true);
         this.view.getCurrentPanel().pauseTimer();
-        // 重置模型
-        model.setMatrix(LevelManager.getCurrentMap());// 重置视图
+        model.setMatrix(LevelManager.getCurrentMap());
         view.initialGame();
-        view.getCurrentPanel().setElapsedTime(-1);// 调用视图的初始化方法
+        view.getCurrentPanel().setElapsedTime(-1);
         view.getCurrentPanel().updateTimeLabel();
-        view.setSteps(0); // 重置步数
+        view.setSteps(0);
         view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
     }
 
@@ -74,15 +73,14 @@ public class GameController {
             }
         }
 
-        if (model.getId(row, col) == 1) {// 检查当前格子是否有可移动方块
-            int nextRow = row + direction.getRow();// 计算目标位置
+        //1*1
+        if (model.getId(row, col) == 1) {
+            int nextRow = row + direction.getRow();
             int nextCol = col + direction.getCol();
-            if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)) {// 边界检查
-                if (model.getId(nextRow, nextCol) == 0) {// 边界检查
-                    // 更新模型数据
+            if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)) {
+                if (model.getId(nextRow, nextCol) == 0) {
                     model.getMatrix()[row][col] = 0;
                     model.getMatrix()[nextRow][nextCol] = 1;
-                    // 更新视图
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
                     box.setCol(nextCol);
@@ -91,34 +89,32 @@ public class GameController {
                     } else {
                         box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     }
-                    box.repaint();// 重新画出移动后的格子
+                    box.repaint();
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
                 }
             }
-            // 比如是普通 2 宽方块
             if (!model.checkInWidthSize(nextCol) || !model.checkInHeightSize(nextRow)) {
-                // 越界不能移动，触发震动
                 BoxComponent box = view.getSelectedBox();
                 box.shake();
                 return false;
             }
 
-        } else if (model.getId(row, col) == 2) {
-            int nextRow = row + direction.getRow();// 计算目标位置
+        } //1*2
+        else if (model.getId(row, col) == 2) {
+            int nextRow = row + direction.getRow();
             int nextCol = col + direction.getCol();
             if (direction == Direction.RIGHT){
                 nextCol++;
             }
-            if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)) {// 边界检查
-                if (model.getId(nextRow, nextCol) == 0) {// 边界检查
-                    // 更新模型数据
+            if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)) {
+                if (model.getId(nextRow, nextCol) == 0) {
                     if (direction == Direction.RIGHT) nextCol--;
                     model.getMatrix()[row][col] = 0;
                     model.getMatrix()[row][col + 1] = 0;
                     model.getMatrix()[nextRow][nextCol] = 2;
                     model.getMatrix()[nextRow][nextCol + 1] = 2;
-                    // 更新视图
+
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
                     box.setCol(nextCol);
@@ -127,34 +123,32 @@ public class GameController {
                     } else {
                         box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     }
-                    box.repaint();// 重新画出移动后的格子
+                    box.repaint();
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
                 }
             }
-            // 比如是普通 2 宽方块
             if (!model.checkInWidthSize(nextCol) || !model.checkInHeightSize(nextRow)) {
-                // 越界不能移动，触发震动
                 BoxComponent box = view.getSelectedBox();
                 box.shake();
                 return false;
             }
 
         } else if (model.getId(row, col) == 3) {
-            int nextRow = row + direction.getRow();// 计算目标位置
+            int nextRow = row + direction.getRow();
             int nextCol = col + direction.getCol();
             if (direction == Direction.DOWN) {
                 nextRow++;
             }
-            if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)) {// 边界检查
-                if (model.getId(nextRow, nextCol) == 0) {// 边界检查
-                    // 更新模型数据
+            if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)) {
+                if (model.getId(nextRow, nextCol) == 0) {
+
                     if (direction == Direction.DOWN) nextRow--;
                     model.getMatrix()[row][col] = 0;
                     model.getMatrix()[row + 1][col] = 0;
                     model.getMatrix()[nextRow][nextCol] = 3;
                     model.getMatrix()[nextRow + 1][nextCol] = 3;
-                    // 更新视图
+
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
                     box.setCol(nextCol);
@@ -163,21 +157,20 @@ public class GameController {
                     } else {
                         box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     }
-                    box.repaint();// 重新画出移动后的格子
+                    box.repaint();
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
                 }
             }
-            // 比如是普通 2 宽方块
+
             if (!model.checkInWidthSize(nextCol) || !model.checkInHeightSize(nextRow)) {
-                // 越界不能移动，触发震动
                 BoxComponent box = view.getSelectedBox();
                 box.shake();
                 return false;
             }
 
         } else if (model.getId(row, col) == 4) {
-            int nextRow = row + direction.getRow();// 计算目标位置
+            int nextRow = row + direction.getRow();
             int nextCol = col + direction.getCol();
             if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)
                     && model.checkInHeightSize(nextRow + 1) && model.checkInWidthSize(nextCol)
@@ -187,7 +180,6 @@ public class GameController {
                         && (model.getId(nextRow + 1, nextCol) == 0 || model.getId(nextRow + 1, nextCol) == 4)
                         && (model.getId(nextRow, nextCol + 1) == 0 || model.getId(nextRow, nextCol + 1) == 4)
                         && (model.getId(nextRow + 1, nextCol + 1) == 0 || model.getId(nextRow + 1, nextCol + 1) == 4)) {// 边界检查
-                    // 更新模型数据
                     model.getMatrix()[row][col] = 0;
                     model.getMatrix()[row + 1][col] = 0;
                     model.getMatrix()[row][col + 1] = 0;
@@ -196,7 +188,6 @@ public class GameController {
                     model.getMatrix()[nextRow + 1][nextCol] = 4;
                     model.getMatrix()[nextRow][nextCol + 1] = 4;
                     model.getMatrix()[nextRow + 1][nextCol + 1] = 4;
-                    // 更新视图
                     BoxComponent box = view.getSelectedBox();
                     box.setRow(nextRow);
                     box.setCol(nextCol);
@@ -205,14 +196,12 @@ public class GameController {
                     } else {
                         box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     }
-                    box.repaint();// 重新画出移动后的格子
+                    box.repaint();
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
                 }
             }
-            // 比如是普通 2 宽方块
             if (!model.checkInWidthSize(nextCol) || !model.checkInHeightSize(nextRow)) {
-                // 越界不能移动，触发震动
                 BoxComponent box = view.getSelectedBox();
                 box.shake();
                 return false;
@@ -284,7 +273,7 @@ public class GameController {
                 JOptionPane.showMessageDialog(this.gameFrame1, "您只能读取属于您的存档");
                 return false;
             }
-            // 加载游戏状态
+
             int[][] savedMatrix = temp.model.getMatrix();
 //            this.view = new GamePanel(temp.model,temp.mode);
 //            this.gameFrame1.setGamePanel(view);
@@ -294,7 +283,7 @@ public class GameController {
             this.mode = temp.mode;
             this.user = temp.user;
             view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
-            view.initialGame(); // 重新初始化游戏界面
+            view.initialGame();
             view.getCurrentPanel().setElapsedTime(temp.time);
             this.moveHistory.clear();
             return true;
@@ -318,19 +307,19 @@ public class GameController {
     }
 
     public void saveGame(String path) {
-        if (isVisitor){
+        if (isVisitor) {
             JOptionPane.showMessageDialog(this.gameFrame1, "不录之身禁止录存");
             return;
         }
         path = "./" + this.user + ".txt";
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path))) {
-            // 保存游戏状态，包括地图和步数
-            Save newSave = new Save(model,mode,user,this.view.getCurrentPanel().getElapsedTime(), view.getSteps());
+            Save newSave = new Save(model, mode, user, this.view.getCurrentPanel().getElapsedTime(), view.getSteps());
             out.writeObject(newSave);
         } catch (IOException e) {
             throw new RuntimeException("保存游戏失败", e);
         }
     }
+
 
     public boolean isVisitor() {
         return isVisitor;
