@@ -101,7 +101,7 @@ public class GameFrame1 extends JFrame {
         JPanel arrowWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         arrowWrapper.setOpaque(false);
         arrowWrapper.add(arrowPanel);
-        bgPanel.add(arrowWrapper, BorderLayout.SOUTH);
+        bgPanel.add(arrowWrapper, BorderLayout.EAST);
 
         this.addComponentListener(new ComponentAdapter() {
             @Override

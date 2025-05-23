@@ -282,9 +282,9 @@ public class GameController {
             view.setSteps(temp.step);
             this.mode = temp.mode;
             this.user = temp.user;
-            view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
+
             view.initialGame();
-            view.getCurrentPanel().setElapsedTime(temp.time);
+            view.getCurrentPanel().setElapsedTime(temp.time);view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
             this.moveHistory.clear();
             return true;
         } catch (FileNotFoundException e) {

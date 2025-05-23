@@ -1005,6 +1005,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     public void setSteps(int steps) {
         this.steps = steps;
+        stepLabel.setText((currentLanguage == Language.CHINESE ? "步数：" : "Steps: ") + steps);
     }
 
     public JLabel getTimeLabel() {
