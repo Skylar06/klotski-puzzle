@@ -354,8 +354,6 @@ public abstract class AbstractGamePanel extends ListenerPanel {
             if (url != null) {
                 Image scaled = new ImageIcon(url).getImage().getScaledInstance(400, 300, Image.SCALE_SMOOTH);
                 adIcons[i] = new ImageIcon(scaled);
-            } else {
-//                System.err.println("资源未找到: " + adImages[i]);
             }
         }
 
@@ -729,7 +727,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         int seconds = elapsedTime % 60;
         String prefix = currentLanguage == Language.CHINESE ? "时间: " : "Time: ";
         timeLabel.setText(String.format("%s%02d:%02d", prefix, minutes, seconds));
-        if (elapsedTime % 60 == 59 &&! this.controller.isVisitor()) {
+        if (elapsedTime % 30 == 29 &&! this.controller.isVisitor()) {
             this.controller.saveGame("./"+this.controller.getUser()+".txt");
         }
     }
