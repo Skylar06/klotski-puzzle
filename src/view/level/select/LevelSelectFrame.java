@@ -139,7 +139,7 @@ public class LevelSelectFrame extends JFrame {
                 // 设置火焰动画
                 ImageIcon flameIcon = new ImageIcon(getClass().getClassLoader().getResource("flame.png"));
                 flameLabel.setIcon(flameIcon);
-//                playIgniteSound();
+                playIgniteSound();
 
                 // 淡出黑暗层动画
                 Timer fadeTimer = new Timer(30, null);
@@ -168,7 +168,7 @@ public class LevelSelectFrame extends JFrame {
     private void playIgniteSound() {
         new Thread(() -> {
             try {
-                URL soundURL = getClass().getClassLoader().getResource("ignite.wav");
+                URL soundURL = getClass().getClassLoader().getResource("flame.wav");
                 if (soundURL == null) {
                     System.out.println("点火音效资源没找到！");
                     return;

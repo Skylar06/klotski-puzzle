@@ -6,7 +6,7 @@ import javax.sound.sampled.Clip;
 
 public class MusicPlayer {
     private static MusicPlayer instance;  // 单例实例
-
+    private String currentPath = null;
     private Clip clip;
     private boolean isMuted = false;
 
@@ -20,6 +20,10 @@ public class MusicPlayer {
     }
 
     public void play(String path) {
+        if (clip != null && clip.isRunning() && path.equals(currentPath)) {
+            return;
+        }
+
         try {
             // 关闭已有音频
             if (clip != null && clip.isRunning()) {
@@ -31,6 +35,7 @@ public class MusicPlayer {
             clip = AudioSystem.getClip();
             clip.open(audioIn);
             clip.loop(Clip.LOOP_CONTINUOUSLY); // 循环播放
+            currentPath = path;
 
             if (isMuted) {
                 clip.stop();

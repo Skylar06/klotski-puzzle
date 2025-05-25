@@ -1,5 +1,6 @@
 package view.game;
 
+import controller.GameController;
 import model.MapModel;
 import view.Language;
 
@@ -135,6 +136,22 @@ public class StoryGamePanel extends AbstractGamePanel {
     public void initialGame() {
         // 不立即调用 super.initialGame()，避免提前开始计时
         showStory();
+    }
+
+    @Override
+    public void setController(GameController controller) {
+        super.setController(controller);
+
+        // 清除特效模式可能残留的状态
+        controller.setMirrorMode(false);
+        controller.setSlowMode(false);
+
+        // 如果可能存在禁用的 box，也可清空（可选）
+        for (Component comp : boardPanel.getComponents()) {
+            if (comp instanceof BoxComponent box) {
+                box.setDisabled(false);
+            }
+        }
     }
 
     private void showStory() {

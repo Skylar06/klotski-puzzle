@@ -14,27 +14,29 @@ import java.util.Random;
 
 public class EffectGamePanel extends AbstractGamePanel {
     private boolean isEffect = false;
+
     public enum EffectType {
         MOVE, DISABLE, MIRROR
     }
+
     private EffectType currentEffect = EffectType.MOVE;
     private static String effectText = "当前关卡特效：\n缓慢移动";
     private boolean isMirror = false;
+    private static int effectIndex;
 
     public EffectGamePanel(MapModel model) {
         super(model);
 
-        Random random = new Random();
-        int effectIndex = random.nextInt(3);
+        effectIndex = (effectIndex + 1) % 3;
         switch (effectIndex) {
-            case 0:
-                currentEffect = EffectType.MOVE;
-                break;
             case 1:
-                currentEffect = EffectType.DISABLE;
+                currentEffect = EffectType.MOVE;
                 break;
             case 2:
                 currentEffect = EffectType.MIRROR;
+                break;
+            case 0:
+                currentEffect = EffectType.DISABLE;
                 break;
         }
 
@@ -68,11 +70,11 @@ public class EffectGamePanel extends AbstractGamePanel {
     private String getEffectTextByLanguage(Language language) {
         switch (currentEffect) {
             case MOVE:
-                return (language == Language.CHINESE)? "当前关卡特效：\n缓慢移动" : "Current Level Effect:\nSlow Movement";
+                return (language == Language.CHINESE) ? "当前关卡特效：\n缓慢移动" : "Current Level Effect:\nSlow Movement";
             case DISABLE:
-                return (language == Language.CHINESE)? "当前关卡特效：\n禁用方块" : "Current Level Effect:\nDisable Block";
+                return (language == Language.CHINESE) ? "当前关卡特效：\n禁用方块" : "Current Level Effect:\nDisable Block";
             case MIRROR:
-                return (language == Language.CHINESE)? "当前关卡特效：\n镜像模式" : "Current Level Effect:\nMirror Mode";
+                return (language == Language.CHINESE) ? "当前关卡特效：\n镜像模式" : "Current Level Effect:\nMirror Mode";
             default:
                 return "";
         }
@@ -177,6 +179,19 @@ public class EffectGamePanel extends AbstractGamePanel {
     @Override
     public void setController(GameController controller) {
         super.setController(controller);
+
+        // 清除特效模式可能残留的状态
+        controller.setMirrorMode(false);
+        controller.setSlowMode(false);
+
+        // 如果可能存在禁用的 box，也可清空（可选）
+        for (Component comp : boardPanel.getComponents()) {
+            if (comp instanceof BoxComponent box) {
+                box.setDisabled(false);
+            }
+        }
+
+        // 设置当前镜像模式状态
         controller.setMirrorMode(this.isMirror);
     }
 

@@ -732,7 +732,11 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         }
     }
 
+    protected void resetEffects() {
+    }
+
     public void initialGame() {
+        resetEffects();
         if (timer != null && timer.isRunning()) {
             timer.stop();
         }
