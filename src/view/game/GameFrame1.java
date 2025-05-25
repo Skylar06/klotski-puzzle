@@ -253,11 +253,42 @@ public class GameFrame1 extends JFrame {
            this.gameController.undoLastMove();
         });
         aiButton.addActionListener(e -> {
-            //TODO
+            // 获取当前游戏面板的棋盘状态
+            AbstractGamePanel currentPanel = gamePanel.getCurrentPanel();
+            int[][] currentBoard = getBoardFromPanel(currentPanel);
+
+            // 使用 AI 获取解决方案
+            java.util.List<KlotskiAI.Move> solution = KlotskiAI.solveKlotski(currentBoard);
+
+            if (solution != null && !((java.util.List<?>) solution).isEmpty()) {
+                KlotskiAI.Move nextMove = (KlotskiAI.Move) ((java.util.List<?>) solution).get(0); // 获取下一步移动
+                showAIMoveHint(nextMove); // 显示提示
+            } else {
+                JOptionPane.showMessageDialog(this, "AI未能找到解决方案！", "AI提示", JOptionPane.INFORMATION_MESSAGE);
+            }
         });
         topPanel.add(iconPanel, BorderLayout.WEST);
         topPanel.add(langPanel, BorderLayout.EAST);
         return topPanel;
+    }
+
+    private int[][] getBoardFromPanel(AbstractGamePanel panel) {
+        int rows = panel.model.getHeight();
+        int cols = panel.model.getWidth();
+        int[][] board = new int[rows][cols];
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                board[i][j] = panel.model.getId(i, j);
+            }
+        }
+        return board;
+    }
+
+    private void showAIMoveHint(KlotskiAI.Move move) {
+        String hint = String.format("AI提示：将方块从 (%d, %d) 移动到 (%d, %d)",
+                move.fromX + 1, move.fromY + 1, move.toX + 1, move.toY + 1);
+        JOptionPane.showMessageDialog(this, hint, "AI提示", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private JButton createHoverButton(String imagePath, String text) {

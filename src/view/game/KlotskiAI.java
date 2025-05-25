@@ -246,8 +246,11 @@ public class KlotskiAI {
     }
 
     // 移动类
-    private static class Move {
-        private int fromX, fromY, toX, toY;
+    public static class Move {
+        int fromX;
+        int fromY;
+        int toX;
+        int toY;
 
         public Move(int fromX, int fromY, int toX, int toY) {
             this.fromX = fromX;
