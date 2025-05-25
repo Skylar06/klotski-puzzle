@@ -46,7 +46,11 @@ public class LeaderboardFrame extends JFrame {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 ImageIcon scrollBg = new ImageIcon(getClass().getClassLoader().getResource("btn1.png"));
-                g.drawImage(scrollBg.getImage(), 0, 0, getWidth(), getHeight(), this);
+                int imgWidth = (int)(getWidth() * 0.4);
+                int imgHeight = (int)(getHeight() * 0.8);
+                int x = (getWidth() - imgWidth) / 2;
+                int y = (getHeight() - imgHeight) / 2;
+                g.drawImage(scrollBg.getImage(), x, y, imgWidth, imgHeight, this);
             }
         };
         titlePanel.setOpaque(false);
@@ -63,11 +67,31 @@ public class LeaderboardFrame extends JFrame {
         listPanel.setOpaque(false);
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
 
-        // 内容面板容器（带内边距）
+        JScrollPane scrollPane = new JScrollPane(listPanel);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+
+// 隐藏垂直和水平滚动条
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+// 仍然保留滚轮滚动事件
+        scrollPane.addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                JScrollBar bar = scrollPane.getVerticalScrollBar();
+                int delta = e.getWheelRotation() * bar.getUnitIncrement();
+                int newValue = bar.getValue() + delta;
+                newValue = Math.max(0, Math.min(newValue, bar.getMaximum()));
+                bar.setValue(newValue);
+            }
+        });
+
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.setOpaque(false);
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 80, 20, 80));
-        contentPanel.add(listPanel, BorderLayout.CENTER);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 80, 20, 80));
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
 
         // 按钮面板
         JPanel buttonPanel = new JPanel();
@@ -127,46 +151,52 @@ public class LeaderboardFrame extends JFrame {
         for (int i = 0; i < displayLimit; i++) {
             Record record = sortedRecords.get(i);
             int score = calculateScore(record.steps, record.time);
-            JLabel recordLabel = new JLabel((i + 1) + ". 用户: " + record.user + " 得分: " + score + " 步数: " + record.steps + " 时间: " + formatTime(record.time));
-            recordLabel.setFont(new Font("楷体", Font.PLAIN, 20));
-            recordLabel.setForeground(Color.WHITE);
-            recordLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            recordLabel.setHorizontalAlignment(SwingConstants.CENTER); // 居中对齐
+            JPanel recordItem = new JPanel();
+            recordItem.setLayout(new BoxLayout(recordItem, BoxLayout.Y_AXIS));
+            recordItem.setOpaque(false);
+            recordItem.setBackground(new Color(255, 255, 255, 120)); // 半透明白色
+            recordItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-            // 高亮前三名
+            Color deepText = new Color(90, 50, 20); // 深褐色
+
+// 第一行：名次、用户、得分
+            JLabel topLine = new JLabel("第 " + (i + 1) + " 名   用户: " + record.user + "   得分: " + score);
+            topLine.setFont(new Font("楷体", Font.BOLD, 20));
+            topLine.setForeground(deepText);
+            topLine.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+// 第二行：步数、时间
+            JLabel bottomLine = new JLabel("步数: " + record.steps + "   时间: " + formatTime(record.time));
+            bottomLine.setFont(new Font("楷体", Font.PLAIN, 18));
+            bottomLine.setForeground(deepText);
+            bottomLine.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+// 分隔线
+            JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+            separator.setForeground(Color.WHITE);
+            separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+            separator.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+// 高亮前三名背景
             if (i == 0) {
-                recordLabel.setForeground(new Color(255, 223, 0)); // 金色
+                recordItem.setBackground(new Color(255, 255, 153, 160)); // 金色调
+                recordItem.setOpaque(true);
             } else if (i == 1) {
-                recordLabel.setForeground(new Color(192, 192, 192)); // 银色
+                recordItem.setBackground(new Color(200, 200, 200, 160)); // 银色调
+                recordItem.setOpaque(true);
             } else if (i == 2) {
-                recordLabel.setForeground(new Color(205, 127, 50)); // 铜色
+                recordItem.setBackground(new Color(205, 127, 50, 160)); // 铜色调
+                recordItem.setOpaque(true);
             }
 
-            // 鼠标悬停高亮背景
-            recordLabel.addMouseListener(new MouseAdapter() {
-                Color original = recordLabel.getForeground();
+            recordItem.add(topLine);
+            recordItem.add(Box.createVerticalStrut(5));
+            recordItem.add(bottomLine);
+            recordItem.add(Box.createVerticalStrut(5));
+            recordItem.add(separator);
 
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    recordLabel.setFont(recordLabel.getFont().deriveFont(Font.BOLD, 22f));
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    recordLabel.setFont(recordLabel.getFont().deriveFont(Font.PLAIN, 20f));
-                }
-            });
-
-            listPanel.add(recordLabel);
-        }
-
-        // 如果没有记录
-        if (sortedRecords.isEmpty()) {
-            JLabel emptyLabel = new JLabel("暂无记录");
-            emptyLabel.setFont(new Font("楷体", Font.PLAIN, 20));
-            emptyLabel.setForeground(Color.WHITE);
-            emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            listPanel.add(emptyLabel);
+            listPanel.add(Box.createVerticalStrut(8));
+            listPanel.add(recordItem);
         }
     }
 

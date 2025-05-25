@@ -76,7 +76,7 @@ public class GameFrame1 extends JFrame {
         gamePanel.setOpaque(false);
 
         //全屏提示
-        JLabel hintLabel = new JLabel("提示：全屏后可开启箭头操作", SwingConstants.CENTER);
+        JLabel hintLabel = new JLabel("提示：全屏后可开启箭头操作【终点位于右侧】", SwingConstants.CENTER);
         hintLabel.setFont(new Font("楷体", Font.BOLD, 20));
         hintLabel.setForeground(new Color(139, 69, 19));
         hintLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -91,7 +91,7 @@ public class GameFrame1 extends JFrame {
 
         if (this.getWidth() < 1100 || this.getHeight() < 800) {
             hintLabel.setVisible(true);
-            new Timer(3000, e -> hintLabel.setVisible(false)).start();
+            new Timer(10000, e -> hintLabel.setVisible(false)).start();
         }
         bgPanel.add(gamePanel, BorderLayout.CENTER);
 
@@ -237,7 +237,7 @@ public class GameFrame1 extends JFrame {
             int seconds = this.gamePanel.getCurrentPanel().getElapsedTime()%60;
             String time = String.format("%02d:%02d", min, seconds);
             this.pauseMenuPanel = new PauseMenuPanel(time,String.format("%d",this.gamePanel.getCurrentPanel().steps),currentLanguage);
-            this.setVisible(false);
+//            this.setVisible(false);
             this.pauseMenuPanel.setGameController(this.gameController);
             this.pauseMenuPanel.setVisible(true);
             this.gameController.pauseTimer();

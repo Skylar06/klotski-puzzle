@@ -510,6 +510,11 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
         int[][] newMatrix = new int[rows][cols];
 
+        if (isWin()) {
+            // 如果打乱后不满足胜利条件，返回成功
+            return false;
+        }
+
         if (!tryPlaceBlocks(newMatrix, blockTypes, 0)) {
 //            System.err.println("无法放置所有方块！");
             return false;
@@ -518,6 +523,10 @@ public abstract class AbstractGamePanel extends ListenerPanel {
         model.setMatrix(newMatrix);
         rebuildBoxesFromMatrix(newMatrix);
         return true;
+    }
+
+    private boolean isWin() {
+        return model.getId(1, 4) == 4 && model.getId(2, 4) == 4;
     }
 
     private boolean tryPlaceBlocks(int[][] matrix, List<Integer> blockTypes, int index) {
@@ -979,6 +988,17 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     public void saveGame(String path) {
         controller.saveGame(path);
+    }
+
+    public void resetSkills() {
+        for (int i = 0; i < skillUsed.length; i++) {
+            skillUsed[i] = false;
+        }
+        for (JLabel label : centerLabels) {
+            if (label != null) {
+                label.setText("1");
+            }
+        }
     }
 
     protected static class BackgroundPanel extends JPanel {

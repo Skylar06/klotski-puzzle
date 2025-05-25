@@ -61,7 +61,8 @@ public class GameController {
         view.getCurrentPanel().setElapsedTime(-1);
         view.getCurrentPanel().updateTimeLabel();
         view.setSteps(0);
-        view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
+        view.getStepLabel().setText(String.format("步数: %d", view.getSteps()));
+        view.getCurrentPanel().resetSkills();
     }
 
     public boolean doMove(int row, int col, Direction direction) {

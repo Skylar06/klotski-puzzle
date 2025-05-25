@@ -15,7 +15,7 @@ public class StoryGamePanel extends AbstractGamePanel {
     private String STORY_TEXT;
     private Language currentLanguage = Language.CHINESE; // 默认中文
     private static final String[] STORY_TEXTS_CN = {
-            "第一回 在这个混乱的时代，曹操和孙权的势力激烈对抗，刘备则在夹缝中寻找生存之道......",
+            "第一回 在这个混乱的时代，曹操和孙权的势力激烈对抗，刘备在夹缝中寻找生存之道...",
             "第二回 刘备为了寻求盟友，决定拜访诸葛亮，请他出山共图大业。",
             "第三回 诸葛亮三次被邀请，终于答应出山辅佐刘备，开启三顾茅庐的传奇。",
             "第四回 赤壁火攻撕裂曹军防线，东南风骤起却助长火势，孙刘联军反攻倒算。",
