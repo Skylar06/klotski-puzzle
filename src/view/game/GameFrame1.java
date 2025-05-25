@@ -23,6 +23,7 @@ public class GameFrame1 extends JFrame {
     private JButton stopButton;
     private JButton restartButton;
     private JButton undoButton;
+    private JButton aiButton;
     private Language currentLanguage = Language.CHINESE;
     private GameController gameController;
     private PauseMenuPanel pauseMenuPanel;
@@ -101,13 +102,13 @@ public class GameFrame1 extends JFrame {
         JPanel arrowWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         arrowWrapper.setOpaque(false);
         arrowWrapper.add(arrowPanel);
-        bgPanel.add(arrowWrapper, BorderLayout.EAST);
+        bgPanel.add(arrowWrapper, BorderLayout.SOUTH);
 
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 Dimension size = getSize();
-                if (size.width >= 1100 && size.height >= 800) {
+                if (size.width >= 1050 && size.height >= 800) {
                     arrowPanel.setVisible(true);
                 } else {
                     arrowPanel.setVisible(false);
@@ -211,10 +212,12 @@ public class GameFrame1 extends JFrame {
         restartButton = createHoverButton("restart.png", "重启");
         stopButton = createHoverButton("stop.png", "暂停");
         undoButton = createHoverButton("undo.png", "撤销");
+        aiButton = createHoverButton("ai.png", "AI");
         iconPanel.add(helpButton);
         iconPanel.add(restartButton);
         iconPanel.add(stopButton);
         iconPanel.add(undoButton);
+        iconPanel.add(aiButton);
 
         JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         langPanel.setOpaque(false);
@@ -248,6 +251,9 @@ public class GameFrame1 extends JFrame {
         });
         undoButton.addActionListener(e -> {
            this.gameController.undoLastMove();
+        });
+        aiButton.addActionListener(e -> {
+            //TODO
         });
         topPanel.add(iconPanel, BorderLayout.WEST);
         topPanel.add(langPanel, BorderLayout.EAST);

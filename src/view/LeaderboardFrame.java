@@ -15,6 +15,7 @@ public class LeaderboardFrame extends JFrame {
     private Leaderboard leaderboard;
     private static final String SAVE_FILE = "rank.txt";
     private static final int DISPLAY_COUNT = 10; // 显示前10名
+    private JPanel listPanel;
 
     public LeaderboardFrame() {
         this.setTitle("排行榜");
@@ -39,25 +40,57 @@ public class LeaderboardFrame extends JFrame {
         bgPanel.setLayout(new BorderLayout());
         this.setContentPane(bgPanel);
 
-        // 创建标题面板
-        JPanel titlePanel = new JPanel();
+        // 标题卷轴面板
+        JPanel titlePanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                ImageIcon scrollBg = new ImageIcon(getClass().getClassLoader().getResource("btn1.png"));
+                g.drawImage(scrollBg.getImage(), 0, 0, getWidth(), getHeight(), this);
+            }
+        };
         titlePanel.setOpaque(false);
-        titlePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        titlePanel.setPreferredSize(new Dimension(200, 160));
+        titlePanel.setLayout(new GridBagLayout());
+
         JLabel titleLabel = new JLabel("排行榜");
         titleLabel.setFont(new Font("楷体", Font.BOLD, 36));
-        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setForeground(new Color(90, 50, 20));
         titlePanel.add(titleLabel);
 
-        // 创建排行榜内容面板
-        JPanel contentPanel = new JPanel();
-        contentPanel.setOpaque(false);
-        contentPanel.setLayout(new BorderLayout());
-
-        // 创建排行榜列表
-        JPanel listPanel = new JPanel();
+        // 排行榜列表面板
+        listPanel = new JPanel();
         listPanel.setOpaque(false);
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
 
+        // 内容面板容器（带内边距）
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setOpaque(false);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 80, 20, 80));
+        contentPanel.add(listPanel, BorderLayout.CENTER);
+
+        // 按钮面板
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setOpaque(false);
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        JButton backButton = new JButton("归返");
+        setupButton(backButton);
+        backButton.setFont(new Font("楷体", Font.BOLD, 20));
+        backButton.addActionListener(e -> this.setVisible(false));
+        buttonPanel.add(backButton);
+
+        // 添加各部分
+        bgPanel.add(titlePanel, BorderLayout.NORTH);
+        bgPanel.add(contentPanel, BorderLayout.CENTER);
+        bgPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // 准备数据，启动逐条显示
+        startDisplayRecords();
+
+        this.setVisible(true);
+    }
+
+    private void startDisplayRecords() {
         // 获取并排序排行榜数据
         List<String> usersList = leaderboard.getUsersList();
         List<Integer> stepsList = leaderboard.getStepsList();
@@ -98,6 +131,32 @@ public class LeaderboardFrame extends JFrame {
             recordLabel.setFont(new Font("楷体", Font.PLAIN, 20));
             recordLabel.setForeground(Color.WHITE);
             recordLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            recordLabel.setHorizontalAlignment(SwingConstants.CENTER); // 居中对齐
+
+            // 高亮前三名
+            if (i == 0) {
+                recordLabel.setForeground(new Color(255, 223, 0)); // 金色
+            } else if (i == 1) {
+                recordLabel.setForeground(new Color(192, 192, 192)); // 银色
+            } else if (i == 2) {
+                recordLabel.setForeground(new Color(205, 127, 50)); // 铜色
+            }
+
+            // 鼠标悬停高亮背景
+            recordLabel.addMouseListener(new MouseAdapter() {
+                Color original = recordLabel.getForeground();
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    recordLabel.setFont(recordLabel.getFont().deriveFont(Font.BOLD, 22f));
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    recordLabel.setFont(recordLabel.getFont().deriveFont(Font.PLAIN, 20f));
+                }
+            });
+
             listPanel.add(recordLabel);
         }
 
@@ -109,27 +168,6 @@ public class LeaderboardFrame extends JFrame {
             emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             listPanel.add(emptyLabel);
         }
-
-        contentPanel.add(listPanel, BorderLayout.CENTER);
-
-        // 创建按钮面板
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setOpaque(false);
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        JButton backButton = new JButton("归返");
-        setupButton(backButton);
-        backButton.setFont(new Font("楷体", Font.BOLD, 20));
-        backButton.addActionListener(e -> {
-            this.setVisible(false);
-        });
-        buttonPanel.add(backButton);
-
-        // 组装整个界面
-        bgPanel.add(titlePanel, BorderLayout.NORTH);
-        bgPanel.add(contentPanel, BorderLayout.CENTER);
-        bgPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        this.setVisible(true);
     }
 
     // 记录类，用于存储每个用户的步数、时间和用户名

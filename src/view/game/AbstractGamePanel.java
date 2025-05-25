@@ -194,7 +194,7 @@ public abstract class AbstractGamePanel extends ListenerPanel {
                 currentSkinIndex[0] = (currentSkinIndex[0] + 1) % skinList.length;
                 String newSkin = skinList[currentSkinIndex[0]];
                 BoxComponent.setCurrentSkin(newSkin);
-//                skinToggleBtn.setText("当前皮肤：" + newSkin);
+                skinToggleBtn.setText("当前皮肤：" + newSkin);
 
                 boardPanel.repaint();
 //                System.out.println("切换皮肤：" + newSkin);
