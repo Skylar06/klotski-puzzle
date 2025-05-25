@@ -10,8 +10,12 @@ import view.game.Save;
 import view.level.select.LevelSelectFrame;
 import view.login.LoginFrame;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,6 +93,7 @@ public class GameController {
                     } else {
                         box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     }
+                    playSlideSound();
                     box.repaint();
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
@@ -123,6 +128,7 @@ public class GameController {
                     } else {
                         box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     }
+                    playSlideSound();
                     box.repaint();
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
@@ -157,6 +163,7 @@ public class GameController {
                     } else {
                         box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     }
+                    playSlideSound();
                     box.repaint();
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
@@ -197,6 +204,7 @@ public class GameController {
                         box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
                     }
                     box.repaint();
+                    playSlideSound();
                     this.recordMove(new Move(row,col,nextRow,nextCol));
                     return true;
                 }
@@ -229,6 +237,18 @@ public class GameController {
             box.repaint();
             view.setSteps(view.getSteps() - 1);
             view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
+        }
+    }
+
+    private void playSlideSound() {
+        try {
+            URL soundURL = getClass().getClassLoader().getResource("clickBtn.wav");
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundURL);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

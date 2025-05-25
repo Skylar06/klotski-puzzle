@@ -113,10 +113,10 @@ public class PauseMenuPanel extends JFrame {
         upperControlButtonsPanel.setOpaque(false);
 
         saveButton = new JButton();
-        loadButton = new JButton();
+//        loadButton = new JButton();
 
         setupButton(saveButton);
-        setupButton(loadButton);
+//        setupButton(loadButton);
 
         if (currentLanguage == Language.CHINESE) {
             saveButton.setText("保存进度");
@@ -124,17 +124,17 @@ public class PauseMenuPanel extends JFrame {
             saveButton.setText("Save");
         }
 
-        if (currentLanguage == Language.CHINESE) {
-            loadButton.setText("读取进度");
-        } else {
-            loadButton.setText("Load");
-        }
+//        if (currentLanguage == Language.CHINESE) {
+//            loadButton.setText("读取进度");
+//        } else {
+//            loadButton.setText("Load");
+//        }
 
         saveButton.setMargin(new Insets(0, 0, 0, 0));
-        loadButton.setMargin(new Insets(0, 0, 0, 0));
+//        loadButton.setMargin(new Insets(0, 0, 0, 0));
 
         upperControlButtonsPanel.add(saveButton);
-        upperControlButtonsPanel.add(loadButton);
+//        upperControlButtonsPanel.add(loadButton);
 
         saveButton.addActionListener(e -> {
             String timestamp = LocalDateTime.now()
@@ -144,39 +144,39 @@ public class PauseMenuPanel extends JFrame {
             this.gameController.saveGame(filePath);
         });
 
-
-        loadButton.addActionListener(e ->{
-            JFileChooser jf = new JFileChooser(".");
-            jf.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-            jf.setFileFilter(new FileFilter() {
-                @Override
-                public String getDescription() {
-                    return ".txt";
-                }
-
-                @Override
-                public boolean accept(File f) {
-                    if (f.getName().endsWith("txt")) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            });
-            int flag = jf.showOpenDialog(this);
-            if (flag == JFileChooser.APPROVE_OPTION) {
-                String fileName = jf.getSelectedFile().getName();
-                String lastName = fileName.substring(fileName.lastIndexOf(".") + 1);
-                if (!lastName.equals("txt")) {
-                    JOptionPane.showMessageDialog(this, "请选择一个txt格式的文件");
-                    return;
-                }
-                if(this.gameController.loadGame(jf.getSelectedFile().getAbsolutePath())) {
-                    this.setVisible(false);
-                    this.gameController.restartTimer();
-                }
-            }
-        });
+//
+//        loadButton.addActionListener(e ->{
+//            JFileChooser jf = new JFileChooser(".");
+//            jf.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+//            jf.setFileFilter(new FileFilter() {
+//                @Override
+//                public String getDescription() {
+//                    return ".txt";
+//                }
+//
+//                @Override
+//                public boolean accept(File f) {
+//                    if (f.getName().endsWith("txt")) {
+//                        return true;
+//                    } else {
+//                        return false;
+//                    }
+//                }
+//            });
+//            int flag = jf.showOpenDialog(this);
+//            if (flag == JFileChooser.APPROVE_OPTION) {
+//                String fileName = jf.getSelectedFile().getName();
+//                String lastName = fileName.substring(fileName.lastIndexOf(".") + 1);
+//                if (!lastName.equals("txt")) {
+//                    JOptionPane.showMessageDialog(this, "请选择一个txt格式的文件");
+//                    return;
+//                }
+//                if(this.gameController.loadGame(jf.getSelectedFile().getAbsolutePath())) {
+//                    this.setVisible(false);
+//                    this.gameController.restartTimer();
+//                }
+//            }
+//        });
         upperButtonPanel.add(upperControlButtonsPanel);
 
         JPanel midButtonPanel = new JPanel();

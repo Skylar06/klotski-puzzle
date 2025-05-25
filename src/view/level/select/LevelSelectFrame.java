@@ -7,6 +7,7 @@ import view.Language;
 import view.game.GameFrame1;
 import view.game.HelpPanel;
 import view.game.Save;
+import view.login.LoginFrame;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -30,6 +31,7 @@ public class LevelSelectFrame extends JFrame {
     private JButton confirmBtn;
     private JButton loadBtn;
     private JButton helpBtn;
+    private JButton backBtn;
     private JPanel carouselPanel;
     private Language currentLanguage = Language.CHINESE;
     private JPanel imageContainer; // 在类成员变量声明处添加
@@ -37,12 +39,18 @@ public class LevelSelectFrame extends JFrame {
     private List<String> carouselImages = Arrays.asList("battle.png", "classic.png", "extreme.png");
     private GameController gameController;
     private MapModel model;
+    private JLayeredPane layeredPane;
+    private TransparentPanel darkOverlayPanel;
+    private JLabel flameLabel;
+    private LoginFrame loginFrame;
+
     public LevelSelectFrame() {
         this.setTitle("华容道·选择关卡");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setSize(1000, 750);
         this.setLocationRelativeTo(null);
-        // 背景面板
+
+        // 背景图层：自动缩放
         JPanel bgPanel = new JPanel() {
             Image bg = new ImageIcon(getClass().getClassLoader().getResource("background.gif")).getImage();
 
@@ -52,34 +60,152 @@ public class LevelSelectFrame extends JFrame {
                 g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
             }
         };
-        bgPanel.setLayout(new BorderLayout());  // 使用 BorderLayout 来帮助居中显示
-        this.setContentPane(bgPanel);
+        bgPanel.setLayout(new BorderLayout());
 
-        // 1. 顶部按钮面板直接添加到 NORTH
+        // 顶部按钮面板
         JPanel topPanel = createTopPanel();
         bgPanel.add(topPanel, BorderLayout.NORTH);
 
-        carouselPanel = createCarouselPanel();
-
-        // 2. 创建中间容器（标题 + 轮播）
+        // 中部面板（标题 + 轮播）
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setOpaque(false);
-
-        // 添加标题到中间容器顶部
-        addTitleLabel(centerPanel);
-
-        // 添加轮播面板到中间容器
+        addTitleLabel(centerPanel); // 添加标题
+        carouselPanel = createCarouselPanel(); // 轮播面板
         centerPanel.add(carouselPanel);
         bgPanel.add(centerPanel, BorderLayout.CENTER);
 
-        // 3. 底部按钮放在 SOUTH
+        // 底部按钮面板
         JPanel bottomPanel = createBottomPanel();
         bgPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        // 叠加面板：OverlayLayout 自动撑满 & 层级可控
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.setLayout(new OverlayLayout(layeredPane));
+        this.setContentPane(layeredPane);
+
+        // 层级0：背景主面板
+        layeredPane.add(bgPanel, Integer.valueOf(0));
+        bgPanel.setAlignmentX(0.5f);
+        bgPanel.setAlignmentY(0.5f);
+
+        // 层级1：半透明暗层
+        darkOverlayPanel = new TransparentPanel(0.4f);
+        layeredPane.add(darkOverlayPanel, Integer.valueOf(1));
+        darkOverlayPanel.setAlignmentX(0.5f);
+        darkOverlayPanel.setAlignmentY(0.5f);
+
+        // 层级2：火盆图标（默认静态）
+        // 层级2：火盆图标
+        flameLabel = new JLabel(new ImageIcon(getClass().getClassLoader().getResource("pen.png")));
+
+// 用透明面板包裹火盆图标，并贴右下角
+        JPanel flameWrapper = new JPanel();
+        flameWrapper.setOpaque(false);
+        flameWrapper.setLayout(new BorderLayout());
+
+// 内部右下角容器
+        JPanel bottomRightPanel = new JPanel();
+        bottomRightPanel.setOpaque(false);
+        bottomRightPanel.setLayout(new BoxLayout(bottomRightPanel, BoxLayout.LINE_AXIS));
+        bottomRightPanel.add(Box.createHorizontalGlue());
+        bottomRightPanel.add(flameLabel);
+        bottomRightPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 30)); // 右下边距
+
+// 垂直方向靠底部
+        JPanel verticalBox = new JPanel();
+        verticalBox.setOpaque(false);
+        verticalBox.setLayout(new BoxLayout(verticalBox, BoxLayout.PAGE_AXIS));
+        verticalBox.add(Box.createVerticalGlue());
+        verticalBox.add(bottomRightPanel);
+
+        flameWrapper.add(verticalBox, BorderLayout.CENTER);
+
+// 添加到 layeredPane 的最上层
+        layeredPane.add(flameWrapper, Integer.valueOf(2));
+        flameWrapper.setAlignmentX(0.5f);
+        flameWrapper.setAlignmentY(0.5f);
+
+        // 鼠标悬停点燃动画
+        flameLabel.addMouseListener(new MouseAdapter() {
+            boolean lit = false;
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (lit) return;
+                lit = true;
+
+                // 设置火焰动画
+                ImageIcon flameIcon = new ImageIcon(getClass().getClassLoader().getResource("flame.png"));
+                flameLabel.setIcon(flameIcon);
+//                playIgniteSound();
+
+                // 淡出黑暗层动画
+                Timer fadeTimer = new Timer(30, null);
+                fadeTimer.addActionListener(new ActionListener() {
+                    float alpha = 0.4f;
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        alpha -= 0.02f;
+                        if (alpha <= 0f) {
+                            fadeTimer.stop();
+                            layeredPane.remove(darkOverlayPanel);
+                            layeredPane.repaint();
+                        } else {
+                            darkOverlayPanel.setAlpha(alpha);
+                        }
+                    }
+                });
+                fadeTimer.start();
+            }
+        });
 
         this.setVisible(true);
     }
 
+    private void playIgniteSound() {
+        new Thread(() -> {
+            try {
+                URL soundURL = getClass().getClassLoader().getResource("ignite.wav");
+                if (soundURL == null) {
+                    System.out.println("点火音效资源没找到！");
+                    return;
+                }
+                AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundURL);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioIn);
+                clip.start();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }).start();
+    }
+
+    // 自定义半透明面板
+    static class TransparentPanel extends JPanel {
+        private float alpha;
+
+        public TransparentPanel(float alpha) {
+            this.alpha = alpha;
+            setOpaque(false);
+        }
+
+        public void setAlpha(float alpha) {
+            this.alpha = alpha;
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2d = (Graphics2D) g.create();
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+            g2d.setColor(Color.BLACK);
+            g2d.fillRect(0, 0, getWidth(), getHeight());
+            g2d.dispose();
+            super.paintComponent(g);
+        }
+    }
 
     private void addTitleLabel(JPanel container) {
         // 创建标题标签
@@ -190,12 +316,21 @@ public class LevelSelectFrame extends JFrame {
 
         confirmBtn = new JButton("确定");
         loadBtn = new JButton("读取进度");
+        backBtn = new JButton("归返登入");
+
+        if (currentLanguage == Language.CHINESE) {
+            loadBtn.setText("读取进度");
+        } else {
+            loadBtn.setText("Load");
+        }
 
         setupButton(confirmBtn);
         setupButton(loadBtn);
+        setupButton(backBtn);
 
-        panel.add(confirmBtn);
         panel.add(loadBtn);
+        panel.add(confirmBtn);
+        panel.add(backBtn);
 
         confirmBtn.addActionListener(
             e -> {
@@ -268,7 +403,13 @@ public class LevelSelectFrame extends JFrame {
                 }
         );
 
-
+        backBtn.addActionListener(
+                e -> {
+                    this.dispose(); // 关闭当前注册界面
+                    this.setVisible(false);
+                    this.loginFrame.setVisible(true);// 打开登录界面
+                }
+        );
 
         return panel;
     }
@@ -487,6 +628,12 @@ public class LevelSelectFrame extends JFrame {
 
             if (titleLabel != null) {
                 titleLabel.setText("关卡选择");
+            }
+
+            if (currentLanguage == Language.CHINESE) {
+                loadBtn.setText("读取进度");
+            } else {
+                loadBtn.setText("Load");
             }
 
             helpBtn = createHoverButton("help.png", "帮助");
