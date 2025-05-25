@@ -60,12 +60,31 @@ public class Leaderboard {
         }
     }
 
-    // 当用户获胜时，将步数和时间添加到排行榜
+    // 计算得分
+    private int calculateScore(int steps, int time) {
+        return 1000 - steps * 5 - time * 3;
+    }
+
+    // 更新用户记录，只保留最高成绩
+    public void updateRecord(String user, int steps, int time) {
+        for (int i = 0; i < usersList.size(); i++) {
+            if (usersList.get(i).equals(user)) {
+                int currentScore = calculateScore(stepsList.get(i), timesList.get(i));
+                int newScore = calculateScore(steps, time);
+                if (newScore > currentScore) {
+                    stepsList.set(i, steps);
+                    timesList.set(i, time);
+                }
+                return;
+            }
+        }
+        // 如果用户不存在，添加新记录
+        addRecord(user, steps, time);
+    }
+
+    // 当用户获胜时，将步数和时间添加到排行榜，只保留最高成绩
     public void addRecord(String user, int steps, int time) {
-        usersList.add(user);
-        stepsList.add(steps);
-        timesList.add(time);
-        saveToSystem(); // 添加新记录后立即保存
+        updateRecord(user, steps, time);
     }
 
     // 将排行榜数据保存到系统
@@ -88,7 +107,7 @@ public class Leaderboard {
     // 获取最快时间
     public int getFastestTime() {
         if (timesList.isEmpty()) {
-            return 2147483647; // 如果没有记录，返回0或其他默认值
+            return 2147483647; // 如果没有记录，返回一个极大值
         }
         return timesList.stream().min(Integer::compare).orElse(0);
     }
@@ -96,7 +115,7 @@ public class Leaderboard {
     // 获取最快步数
     public int getFastestSteps() {
         if (stepsList.isEmpty()) {
-            return 2147483647; // 如果没有记录，返回0或其他默认值
+            return 2147483647; // 如果没有记录，返回一个极大值
         }
         return stepsList.stream().min(Integer::compare).orElse(0);
     }
@@ -113,6 +132,7 @@ public class Leaderboard {
     public ArrayList<Integer> getTimesList() {
         return timesList;
     }
+
     public static void initialize() {
         if (instance == null) {
             instance = new Leaderboard();

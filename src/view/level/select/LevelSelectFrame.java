@@ -44,7 +44,8 @@ public class LevelSelectFrame extends JFrame {
     private JLabel flameLabel;
     private LoginFrame loginFrame;
 
-    public LevelSelectFrame() {
+    public LevelSelectFrame(LoginFrame loginFrame) {
+        this.loginFrame = loginFrame;
         this.setTitle("华容道·选择关卡");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setSize(1000, 750);
@@ -405,9 +406,11 @@ public class LevelSelectFrame extends JFrame {
 
         backBtn.addActionListener(
                 e -> {
-                    this.dispose(); // 关闭当前注册界面
+                    this.dispose(); // 关闭当前关卡选择界面
                     this.setVisible(false);
-                    this.loginFrame.setVisible(true);// 打开登录界面
+                    if (loginFrame != null) {
+                        loginFrame.setVisible(true); // 打开登录界面
+                    }
                 }
         );
 
@@ -669,8 +672,4 @@ public class LevelSelectFrame extends JFrame {
         this.model = model;
     }
 
-    public static void main(String[] args) {
-
-        new LevelSelectFrame();
-    }
 }

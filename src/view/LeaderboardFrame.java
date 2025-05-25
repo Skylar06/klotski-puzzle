@@ -1,7 +1,5 @@
 package view;
 
-import view.Leaderboard;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
@@ -12,7 +10,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
-import java.util.ArrayList;
 
 public class LeaderboardFrame extends JFrame {
     private Leaderboard leaderboard;
@@ -69,17 +66,33 @@ public class LeaderboardFrame extends JFrame {
         for (int i = 0; i < usersList.size(); i++) {
             records.add(new Record(stepsList.get(i), timesList.get(i), usersList.get(i)));
         }
-        // 按得分排序
-        records.sort((record1, record2) -> {
+
+        // 按用户名分组，只取每个用户的最高成绩
+        Map<String, Record> bestRecords = new HashMap<>();
+        for (Record record : records) {
+            if (!bestRecords.containsKey(record.user)) {
+                bestRecords.put(record.user, record);
+            } else {
+                int currentScore = calculateScore(bestRecords.get(record.user).steps, bestRecords.get(record.user).time);
+                int newScore = calculateScore(record.steps, record.time);
+                if (newScore > currentScore) {
+                    bestRecords.put(record.user, record);
+                }
+            }
+        }
+
+        // 将最佳记录转换为列表并排序
+        List<Record> sortedRecords = new ArrayList<>(bestRecords.values());
+        sortedRecords.sort((record1, record2) -> {
             int score1 = calculateScore(record1.steps, record1.time);
             int score2 = calculateScore(record2.steps, record2.time);
             return Integer.compare(score2, score1); // 降序排序
         });
 
         // 显示前10名
-        int displayLimit = Math.min(DISPLAY_COUNT, records.size());
+        int displayLimit = Math.min(DISPLAY_COUNT, sortedRecords.size());
         for (int i = 0; i < displayLimit; i++) {
-            Record record = records.get(i);
+            Record record = sortedRecords.get(i);
             int score = calculateScore(record.steps, record.time);
             JLabel recordLabel = new JLabel((i + 1) + ". 用户: " + record.user + " 得分: " + score + " 步数: " + record.steps + " 时间: " + formatTime(record.time));
             recordLabel.setFont(new Font("楷体", Font.PLAIN, 20));
@@ -88,8 +101,8 @@ public class LeaderboardFrame extends JFrame {
             listPanel.add(recordLabel);
         }
 
-        // 如果记录不足10条，不显示剩余条目
-        if (records.isEmpty()) {
+        // 如果没有记录
+        if (sortedRecords.isEmpty()) {
             JLabel emptyLabel = new JLabel("暂无记录");
             emptyLabel.setFont(new Font("楷体", Font.PLAIN, 20));
             emptyLabel.setForeground(Color.WHITE);
@@ -117,6 +130,19 @@ public class LeaderboardFrame extends JFrame {
         bgPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         this.setVisible(true);
+    }
+
+    // 记录类，用于存储每个用户的步数、时间和用户名
+    private static class Record {
+        int steps;
+        int time;
+        String user;
+
+        public Record(int steps, int time, String user) {
+            this.steps = steps;
+            this.time = time;
+            this.user = user;
+        }
     }
 
     // 计算得分
@@ -195,5 +221,4 @@ public class LeaderboardFrame extends JFrame {
             e.printStackTrace();
         }
     }
-
 }

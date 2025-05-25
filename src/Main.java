@@ -20,7 +20,7 @@ public class Main {
                     {2, 2, 1, 1, 3}
             });
 
-            LevelSelectFrame levelSelectFrame = new LevelSelectFrame();
+            LevelSelectFrame levelSelectFrame = new LevelSelectFrame(loginFrame);
             levelSelectFrame.setVisible(false);
             levelSelectFrame.setModel(mapModel);
             GameController gameController = new GameController(mapModel,levelSelectFrame,loginFrame);
