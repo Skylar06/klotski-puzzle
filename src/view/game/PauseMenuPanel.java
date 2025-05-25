@@ -260,10 +260,12 @@ public class PauseMenuPanel extends JFrame {
         // 设置按钮事件
         resumeButton.addActionListener(e -> {
             this.setVisible(false);
+            this.gameController.gameFrame1.setVisible(true);
             this.gameController.restartTimer();
         });
         restartButton.addActionListener(e->{
             this.setVisible(false);
+            this.gameController.gameFrame1.setVisible(true);
             this.gameController.restartGame();
         });
 

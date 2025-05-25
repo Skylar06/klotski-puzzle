@@ -1036,6 +1036,8 @@ public abstract class AbstractGamePanel extends ListenerPanel {
 
     public void setElapsedTime(int elapsedTime) {
         this.elapsedTime = elapsedTime;
+        String prefix = currentLanguage == Language.CHINESE ? "时间: " : "Time: ";
+        timeLabel.setText(String.format("%s%02d:%02d", prefix, elapsedTime/60, elapsedTime % 60));
     }
 
     public void setCurrentLanguage(Language currentLanguage) {

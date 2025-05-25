@@ -109,31 +109,48 @@ public class GameController {
         else if (model.getId(row, col) == 2) {
             int nextRow = row + direction.getRow();
             int nextCol = col + direction.getCol();
-            if (direction == Direction.RIGHT){
-                nextCol++;
-            }
-            if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)) {
-                if (model.getId(nextRow, nextCol) == 0) {
-                    if (direction == Direction.RIGHT) nextCol--;
-                    model.getMatrix()[row][col] = 0;
-                    model.getMatrix()[row][col + 1] = 0;
-                    model.getMatrix()[nextRow][nextCol] = 2;
-                    model.getMatrix()[nextRow][nextCol + 1] = 2;
-
-                    BoxComponent box = view.getSelectedBox();
-                    box.setRow(nextRow);
-                    box.setCol(nextCol);
-                    if (isSlowMode) {
-                        box.setLocationSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
-                    } else {
-                        box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
-                    }
-                    playSlideSound();
-                    box.repaint();
-                    this.recordMove(new Move(row,col,nextRow,nextCol));
-                    return true;
+            boolean temp = false;
+            if (direction == Direction.LEFT) {
+                // 向左移动时的逻辑
+                if (model.checkInWidthSize(nextCol) && model.getId(nextRow, nextCol) == 0) {
+                    temp = true;
+                }
+            } else if (direction == Direction.RIGHT) {
+                // 向右移动时的逻辑
+                if (model.checkInWidthSize(nextCol + 1) && model.getId(nextRow, nextCol+1) == 0) {
+                    temp = true;
+                }
+            } else if (direction == Direction.UP) {
+                // 向上移动时的逻辑
+                if (model.checkInHeightSize(nextRow) && model.getId(nextRow, nextCol) == 0 && model.getId(nextRow, nextCol + 1) == 0) {
+                    temp = true;
+                }
+            } else if (direction == Direction.DOWN) {
+                // 向下移动时的逻辑
+                if (model.checkInHeightSize(nextRow) && model.getId(nextRow, nextCol) == 0 && model.getId(nextRow, nextCol+1) == 0) {
+                    temp = true;
                 }
             }
+            if (temp) {
+
+                model.getMatrix()[row][col] = 0;
+                model.getMatrix()[row][col + 1] = 0;
+                model.getMatrix()[nextRow][nextCol] = 2;
+                model.getMatrix()[nextRow][nextCol + 1] = 2;
+
+                BoxComponent box = view.getSelectedBox();
+                box.setRow(nextRow);
+                box.setCol(nextCol);
+                if (isSlowMode) {
+                    box.setLocationSlow(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                } else {
+                    box.setLocationSliding(box.getCol() * view.getGRID_SIZE(), box.getRow() * view.getGRID_SIZE());
+                }
+                playSlideSound();
+                box.repaint();
+                this.recordMove(new Move(row,col,nextRow,nextCol));return true;
+            }
+
             if (!model.checkInWidthSize(nextCol) || !model.checkInHeightSize(nextRow)) {
                 BoxComponent box = view.getSelectedBox();
                 box.shake();
@@ -143,13 +160,9 @@ public class GameController {
         } else if (model.getId(row, col) == 3) {
             int nextRow = row + direction.getRow();
             int nextCol = col + direction.getCol();
-            if (direction == Direction.DOWN) {
-                nextRow++;
-            }
-            if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol)) {
-                if (model.getId(nextRow, nextCol) == 0) {
-
-                    if (direction == Direction.DOWN) nextRow--;
+            if (model.checkInHeightSize(nextRow) && model.checkInWidthSize(nextCol) && model.checkInHeightSize(nextRow+1)) {
+                if (((model.getId(nextRow, nextCol) == 0)||(model.getId(nextRow, nextCol) == 3))&&
+                        ((model.getId(nextRow+1, nextCol) == 0||(model.getId(nextRow+1, nextCol) == 3)))) {
                     model.getMatrix()[row][col] = 0;
                     model.getMatrix()[row + 1][col] = 0;
                     model.getMatrix()[nextRow][nextCol] = 3;
@@ -304,7 +317,8 @@ public class GameController {
             this.user = temp.user;
 
             view.initialGame();
-            view.getCurrentPanel().setElapsedTime(temp.time);view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
+            view.getCurrentPanel().setElapsedTime(temp.time);
+            view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
             this.moveHistory.clear();
             return true;
         } catch (FileNotFoundException e) {
