@@ -37,7 +37,7 @@ public class HintScreen extends JDialog {
         add(backgroundPanel);
 
         // 中央提示文字
-        messageLabel = new JLabel(message, JLabel.CENTER);
+        messageLabel = new JLabel("<html><div style='text-align:center; width:200px;'>" + message + "</div></html>", JLabel.CENTER);
         messageLabel.setFont(new Font("楷体", Font.BOLD, 24));
         messageLabel.setForeground(Color.WHITE);
         backgroundPanel.add(messageLabel, BorderLayout.CENTER);

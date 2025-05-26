@@ -286,9 +286,13 @@ public class GameFrame1 extends JFrame {
     }
 
     private void showAIMoveHint(KlotskiAI.Move move) {
-        String hint = String.format("AI提示：将方块从 (%d, %d) 移动到 (%d, %d)",
+        String hint = String.format("将方块从 (%d, %d) 移动到 (%d, %d)",
                 move.fromX + 1, move.fromY + 1, move.toX + 1, move.toY + 1);
-        JOptionPane.showMessageDialog(this, hint, "AI提示", JOptionPane.INFORMATION_MESSAGE);
+        showLoginError( hint);
+    }
+
+    private void showLoginError(String message) {
+        new view.login.HintScreen(message,currentLanguage).setVisible(true);
     }
 
     private JButton createHoverButton(String imagePath, String text) {
