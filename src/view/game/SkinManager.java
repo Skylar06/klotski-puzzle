@@ -23,7 +23,6 @@ public class SkinManager {
         Map<Integer, Image> skinSet = skinCache.get(skin);
         if (!skinSet.containsKey(type)) {
             try {
-                // 假设图片放在 resources/skins/{skin}/{type}.png
                 String path = "/skins/" + skin + "/" + type + ".png";
                 BufferedImage img = ImageIO.read(SkinManager.class.getResourceAsStream(path));
                 skinSet.put(type, img);

@@ -12,7 +12,6 @@ public class MouseTrailLayer extends JPanel {
     public MouseTrailLayer() {
         setOpaque(false);
 
-        // 添加 mouseMotionListener 到全局事件分发器（或窗口）
         Toolkit.getDefaultToolkit().addAWTEventListener(e -> {
             if (e instanceof MouseEvent mouseEvent && mouseEvent.getID() == MouseEvent.MOUSE_MOVED) {
                 SwingUtilities.invokeLater(() -> {
@@ -33,7 +32,7 @@ public class MouseTrailLayer extends JPanel {
 
     @Override
     public boolean contains(int x, int y) {
-        return false; // 👈 关键：让鼠标事件透过此层
+        return false;
     }
 
     @Override

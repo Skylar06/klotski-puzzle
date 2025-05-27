@@ -13,7 +13,7 @@ public class StoryGamePanel extends AbstractGamePanel {
     private boolean isStoryCompleted = false;
     private int levelIndex;
     private String STORY_TEXT;
-    private Language currentLanguage = Language.CHINESE; // 默认中文
+    private Language currentLanguage = Language.CHINESE;
     private static final String[] STORY_TEXTS_CN = {
             "第一回 在这个混乱的时代，曹操和孙权的势力激烈对抗，刘备在夹缝中寻找生存之道...",
             "第二回 刘备为了寻求盟友，决定拜访诸葛亮，请他出山共图大业。",
@@ -134,7 +134,6 @@ public class StoryGamePanel extends AbstractGamePanel {
 
     @Override
     public void initialGame() {
-        // 不立即调用 super.initialGame()，避免提前开始计时
         showStory();
     }
 
@@ -142,11 +141,9 @@ public class StoryGamePanel extends AbstractGamePanel {
     public void setController(GameController controller) {
         super.setController(controller);
 
-        // 清除特效模式可能残留的状态
         controller.setMirrorMode(false);
         controller.setSlowMode(false);
 
-        // 如果可能存在禁用的 box，也可清空（可选）
         for (Component comp : boardPanel.getComponents()) {
             if (comp instanceof BoxComponent box) {
                 box.setDisabled(false);
@@ -155,7 +152,6 @@ public class StoryGamePanel extends AbstractGamePanel {
     }
 
     private void showStory() {
-        // 设置状态面板为垂直居中布局，并设置边距
         statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.Y_AXIS));
         statusPanel.removeAll();
         statusPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // 添加边距
@@ -169,7 +165,6 @@ public class StoryGamePanel extends AbstractGamePanel {
         statusPanel.revalidate();
         statusPanel.repaint();
 
-        // 打字效果
         Timer storyTimer = new Timer(100, new ActionListener() {
             int index = 0;
 
@@ -182,7 +177,6 @@ public class StoryGamePanel extends AbstractGamePanel {
                 } else {
                     ((Timer) e.getSource()).stop();
 
-                    // 剧情完成后延迟2秒开始游戏
                     Timer stopTimer = new Timer(2000, new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -201,10 +195,8 @@ public class StoryGamePanel extends AbstractGamePanel {
     public void updateLanguageTexts(Language currentLanguage) {
         this.currentLanguage = currentLanguage;
         updateCommonLabels(currentLanguage);
-        // 根据语言设置剧情文本
         STORY_TEXT = getStoryTextByLanguage(currentLanguage);
 
-        // 如果状态面板当前显示剧情，则更新剧情文本
         if (!isStoryCompleted) {
             showStoryTextWithTypingEffect();
             switchToGamePanel();
@@ -213,10 +205,8 @@ public class StoryGamePanel extends AbstractGamePanel {
         int seconds = elapsedTime % 60;
         String prefix = currentLanguage == Language.CHINESE ? "时间: " : "Time: ";
 
-        // 更新步数标签、时间标签的文本
         stepLabel.setText((currentLanguage == Language.CHINESE ? "步数：" : "Steps: ") + steps);
         timeLabel.setText(String.format("%s%02d:%02d", prefix, minutes, seconds));
-        // 其他可能存在的文本也要更新...
     }
 
     private String getStoryTextByLanguage(Language language) {
@@ -269,7 +259,7 @@ public class StoryGamePanel extends AbstractGamePanel {
         textPane.setFocusable(false);
         textPane.setAlignmentX(Component.CENTER_ALIGNMENT);
         textPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));  // 内边距
-        textPane.setPreferredSize(new Dimension(400, 130));  // 宽度可调节，影响换行
+        textPane.setPreferredSize(new Dimension(400, 130));
         return textPane;
     }
 
@@ -278,7 +268,6 @@ public class StoryGamePanel extends AbstractGamePanel {
         statusPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // 保持边距
         statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.Y_AXIS));
 
-        // 设置标签居中
         stepLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         getTimeLabel().setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -291,7 +280,6 @@ public class StoryGamePanel extends AbstractGamePanel {
         statusPanel.revalidate();
         statusPanel.repaint();
 
-        // 现在才真正初始化游戏和启动计时器
         super.initialGame();
         super.setController(this.controller);
 
@@ -299,7 +287,6 @@ public class StoryGamePanel extends AbstractGamePanel {
     }
 
     public void setModeLevels(int[][][] modeLevels, int currentLevelIndex) {
-        // 在关卡开始时设置地图和索引
         if (currentLevelIndex >= 0 && currentLevelIndex < modeLevels.length) {
             model.setMatrix(modeLevels[currentLevelIndex]);
         }

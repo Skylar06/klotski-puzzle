@@ -5,12 +5,12 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 
 public class MusicPlayer {
-    private static MusicPlayer instance;  // 单例实例
+    private static MusicPlayer instance;
     private String currentPath = null;
     private Clip clip;
     private boolean isMuted = false;
 
-    private MusicPlayer() {} // 私有构造方法
+    private MusicPlayer() {}
 
     public static MusicPlayer getInstance() {
         if (instance == null) {
@@ -25,7 +25,7 @@ public class MusicPlayer {
         }
 
         try {
-            // 关闭已有音频
+            //关闭
             if (clip != null && clip.isRunning()) {
                 clip.stop();
                 clip.close();
@@ -34,7 +34,7 @@ public class MusicPlayer {
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(getClass().getResource(path));
             clip = AudioSystem.getClip();
             clip.open(audioIn);
-            clip.loop(Clip.LOOP_CONTINUOUSLY); // 循环播放
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
             currentPath = path;
 
             if (isMuted) {

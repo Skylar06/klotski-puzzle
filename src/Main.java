@@ -10,10 +10,10 @@ import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {// 确保GUI创建在事件调度线程"EDT"，否则会卡顿
-            LoginFrame loginFrame = new LoginFrame();// 创建登录窗口
-            loginFrame.setVisible(true);// 显示登录窗口
-            MapModel mapModel = new MapModel(new int[][]{// 创建游戏地图数据
+        SwingUtilities.invokeLater(() -> {
+            LoginFrame loginFrame = new LoginFrame();
+            loginFrame.setVisible(true);
+            MapModel mapModel = new MapModel(new int[][]{
                     {2, 2, 4, 4, 1},
                     {2, 2, 4, 4, 1},
                     {0, 0, 2, 2, 3},
@@ -25,9 +25,9 @@ public class Main {
             levelSelectFrame.setModel(mapModel);
             GameController gameController = new GameController(mapModel,levelSelectFrame,loginFrame);
             Leaderboard.initialize();
-//            GameFrame1 gameFrame = new GameFrame1(mapModel);// 创建游戏主窗口
-//            gameFrame.setVisible(false);// 初始隐藏游戏窗口
-//            loginFrame.setGameFrame(gameFrame);// 关联登录窗口和游戏窗口
+//            GameFrame1 gameFrame = new GameFrame1(mapModel);
+//            gameFrame.setVisible(false);
+//            loginFrame.setGameFrame(gameFrame);
         });
     }
 }

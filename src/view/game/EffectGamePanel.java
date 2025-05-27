@@ -180,18 +180,15 @@ public class EffectGamePanel extends AbstractGamePanel {
     public void setController(GameController controller) {
         super.setController(controller);
 
-        // 清除特效模式可能残留的状态
         controller.setMirrorMode(false);
         controller.setSlowMode(false);
 
-        // 如果可能存在禁用的 box，也可清空（可选）
         for (Component comp : boardPanel.getComponents()) {
             if (comp instanceof BoxComponent box) {
                 box.setDisabled(false);
             }
         }
 
-        // 设置当前镜像模式状态
         controller.setMirrorMode(this.isMirror);
     }
 

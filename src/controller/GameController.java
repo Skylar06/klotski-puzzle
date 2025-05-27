@@ -112,22 +112,22 @@ public class GameController {
             int nextCol = col + direction.getCol();
             boolean temp = false;
             if (direction == Direction.LEFT) {
-                // 向左移动时的逻辑
+                //向左
                 if (model.checkInWidthSize(nextCol) && model.getId(nextRow, nextCol) == 0) {
                     temp = true;
                 }
             } else if (direction == Direction.RIGHT) {
-                // 向右移动时的逻辑
+                //向右
                 if (model.checkInWidthSize(nextCol + 1) && model.getId(nextRow, nextCol+1) == 0) {
                     temp = true;
                 }
             } else if (direction == Direction.UP) {
-                // 向上移动时的逻辑
+                //向上
                 if (model.checkInHeightSize(nextRow) && model.getId(nextRow, nextCol) == 0 && model.getId(nextRow, nextCol + 1) == 0) {
                     temp = true;
                 }
             } else if (direction == Direction.DOWN) {
-                // 向下移动时的逻辑
+                //向下
                 if (model.checkInHeightSize(nextRow) && model.getId(nextRow, nextCol) == 0 && model.getId(nextRow, nextCol+1) == 0) {
                     temp = true;
                 }
@@ -250,7 +250,7 @@ public class GameController {
             box.setLocation(lastMove.getFromCol() * view.getGRID_SIZE(), lastMove.getFromRow() * view.getGRID_SIZE());
             box.repaint();
             view.setSteps(view.getSteps() - 1);
-            view.getStepLabel().setText(String.format("Step: %d", view.getSteps()));
+            view.getStepLabel().setText(String.format("步数: %d", view.getSteps()));
         }
     }
 

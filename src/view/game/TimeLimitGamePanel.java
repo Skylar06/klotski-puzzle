@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class TimeLimitGamePanel extends AbstractGamePanel {
-    private static final int COUNTDOWN_SECONDS = 120; // 固定倒计时
+    private static final int COUNTDOWN_SECONDS = 120;
     private JLabel countdownLabel;
     private Timer countdownTimer;
 
@@ -21,11 +21,10 @@ public class TimeLimitGamePanel extends AbstractGamePanel {
     public void setController(GameController controller) {
         super.setController(controller);
 
-        // 清除特效模式可能残留的状态
+        //清空！！
         controller.setMirrorMode(false);
         controller.setSlowMode(false);
 
-        // 如果可能存在禁用的 box，也可清空（可选）
         for (Component comp : boardPanel.getComponents()) {
             if (comp instanceof BoxComponent box) {
                 box.setDisabled(false);
@@ -34,7 +33,6 @@ public class TimeLimitGamePanel extends AbstractGamePanel {
     }
 
     private void replaceTimeLabel() {
-        // 移除原有的倒计时标签
         if (countdownLabel != null) {
             statusPanel.remove(countdownLabel);
         }
@@ -47,7 +45,6 @@ public class TimeLimitGamePanel extends AbstractGamePanel {
             }
         }
 
-        // 创建新的倒计时标签
         countdownLabel = createStyledLabel("剩余: " + formatTime(COUNTDOWN_SECONDS - this.elapsedTime),
                 "楷体", Font.BOLD, 20, Color.WHITE);
 

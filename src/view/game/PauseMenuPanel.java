@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter;
 
 public class PauseMenuPanel extends JFrame {
     private JPanel pasuePanel;
-    private JLabel pauseLabel;  // "得分" 标签
+    private JLabel pauseLabel;
     private JButton saveButton;
     private JButton loadButton;
     private JButton resumeButton;
@@ -28,18 +28,16 @@ public class PauseMenuPanel extends JFrame {
     private JButton mainMenuButton;
     private JButton soundToggleButton;
     private GameController gameController;
-    // 背景图片
     private ImageIcon backgroundImage = new ImageIcon(getClass().getClassLoader().getResource("pause_bg.gif"));
     private MusicPlayer musicPlayer;
 
     public PauseMenuPanel(String time, String steps,Language currentLanguage) {
-        // 设置主窗口
         setSize(600, 410);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // 居中显示
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
+
         this.setUndecorated(true);
-        // 创建背景面板并设置透明
         JPanel backgroundPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -48,30 +46,29 @@ public class PauseMenuPanel extends JFrame {
             }
         };
         backgroundPanel.setLayout(new BorderLayout());
-        backgroundPanel.setOpaque(true); // 确保背景面板本身不透明，用来绘制背景图
+        backgroundPanel.setOpaque(true);
         add(backgroundPanel);
 
-        // 创建胜利面板
         pasuePanel = new JPanel();
-        pasuePanel.setLayout(new BoxLayout(pasuePanel, BoxLayout.Y_AXIS));  // 使用 BoxLayout 按照垂直顺序排列组件
-        pasuePanel.setOpaque(false); // 胜利面板保持透明，覆盖在背景上
+        pasuePanel.setLayout(new BoxLayout(pasuePanel, BoxLayout.Y_AXIS));
+        pasuePanel.setOpaque(false);
 
-        // 创建一个面板来横向排列得分和其他信息
+        //信息
         JPanel scorePanel = new JPanel();
-        scorePanel.setLayout(new BorderLayout());  // 中间得分，两边为最快通关和最少步数
+        scorePanel.setLayout(new BorderLayout());
         scorePanel.setOpaque(false);
 
-        // 显示得分
+        //得分
         JPanel pasueHintPanel = new JPanel();
-        pasueHintPanel.setLayout(new GridLayout(1, 1)); // 得分部分上下排
+        pasueHintPanel.setLayout(new GridLayout(1, 1));
         pasueHintPanel.setOpaque(false);
         pauseLabel = new JLabel((currentLanguage == Language.CHINESE)?"暂停":"Pause", JLabel.CENTER);
         pauseLabel.setFont(new Font("楷体", Font.PLAIN, 40));
         pasueHintPanel.add(pauseLabel);
 
-        // 显示最快通关
+        //最快通关
         JPanel timeCountPanel = new JPanel();
-        timeCountPanel.setLayout(new GridLayout(2, 1)); // 最快通关部分上下排
+        timeCountPanel.setLayout(new GridLayout(2, 1));
         timeCountPanel.setOpaque(false);
         JLabel timeCountTextLabel = new JLabel((currentLanguage == Language.CHINESE)?"用时":"Time", JLabel.CENTER);
         timeCountTextLabel.setFont(new Font("楷体", Font.PLAIN, 20));
@@ -80,9 +77,9 @@ public class PauseMenuPanel extends JFrame {
         timeCountPanel.add(timeCountTextLabel);
         timeCountPanel.add(timeCountValueLabel);
 
-        // 显示最少步数
+        //最少步数
         JPanel stepCountPanel = new JPanel();
-        stepCountPanel.setLayout(new GridLayout(2, 1)); // 最少步数部分上下排
+        stepCountPanel.setLayout(new GridLayout(2, 1));
         stepCountPanel.setOpaque(false);
         JLabel stepCountTextLabel = new JLabel((currentLanguage == Language.CHINESE)?"步数":"Steps", JLabel.CENTER);
         stepCountTextLabel.setFont(new Font("楷体", Font.PLAIN, 20));
@@ -91,23 +88,20 @@ public class PauseMenuPanel extends JFrame {
         stepCountPanel.add(stepCountTextLabel);
         stepCountPanel.add(stepCountValueLabel);
 
-        // 将三个部分添加到scorePanel
         JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 80, 45));  // 横向排布，适当间距
+        infoPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 80, 45));
         infoPanel.setOpaque(false);
         infoPanel.add(timeCountPanel);
         infoPanel.add(pasueHintPanel);
         infoPanel.add(stepCountPanel);
 
-        // 按钮区域
-        // 创建一个BoxPanel，用BoxLayout布局，垂直排列组件
+        //按钮
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-        buttonPanel.setOpaque(false); // 保证背景透明
-
+        buttonPanel.setOpaque(false);
         JPanel upperButtonPanel = new JPanel();
         upperButtonPanel.setLayout(new BoxLayout(upperButtonPanel, BoxLayout.Y_AXIS));
-        upperButtonPanel.setOpaque(false); // 保证背景透明
+        upperButtonPanel.setOpaque(false);
 
         JPanel upperControlButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 0));
         upperControlButtonsPanel.setOpaque(false);
@@ -181,7 +175,7 @@ public class PauseMenuPanel extends JFrame {
 
         JPanel midButtonPanel = new JPanel();
         midButtonPanel.setLayout(new BoxLayout(midButtonPanel, BoxLayout.Y_AXIS));
-        midButtonPanel.setOpaque(false); // 保证背景透明
+        midButtonPanel.setOpaque(false);
 
         JPanel midControlButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         midControlButtonsPanel.setOpaque(false);
@@ -230,7 +224,7 @@ public class PauseMenuPanel extends JFrame {
         musicPlayer.play("/bgm.wav");
 
 
-        // 在按钮区域添加游客模式按钮
+        //音效按钮
         soundToggleButton = new JButton();
         if (currentLanguage == Language.CHINESE) {
             soundToggleButton.setText(isMuted ? "音效关" : "音效开");
@@ -238,16 +232,14 @@ public class PauseMenuPanel extends JFrame {
             soundToggleButton.setText(isMuted ? "Music Off" : "Music On");
         }
 
-        // 添加排行榜按钮
         soundToggleButton.setFont(new Font("楷体", Font.PLAIN, 18));
-        soundToggleButton.setForeground(Color.WHITE); // 淡灰色
+        soundToggleButton.setForeground(Color.WHITE);
         soundToggleButton.setBorderPainted(false);
         soundToggleButton.setContentAreaFilled(false);
         soundToggleButton.setFocusPainted(false);
         soundToggleButton.setOpaque(false);
         soundToggleButton.setMargin(new Insets(0, 0, 0, 0));
         soundTogglePanel.add(soundToggleButton);
-        // 添加排行榜按钮到buttonPanel
 
         upperButtonPanel.setBorder(null);
         midButtonPanel.setBorder(null);
@@ -257,7 +249,6 @@ public class PauseMenuPanel extends JFrame {
         buttonPanel.add(Box.createVerticalStrut(0));
         buttonPanel.add(soundTogglePanel);
 
-        // 设置按钮事件
         resumeButton.addActionListener(e -> {
             this.setVisible(false);
             this.gameController.gameFrame1.setVisible(true);
@@ -285,11 +276,7 @@ public class PauseMenuPanel extends JFrame {
 
             public void mousePressed(MouseEvent e) {
                 soundToggleButton.setForeground(new Color(255, 10, 0));
-
-                // 切换音效状态
                 musicPlayer.toggleMute();
-
-                // 更新按钮文字（实时状态）
                 boolean isNowMuted = musicPlayer.isMuted();
                 if (currentLanguage == Language.CHINESE) {
                     soundToggleButton.setText(isNowMuted ? "音效关" : "音效开");
@@ -302,23 +289,21 @@ public class PauseMenuPanel extends JFrame {
         });
 
 
-        // 将组件添加到胜利面板
         pasuePanel.add(Box.createVerticalStrut(20));
         pasuePanel.add(infoPanel);
-        pasuePanel.add(buttonPanel,BorderLayout.SOUTH);// 添加得分和其他信息
+        pasuePanel.add(buttonPanel,BorderLayout.SOUTH);
 
-        // 将胜利面板添加到背景面板
         backgroundPanel.add(pasuePanel, BorderLayout.CENTER);
     }
 
     private void setupButton(JButton button) {
         button.setBorderPainted(false);
-        button.setContentAreaFilled(false);  // 确保按钮背景透明
+        button.setContentAreaFilled(false);
         button.setFocusPainted(false);
         button.setOpaque(false);
         button.setFont(new Font("楷体", Font.BOLD, 18));
 
-        // 设置按钮图标并调整尺寸
+
         ImageIcon originalIcon1 = new ImageIcon(getClass().getClassLoader().getResource("btn1.png"));
         Image scaledImage1 = originalIcon1.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
         button.setIcon(new ImageIcon(scaledImage1));
@@ -329,13 +314,12 @@ public class PauseMenuPanel extends JFrame {
         ImageIcon originalIcon3 = new ImageIcon(getClass().getClassLoader().getResource("btn2.png"));
         Image scaledImage3 = originalIcon3.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
 
-        // 设置按钮文字
         button.setText(button.getText());
-        button.setForeground(new Color(60, 30, 0)); // 文字颜色
-        button.setHorizontalTextPosition(SwingConstants.CENTER); // 文字居中
-        button.setVerticalTextPosition(SwingConstants.CENTER);  // 文字放在图标下方
+        button.setForeground(new Color(60, 30, 0));
+        button.setHorizontalTextPosition(SwingConstants.CENTER);
+        button.setVerticalTextPosition(SwingConstants.CENTER);
 
-        button.setPreferredSize(new Dimension(120, 90));  // 增加高度以容纳文字
+        button.setPreferredSize(new Dimension(120, 90));
         button.setMaximumSize(new Dimension(120, 90));
 
         button.addMouseListener(new MouseAdapter() {
@@ -375,7 +359,6 @@ public class PauseMenuPanel extends JFrame {
     }
 
     public static void main(String[] args) {
-        // 测试胜利界面
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

@@ -6,12 +6,11 @@ import javax.swing.JOptionPane;
 
 public class Leaderboard {
     public static Leaderboard instance;
-    private ArrayList<String> usersList; // 用户名列表
-    private ArrayList<Integer> stepsList; // 步数列表
-    private ArrayList<Integer> timesList;  // 时间列表
+    private ArrayList<String> usersList;
+    private ArrayList<Integer> stepsList;
+    private ArrayList<Integer> timesList;
     private static final String SAVE_FILE = "rank.txt";
 
-    // 私有构造函数，确保单例模式
     private Leaderboard() {
         usersList = new ArrayList<>();
         stepsList = new ArrayList<>();
@@ -19,7 +18,7 @@ public class Leaderboard {
         loadFromSystem();
     }
 
-    // 获取排行榜实例
+    //获取排行榜实例
     public static Leaderboard getInstance() {
         if (instance == null) {
             instance = new Leaderboard();
@@ -27,16 +26,15 @@ public class Leaderboard {
         return instance;
     }
 
-    // 从系统中读取已有的排行榜数据
+    //读取数据
     private void loadFromSystem() {
         File file = new File(SAVE_FILE);
         if (!file.exists()) {
             try {
-                // 如果文件不存在，创建一个新文件
                 file.createNewFile();
             } catch (IOException e) {
                 showErrorDialog("创建排行榜文件时出错", e);
-                return; // 创建文件失败，返回
+                return;
             }
         }
 
@@ -60,12 +58,10 @@ public class Leaderboard {
         }
     }
 
-    // 计算得分
     private int calculateScore(int steps, int time) {
         return 1000 - steps * 5 - time * 3;
     }
 
-    // 更新用户记录，只保留最高成绩
     public void updateRecord(String user, int steps, int time) {
         for (int i = 0; i < usersList.size(); i++) {
             if (usersList.get(i).equals(user)) {
@@ -78,16 +74,15 @@ public class Leaderboard {
                 return;
             }
         }
-        // 如果用户不存在，添加新记录
-        addRecord(user, steps, time);
+        usersList.add(user);
+        stepsList.add(steps);
+        timesList.add(time);
     }
 
-    // 当用户获胜时，将步数和时间添加到排行榜，只保留最高成绩
     public void addRecord(String user, int steps, int time) {
         updateRecord(user, steps, time);
     }
 
-    // 将排行榜数据保存到系统
     private void saveToSystem() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(SAVE_FILE))) {
             for (int i = 0; i < usersList.size(); i++) {
@@ -99,28 +94,24 @@ public class Leaderboard {
         }
     }
 
-    // 显示错误对话框
     private void showErrorDialog(String message, Exception e) {
         JOptionPane.showMessageDialog(null, message + ": " + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
     }
 
-    // 获取最快时间
     public int getFastestTime() {
         if (timesList.isEmpty()) {
-            return 2147483647; // 如果没有记录，返回一个极大值
+            return 2147483647;
         }
         return timesList.stream().min(Integer::compare).orElse(0);
     }
 
-    // 获取最快步数
     public int getFastestSteps() {
         if (stepsList.isEmpty()) {
-            return 2147483647; // 如果没有记录，返回一个极大值
+            return 2147483647;
         }
         return stepsList.stream().min(Integer::compare).orElse(0);
     }
 
-    // 获取用户名列表
     public ArrayList<String> getUsersList() {
         return usersList;
     }

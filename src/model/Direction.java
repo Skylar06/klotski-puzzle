@@ -1,10 +1,10 @@
 package model;
 
 public enum Direction {
-    LEFT(0, -1), // 行变化0，列减1
-    UP(-1, 0),// 行减1，列不变
-    RIGHT(0, 1),// 行不变，列加1
-    DOWN(1, 0);// 行加1，列不变
+    LEFT(0, -1),
+    UP(-1, 0),
+    RIGHT(0, 1),
+    DOWN(1, 0);
 
     private final int row;
     private final int col;

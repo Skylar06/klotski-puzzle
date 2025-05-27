@@ -34,8 +34,8 @@ public class LevelSelectFrame extends JFrame {
     private JButton backBtn;
     private JPanel carouselPanel;
     private Language currentLanguage = Language.CHINESE;
-    private JPanel imageContainer; // 在类成员变量声明处添加
-    private int currentCarouselIndex = 1; // 默认显示中间关卡
+    private JPanel imageContainer;
+    private int currentCarouselIndex = 1;
     private List<String> carouselImages = Arrays.asList("battle.png", "classic.png", "extreme.png");
     private GameController gameController;
     private MapModel model;
@@ -51,7 +51,7 @@ public class LevelSelectFrame extends JFrame {
         this.setSize(1000, 750);
         this.setLocationRelativeTo(null);
 
-        // 背景图层：自动缩放
+        //背景
         JPanel bgPanel = new JPanel() {
             Image bg = new ImageIcon(getClass().getClassLoader().getResource("background.gif")).getImage();
 
@@ -63,49 +63,40 @@ public class LevelSelectFrame extends JFrame {
         };
         bgPanel.setLayout(new BorderLayout());
 
-        // 顶部按钮面板
         JPanel topPanel = createTopPanel();
         bgPanel.add(topPanel, BorderLayout.NORTH);
 
-        // 中部面板（标题 + 轮播）
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setOpaque(false);
-        addTitleLabel(centerPanel); // 添加标题
-        carouselPanel = createCarouselPanel(); // 轮播面板
+        addTitleLabel(centerPanel);
+        carouselPanel = createCarouselPanel();
         centerPanel.add(carouselPanel);
         bgPanel.add(centerPanel, BorderLayout.CENTER);
 
-        // 底部按钮面板
         JPanel bottomPanel = createBottomPanel();
         bgPanel.add(bottomPanel, BorderLayout.SOUTH);
 
-        // 叠加面板：OverlayLayout 自动撑满 & 层级可控
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setLayout(new OverlayLayout(layeredPane));
         this.setContentPane(layeredPane);
 
-        // 层级0：背景主面板
+        //火盆
         layeredPane.add(bgPanel, Integer.valueOf(0));
         bgPanel.setAlignmentX(0.5f);
         bgPanel.setAlignmentY(0.5f);
 
-        // 层级1：半透明暗层
         darkOverlayPanel = new TransparentPanel(0.4f);
         layeredPane.add(darkOverlayPanel, Integer.valueOf(1));
         darkOverlayPanel.setAlignmentX(0.5f);
         darkOverlayPanel.setAlignmentY(0.5f);
 
-        // 层级2：火盆图标（默认静态）
-        // 层级2：火盆图标
         flameLabel = new JLabel(new ImageIcon(getClass().getClassLoader().getResource("pen.png")));
 
-// 用透明面板包裹火盆图标，并贴右下角
         JPanel flameWrapper = new JPanel();
         flameWrapper.setOpaque(false);
         flameWrapper.setLayout(new BorderLayout());
 
-// 内部右下角容器
         JPanel bottomRightPanel = new JPanel();
         bottomRightPanel.setOpaque(false);
         bottomRightPanel.setLayout(new BoxLayout(bottomRightPanel, BoxLayout.LINE_AXIS));
@@ -113,7 +104,6 @@ public class LevelSelectFrame extends JFrame {
         bottomRightPanel.add(flameLabel);
         bottomRightPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 30)); // 右下边距
 
-// 垂直方向靠底部
         JPanel verticalBox = new JPanel();
         verticalBox.setOpaque(false);
         verticalBox.setLayout(new BoxLayout(verticalBox, BoxLayout.PAGE_AXIS));
@@ -122,12 +112,10 @@ public class LevelSelectFrame extends JFrame {
 
         flameWrapper.add(verticalBox, BorderLayout.CENTER);
 
-// 添加到 layeredPane 的最上层
         layeredPane.add(flameWrapper, Integer.valueOf(2));
         flameWrapper.setAlignmentX(0.5f);
         flameWrapper.setAlignmentY(0.5f);
 
-        // 鼠标悬停点燃动画
         flameLabel.addMouseListener(new MouseAdapter() {
             boolean lit = false;
 
@@ -135,13 +123,10 @@ public class LevelSelectFrame extends JFrame {
             public void mouseEntered(MouseEvent e) {
                 if (lit) return;
                 lit = true;
-
-                // 设置火焰动画
                 ImageIcon flameIcon = new ImageIcon(getClass().getClassLoader().getResource("flame.png"));
                 flameLabel.setIcon(flameIcon);
                 playIgniteSound();
 
-                // 淡出黑暗层动画
                 Timer fadeTimer = new Timer(30, null);
                 fadeTimer.addActionListener(new ActionListener() {
                     float alpha = 0.4f;
@@ -183,7 +168,7 @@ public class LevelSelectFrame extends JFrame {
         }).start();
     }
 
-    // 自定义半透明面板
+    //半透明
     static class TransparentPanel extends JPanel {
         private float alpha;
 
@@ -209,32 +194,27 @@ public class LevelSelectFrame extends JFrame {
     }
 
     private void addTitleLabel(JPanel container) {
-        // 创建标题标签
         titleLabel = new JLabel("关卡选择", SwingConstants.CENTER);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("titleFont.ttf")) {
-            // 加载并应用自定义字体
-            Font titleFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(60f);  // 放大到60
+            Font titleFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(60f);
             GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(titleFont);
             titleLabel.setFont(titleFont);
         } catch (Exception e) {
-            // 如果加载自定义字体失败，使用备用字体
-            titleLabel.setFont(new Font("Serif", Font.BOLD, 80));  // 备用字体也放大
+            titleLabel.setFont(new Font("Serif", Font.BOLD, 80));
         }
 
-        // 设置字体颜色
         titleLabel.setForeground(new Color(80, 40, 0));
 
-        // 创建一个面板用于放置标题
         JPanel titlePanel = new JPanel();
         titlePanel.setOpaque(false);
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
-        titlePanel.add(Box.createVerticalStrut(0)); // 调整标题上下间距
+        titlePanel.add(Box.createVerticalStrut(0));
         titlePanel.add(titleLabel);
         titlePanel.add(Box.createVerticalStrut(0));
 
-        container.add(titlePanel); // 将标题放在顶部
+        container.add(titlePanel);
     }
 
 
@@ -243,7 +223,7 @@ public class LevelSelectFrame extends JFrame {
         topPanel.setOpaque(false);
         topPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        // 左侧图标按钮
+        //图标按钮
         JPanel iconPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
         iconPanel.setOpaque(false);
         helpBtn = createHoverButton("help.png", (currentLanguage == Language.CHINESE) ?"帮助":"Help");
@@ -258,7 +238,7 @@ public class LevelSelectFrame extends JFrame {
             frame.setVisible(true);
         });
 
-        // 右侧语言按钮
+        //语言按钮
         JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         langPanel.setOpaque(false);
         languageBtn = new JButton("中原/外邦");
@@ -280,13 +260,12 @@ public class LevelSelectFrame extends JFrame {
         panel.setOpaque(false);
         panel.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50)); // 保留内边距
 
-        // 创建箭头按钮
+        //箭头按钮
         JButton leftArrow = createArrowButton("leftarrow.png");
         JButton rightArrow = createArrowButton("rightarrow.png");
         leftArrow.addActionListener(e -> updateCarousel(-1));
         rightArrow.addActionListener(e -> updateCarousel(1));
 
-        // 创建主内容容器，横向排列：← imageContainer →
         JPanel contentRow = new JPanel();
         contentRow.setLayout(new BoxLayout(contentRow, BoxLayout.X_AXIS));
         contentRow.setOpaque(false);
@@ -346,7 +325,7 @@ public class LevelSelectFrame extends JFrame {
         loadBtn.addActionListener(
                 event -> {
                     if (this.gameController.isVisitor()){
-                        JOptionPane.showMessageDialog(this, "不录之身禁止导入");
+                        showLoginError("不录之身禁止导入");
                         return;
                     }
                     JFileChooser jf = new JFileChooser(".");
@@ -371,16 +350,16 @@ public class LevelSelectFrame extends JFrame {
                         String fileName = jf.getSelectedFile().getName();
                         String lastName = fileName.substring(fileName.lastIndexOf(".") + 1);
                         if (!lastName.equals("txt")) {
-                            JOptionPane.showMessageDialog(this, "请选择一个txt格式的文件");
+                            showLoginError( "请选择一个txt格式的文件");
                             return;
                         }
                         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(jf.getSelectedFile().getPath()))) {
                             Save temp = (Save) in.readObject();
                             if (!temp.user.equals(this.gameController.getUser())) {
-                                JOptionPane.showMessageDialog(this, "您只能读取属于您的存档");
+                                showLoginError("您只能读取属于您的存档");
                                 return;
                             }
-                            // 加载游戏状态
+                            //加载游戏状态
                             int[][] savedMatrix = temp.model.getMatrix();
                             model.setMatrix(savedMatrix);
                             this.gameController.setModel(temp.model);
@@ -392,13 +371,13 @@ public class LevelSelectFrame extends JFrame {
                             this.gameController.gameFrame1.getGamePanel().getCurrentPanel().setElapsedTime(temp.time);
                             this.gameController.gameFrame1.getGamePanel().getCurrentPanel().setSteps(temp.step);
                         } catch (FileNotFoundException e) {
-                            JOptionPane.showMessageDialog(this, "初来乍到，未染红尘");
+                            showLoginError("初来乍到，未染红尘");
                         } catch (StreamCorruptedException e) {
-                            JOptionPane.showMessageDialog(this, "文件损坏或格式不正确: " + e.getMessage());
+                            showLoginError("文件损坏或格式不正确: " + e.getMessage());
                         } catch (IOException e) {
-                            JOptionPane.showMessageDialog(this, "读取文件时发生错误: " + e.getMessage());
+                            showLoginError("读取文件时发生错误: " + e.getMessage());
                         } catch (ClassNotFoundException e) {
-                            JOptionPane.showMessageDialog(this, "保存的文件中包含未知的类: " + e.getMessage());
+                            showLoginError("保存的文件中包含未知的类: " + e.getMessage());
                         }
                     }
                 }
@@ -406,15 +385,45 @@ public class LevelSelectFrame extends JFrame {
 
         backBtn.addActionListener(
                 e -> {
-                    this.dispose(); // 关闭当前关卡选择界面
+                    this.dispose();
                     this.setVisible(false);
                     if (loginFrame != null) {
-                        loginFrame.setVisible(true); // 打开登录界面
+                        loginFrame.setVisible(true);
                     }
                 }
         );
-
         return panel;
+    }
+
+    private void showLoginError(String message) {
+        playSound("error.wav");
+        shakeWindow(this);
+        new view.login.HintScreen(message,currentLanguage).setVisible(true);
+    }
+    private void playSound(String resourcePath) {
+        try {
+            URL soundURL = getClass().getClassLoader().getResource(resourcePath);
+            if (soundURL == null) {
+                System.err.println("找不到资源文件: " + resourcePath);
+                return;
+            }
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundURL);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInput);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void shakeWindow(JFrame frame) {
+        int x = frame.getX();
+        int y = frame.getY();
+        for (int i = 0; i < 10; i++) {
+            frame.setLocation(x + (i % 2 == 0 ? 5 : -5), y);
+            try { Thread.sleep(30); } catch (InterruptedException e) { }
+        }
+        frame.setLocation(x, y);
     }
 
     private JButton createHoverButton(String imagePath, String text) {
@@ -459,8 +468,6 @@ public class LevelSelectFrame extends JFrame {
         return button;
     }
 
-
-    // 修改updateCarousel方法，添加日志输出
     private void updateCarousel(int direction) {
         currentCarouselIndex = (currentCarouselIndex + direction + carouselImages.size()) % carouselImages.size();
         imageContainer.removeAll();
@@ -469,7 +476,6 @@ public class LevelSelectFrame extends JFrame {
         int current = currentCarouselIndex % carouselImages.size();
         int next = (currentCarouselIndex + 1) % carouselImages.size();
 
-        // 添加淡入淡出效果
         imageContainer.add(createCarouselImageWithFade(carouselImages.get(prev), false));
         imageContainer.add(Box.createHorizontalStrut(20));
         imageContainer.add(createCarouselImageWithFade(carouselImages.get(current), true));
@@ -488,7 +494,6 @@ public class LevelSelectFrame extends JFrame {
         label.setAlignmentY(Component.CENTER_ALIGNMENT);
         label.setPreferredSize(new Dimension(size, size));
 
-        // 使用 Timer 来实现淡入效果
         Timer fadeInTimer = new Timer(30, new ActionListener() {
             int alpha = 0;
             @Override
@@ -498,7 +503,7 @@ public class LevelSelectFrame extends JFrame {
                     ((Timer)e.getSource()).stop();
                 }
                 label.setOpaque(true);
-                label.setBackground(new Color(0, 0, 0, alpha));  // 修改透明度
+                label.setBackground(new Color(0, 0, 0, alpha));
                 label.repaint();
             }
         });
@@ -518,9 +523,8 @@ public class LevelSelectFrame extends JFrame {
         return label;
     }
 
-    // 修改图片加载方法，添加错误处理
     private Image getScaledImage(String imagePath, int width, int height) {
-        URL url = getClass().getResource("/" + imagePath); // 添加斜杠确保从根目录查找
+        URL url = getClass().getResource("/" + imagePath);
         if (url == null) {
             System.err.println("图片资源未找到: " + imagePath);
             return new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -560,7 +564,7 @@ public class LevelSelectFrame extends JFrame {
 
         JButton button = new JButton(scaledIcon);
         button.setToolTipText(tooltip);
-        button.setPreferredSize(new Dimension(50, 50)); // 设置大小，避免撑开
+        button.setPreferredSize(new Dimension(50, 50));
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setFocusPainted(false);

@@ -253,16 +253,14 @@ public class GameFrame1 extends JFrame {
            this.gameController.undoLastMove();
         });
         aiButton.addActionListener(e -> {
-            // 获取当前游戏面板的棋盘状态
             AbstractGamePanel currentPanel = gamePanel.getCurrentPanel();
             int[][] currentBoard = getBoardFromPanel(currentPanel);
 
-            // 使用 AI 获取解决方案
             java.util.List<KlotskiAI.Move> solution = KlotskiAI.solveKlotski(currentBoard);
 
             if (solution != null && !((java.util.List<?>) solution).isEmpty()) {
                 KlotskiAI.Move nextMove = (KlotskiAI.Move) ((java.util.List<?>) solution).get(0); // 获取下一步移动
-                showAIMoveHint(nextMove); // 显示提示
+                showAIMoveHint(nextMove);
             } else {
                 JOptionPane.showMessageDialog(this, "AI未能找到解决方案！", "AI提示", JOptionPane.INFORMATION_MESSAGE);
             }
